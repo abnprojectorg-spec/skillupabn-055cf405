@@ -874,12 +874,18 @@ const AdminPanel = () => {
           {activeTab === "file-payments" && (
             <div>
               <h1 className="font-display text-2xl font-bold mb-6">File Payment Requests</h1>
-              <div className="flex gap-2 mb-6">
-                {["all", "pending", "approved", "rejected"].map((s) => (
-                  <Button key={s} size="sm" variant={fileStatusFilter === s ? "default" : "outline"} onClick={() => setFileStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
-                    {s} {s === "pending" && filePendingCount > 0 && `(${filePendingCount})`}
-                  </Button>
-                ))}
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search by name, email or transaction ID..." value={filePaymentSearch} onChange={(e) => setFilePaymentSearch(e.target.value)} className="pl-9" />
+                </div>
+                <div className="flex gap-2">
+                  {["all", "pending", "approved", "rejected"].map((s) => (
+                    <Button key={s} size="sm" variant={fileStatusFilter === s ? "default" : "outline"} onClick={() => setFileStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
+                      {s} {s === "pending" && filePendingCount > 0 && `(${filePendingCount})`}
+                    </Button>
+                  ))}
+                </div>
               </div>
 
               {filePaymentsLoading ? (
