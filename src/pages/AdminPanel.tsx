@@ -9,15 +9,18 @@ import Navbar from "@/components/Navbar";
 import {
   useCourses, useUsers, usePaymentRequests, useCourseProject, useCommunityLinks,
   useEbooks, useEbookPaymentRequests,
+  useDigitalFiles, useFilePaymentRequests,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
   saveCourseProject, deleteCourseProject,
   saveCommunityLink, deleteCommunityLink,
   addEbook, updateEbook, deleteEbook,
   approveEbookPayment, rejectEbookPayment, deleteEbookPaymentRequest,
+  addDigitalFile, updateDigitalFile, deleteDigitalFile,
+  approveFilePayment, rejectFilePayment, deleteFilePaymentRequest,
   checkIsAdmin, updateUser, deleteUser, removeUserCourseAccess, enrollUser,
 } from "@/hooks/useFirestore";
-import type { FirestoreCourse, FirestoreEbook, FirestoreUser } from "@/hooks/useFirestore";
+import type { FirestoreCourse, FirestoreEbook, FirestoreDigitalFile, FirestoreUser } from "@/hooks/useFirestore";
 import { CATEGORIES } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
