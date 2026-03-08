@@ -30,6 +30,7 @@ import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
   CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings,
 } from "lucide-react";
+import AdminAnalytics from "@/components/AdminAnalytics";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
