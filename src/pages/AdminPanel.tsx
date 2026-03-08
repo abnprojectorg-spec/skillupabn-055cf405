@@ -30,6 +30,7 @@ const ADMIN_TABS = [
   { id: "courses", label: "Courses", icon: BookOpen },
   { id: "lessons", label: "Lessons", icon: FileText },
   { id: "projects", label: "Projects", icon: Award },
+  { id: "community", label: "Community Links", icon: Link2 },
   { id: "users", label: "Users", icon: Users },
 ];
 
