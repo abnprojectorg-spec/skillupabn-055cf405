@@ -499,6 +499,151 @@ const AdminPanel = () => {
           )}
 
 
+          {/* Ebooks Management */}
+          {activeTab === "ebooks" && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="font-display text-2xl font-bold">Manage Ebooks</h1>
+                <Button variant="hero" onClick={() => { setEditingEbook(null); setEbookForm(emptyEbook); setShowAddEbook(true); }} className="hover:scale-105 transition-transform">
+                  <Plus className="h-4 w-4 mr-1" /> Add Ebook
+                </Button>
+              </div>
+
+              {showAddEbook && (
+                <div className="mb-8 rounded-2xl border border-border bg-card p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-display text-lg font-semibold">{editingEbook ? "Edit Ebook" : "New Ebook"}</h2>
+                    <button onClick={() => { setShowAddEbook(false); setEditingEbook(null); }}><X className="h-5 w-5 text-muted-foreground" /></button>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div><Label>Title</Label><Input value={ebookForm.title} onChange={(e) => setEbookForm({...ebookForm, title: e.target.value})} placeholder="Ebook title" className="mt-1" /></div>
+                    <div><Label>Author</Label><Input value={ebookForm.author} onChange={(e) => setEbookForm({...ebookForm, author: e.target.value})} placeholder="Author name" className="mt-1" /></div>
+                    <div><Label>Price (ETB)</Label><Input type="number" value={ebookForm.price || ""} onChange={(e) => setEbookForm({...ebookForm, price: Number(e.target.value)})} placeholder="199" className="mt-1" /></div>
+                    <div><Label>Pages</Label><Input type="number" value={ebookForm.pages || ""} onChange={(e) => setEbookForm({...ebookForm, pages: Number(e.target.value)})} placeholder="250" className="mt-1" /></div>
+                    <div><Label>Short Description</Label><Input value={ebookForm.shortDescription} onChange={(e) => setEbookForm({...ebookForm, shortDescription: e.target.value})} placeholder="Brief summary" className="mt-1" /></div>
+                    <div><Label>Cover Image URL</Label><Input value={ebookForm.coverImage} onChange={(e) => setEbookForm({...ebookForm, coverImage: e.target.value})} placeholder="https://..." className="mt-1" /></div>
+                    <div><Label>PDF URL</Label><Input value={ebookForm.pdfUrl} onChange={(e) => setEbookForm({...ebookForm, pdfUrl: e.target.value})} placeholder="https://...ebook.pdf" className="mt-1" /></div>
+                    <div><Label>Telebirr QR Code URL</Label><Input value={ebookForm.qrCodeUrl} onChange={(e) => setEbookForm({...ebookForm, qrCodeUrl: e.target.value})} placeholder="https://...qr-code.png" className="mt-1" /></div>
+                    <div className="sm:col-span-2"><Label>Description</Label><Textarea value={ebookForm.description} onChange={(e) => setEbookForm({...ebookForm, description: e.target.value})} placeholder="Full description..." className="mt-1" /></div>
+                    <div className="sm:col-span-2"><Label>What You'll Learn (one item per line)</Label><Textarea value={ebookForm.whatYouWillLearn} onChange={(e) => setEbookForm({...ebookForm, whatYouWillLearn: e.target.value})} placeholder="Core concepts of marketing&#10;How to build a brand&#10;..." rows={5} className="mt-1" /></div>
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <Button variant="hero" onClick={handleSaveEbook} className="hover:scale-105 transition-transform">
+                      {editingEbook ? "Update Ebook" : "Save Ebook"}
+                    </Button>
+                    <Button variant="outline" onClick={() => { setShowAddEbook(false); setEditingEbook(null); }}>Cancel</Button>
+                  </div>
+                </div>
+              )}
+
+              {ebooksLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : (
+                <div className="rounded-xl border border-border bg-card overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-secondary">
+                      <tr>
+                        <th className="text-left p-3 font-medium">Title</th>
+                        <th className="text-left p-3 font-medium">Author</th>
+                        <th className="text-left p-3 font-medium">Price</th>
+                        <th className="text-left p-3 font-medium">Pages</th>
+                        <th className="text-left p-3 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ebooks.map((e) => (
+                        <tr key={e.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
+                          <td className="p-3 font-medium">{e.title}</td>
+                          <td className="p-3 text-muted-foreground">{e.author}</td>
+                          <td className="p-3">{e.price} ETB</td>
+                          <td className="p-3">{e.pages}</td>
+                          <td className="p-3">
+                            <div className="flex gap-1">
+                              <Button size="icon" variant="ghost" onClick={() => handleEditEbook(e)} className="hover:bg-primary/10 transition-colors">
+                                <Edit className="h-4 w-4 text-primary" />
+                              </Button>
+                              <Button size="icon" variant="ghost" onClick={() => handleDeleteEbook(e.id)} className="hover:bg-destructive/10 transition-colors">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {ebooks.length === 0 && (
+                        <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No ebooks yet.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Ebook Payments */}
+          {activeTab === "ebook-payments" && (
+            <div>
+              <h1 className="font-display text-2xl font-bold mb-6">Ebook Payment Requests</h1>
+              <div className="flex gap-2 mb-6">
+                {["all", "pending", "approved", "rejected"].map((s) => (
+                  <Button key={s} size="sm" variant={ebookStatusFilter === s ? "default" : "outline"} onClick={() => setEbookStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
+                    {s} {s === "pending" && ebookPendingCount > 0 && `(${ebookPendingCount})`}
+                  </Button>
+                ))}
+              </div>
+
+              {ebookPaymentsLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : (
+                <div className="rounded-xl border border-border bg-card overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-secondary">
+                      <tr>
+                        <th className="text-left p-3 font-medium">User</th>
+                        <th className="text-left p-3 font-medium">Ebook</th>
+                        <th className="text-left p-3 font-medium">Transaction ID</th>
+                        <th className="text-left p-3 font-medium">Status</th>
+                        <th className="text-left p-3 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredEbookRequests.map((req) => (
+                        <tr key={req.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
+                          <td className="p-3">
+                            <p className="font-medium">{req.userName}</p>
+                            <p className="text-xs text-muted-foreground">{req.userEmail}</p>
+                          </td>
+                          <td className="p-3 font-medium">{req.ebookTitle}</td>
+                          <td className="p-3"><span className="font-mono tracking-wider text-foreground">{req.transactionId || "—"}</span></td>
+                          <td className="p-3"><Badge className={`${STATUS_COLORS[req.status]} capitalize`}>{req.status}</Badge></td>
+                          <td className="p-3">
+                            <div className="flex gap-1">
+                              {req.status === "pending" && (
+                                <>
+                                  <Button size="icon" variant="ghost" onClick={() => handleApproveEbookPayment(req)} title="Approve" className="hover:bg-accent/10 hover:text-accent transition-colors">
+                                    <CheckCircle className="h-4 w-4 text-accent" />
+                                  </Button>
+                                  <Button size="icon" variant="ghost" onClick={() => handleRejectEbookPayment(req.id)} title="Reject" className="hover:bg-destructive/10 hover:text-destructive transition-colors">
+                                    <XCircle className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </>
+                              )}
+                              <Button size="icon" variant="ghost" onClick={() => handleDeleteEbookPayment(req.id)} title="Delete" className="hover:bg-destructive/10 transition-colors">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {filteredEbookRequests.length === 0 && (
+                        <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No ebook payment requests found.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Community Links Management */}
           {activeTab === "community" && <CommunityLinksManager toast={toast} />}
 
