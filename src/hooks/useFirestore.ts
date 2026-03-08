@@ -167,7 +167,8 @@ export function usePaymentRequests() {
       (snap) => {
         setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() } as PaymentRequest)));
         setLoading(false);
-      }
+      },
+      (error) => { console.error("Payment requests error:", error); setLoading(false); }
     );
     return unsub;
   }, []);
