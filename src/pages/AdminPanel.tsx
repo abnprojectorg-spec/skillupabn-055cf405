@@ -34,6 +34,7 @@ import {
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "payments", label: "Payments", icon: CreditCard },
+  { id: "completions", label: "Completions", icon: CheckCircle },
   { id: "courses", label: "Courses", icon: BookOpen },
   { id: "ebooks", label: "Ebooks", icon: Book },
   { id: "ebook-payments", label: "Ebook Payments", icon: CreditCard },
@@ -42,6 +43,7 @@ const ADMIN_TABS = [
   { id: "projects", label: "Projects", icon: Award },
   { id: "community", label: "Community Links", icon: Link2 },
   { id: "users", label: "Users", icon: Users },
+  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
