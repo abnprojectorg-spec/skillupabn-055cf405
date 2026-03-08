@@ -60,7 +60,6 @@ export interface PaymentRequest {
   userName: string;
   courseId: string;
   courseTitle: string;
-  screenshotURL: string;
   transactionId: string;
   status: "pending" | "approved" | "rejected";
   createdAt: unknown;
