@@ -1,18 +1,42 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import { GraduationCap } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const SignupPage = () => {
   const [form, setForm] = useState({ fullName: "", email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const { signup, loginWithGoogle } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Firebase auth integration placeholder
-    console.log("Signup:", form);
+    setLoading(true);
+    try {
+      await signup(form.email, form.password, form.fullName);
+      toast({ title: "Account created!" });
+      navigate("/dashboard");
+    } catch (err: any) {
+      toast({ title: "Signup failed", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    try {
+      await loginWithGoogle();
+      toast({ title: "Welcome!" });
+      navigate("/dashboard");
+    } catch (err: any) {
+      toast({ title: "Google signup failed", description: err.message, variant: "destructive" });
+    }
   };
 
   return (
@@ -40,12 +64,14 @@ const SignupPage = () => {
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" placeholder="••••••••" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="mt-1" />
             </div>
-            <Button type="submit" variant="hero" className="w-full" size="lg">Create Account</Button>
+            <Button type="submit" variant="hero" className="w-full" size="lg" disabled={loading}>
+              {loading ? "Creating…" : "Create Account"}
+            </Button>
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
               <div className="relative flex justify-center text-xs"><span className="bg-card px-2 text-muted-foreground">or</span></div>
             </div>
-            <Button type="button" variant="outline" className="w-full" size="lg">
+            <Button type="button" variant="outline" className="w-full" size="lg" onClick={handleGoogle}>
               <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4 mr-2" />
               Continue with Google
             </Button>

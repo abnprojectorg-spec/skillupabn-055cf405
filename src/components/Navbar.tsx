@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, GraduationCap } from "lucide-react";
+import { Menu, X, GraduationCap, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -26,10 +28,7 @@ const Navbar = () => {
         <div className="hidden items-center gap-1 md:flex">
           {navLinks.map((link) => (
             <Link key={link.href} to={link.href}>
-              <Button
-                variant={location.pathname === link.href ? "secondary" : "ghost"}
-                size="sm"
-              >
+              <Button variant={location.pathname === link.href ? "secondary" : "ghost"} size="sm">
                 {link.label}
               </Button>
             </Link>
@@ -37,12 +36,16 @@ const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Link to="/login">
-            <Button variant="ghost" size="sm">Login</Button>
-          </Link>
-          <Link to="/signup">
-            <Button variant="hero" size="sm">Sign Up</Button>
-          </Link>
+          {user ? (
+            <Button variant="ghost" size="sm" onClick={logout}>
+              <LogOut className="h-4 w-4 mr-1" /> Logout
+            </Button>
+          ) : (
+            <>
+              <Link to="/login"><Button variant="ghost" size="sm">Login</Button></Link>
+              <Link to="/signup"><Button variant="hero" size="sm">Sign Up</Button></Link>
+            </>
+          )}
         </div>
 
         <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
@@ -59,12 +62,20 @@ const Navbar = () => {
               </Link>
             ))}
             <hr className="my-2 border-border" />
-            <Link to="/login" onClick={() => setIsOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">Login</Button>
-            </Link>
-            <Link to="/signup" onClick={() => setIsOpen(false)}>
-              <Button variant="hero" className="w-full">Sign Up</Button>
-            </Link>
+            {user ? (
+              <Button variant="ghost" className="w-full justify-start" onClick={() => { logout(); setIsOpen(false); }}>
+                <LogOut className="h-4 w-4 mr-1" /> Logout
+              </Button>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setIsOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start">Login</Button>
+                </Link>
+                <Link to="/signup" onClick={() => setIsOpen(false)}>
+                  <Button variant="hero" className="w-full">Sign Up</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
