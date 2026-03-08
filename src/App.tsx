@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import MarketplacePage from "./pages/MarketplacePage";
 import CourseDetailPage from "./pages/CourseDetailPage";
 import StudentDashboard from "./pages/StudentDashboard";
+import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/marketplace" element={<MarketplacePage />} />
             <Route path="/course/:id" element={<CourseDetailPage />} />
             <Route path="/dashboard" element={<StudentDashboard />} />
+            <Route path="/admin-login" element={<AdminLoginPage />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
