@@ -906,6 +906,12 @@ const AdminPanel = () => {
           {/* Projects Management */}
           {activeTab === "projects" && <ProjectsManager courses={courses} toast={toast} />}
 
+          {/* Completions */}
+          {activeTab === "completions" && <CompletionsManager toast={toast} />}
+
+          {/* Settings */}
+          {activeTab === "settings" && <AdminSettingsManager toast={toast} />}
+
           {/* Users */}
           {activeTab === "users" && (
             <UsersManager users={users} courses={courses} loading={usersLoading} toast={toast} />
