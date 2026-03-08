@@ -441,20 +441,6 @@ const AdminPanel = () => {
         </main>
       </div>
 
-      {/* Screenshot Preview Modal */}
-      {screenshotPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4" onClick={() => setScreenshotPreview(null)}>
-          <div className="max-w-2xl max-h-[80vh] rounded-2xl border border-border bg-card p-4 overflow-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-display font-semibold">Payment Screenshot</h3>
-              <button onClick={() => setScreenshotPreview(null)}>
-                <X className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-              </button>
-            </div>
-            <img src={screenshotPreview} alt="Payment screenshot" className="w-full rounded-lg" />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
