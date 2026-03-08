@@ -695,7 +695,7 @@ const AdminPanel = () => {
                           </td>
                         </tr>
                       ))}
-                      {ebooks.length === 0 && (
+                      {filteredEbooks.length === 0 && (
                         <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No ebooks yet.</td></tr>
                       )}
                     </tbody>
