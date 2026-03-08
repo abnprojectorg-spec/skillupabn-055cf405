@@ -16,7 +16,7 @@ import ContactAdminButton from "@/components/ContactAdminButton";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
   { id: "courses", label: "My Courses", icon: BookOpen },
-  { id: "projects", label: "Projects", icon: FolderOpen },
+  { id: "news", label: "News", icon: Newspaper },
   { id: "community", label: "Community", icon: Users },
   { id: "profile", label: "Profile", icon: User },
 ];
