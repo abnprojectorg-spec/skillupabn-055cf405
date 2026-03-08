@@ -7,24 +7,28 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 import {
-  useCourses, useUsers, usePaymentRequests,
+  useCourses, useUsers, usePaymentRequests, useLessons, useCourseProject,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
+  addLesson, updateLesson, deleteLesson,
+  saveCourseProject, deleteCourseProject,
   checkIsAdmin,
 } from "@/hooks/useFirestore";
-import type { FirestoreCourse } from "@/hooks/useFirestore";
+import type { FirestoreCourse, FirestoreLesson } from "@/hooks/useFirestore";
 import { CATEGORIES } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Edit, Shield,
+  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award,
 } from "lucide-react";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "courses", label: "Courses", icon: BookOpen },
+  { id: "lessons", label: "Lessons", icon: FileText },
+  { id: "projects", label: "Projects", icon: Award },
   { id: "users", label: "Users", icon: Users },
 ];
 
