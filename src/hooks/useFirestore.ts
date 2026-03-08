@@ -379,6 +379,170 @@ export async function deleteCommunityLink(id: string) {
   return deleteDoc(doc(db, "community_links", id));
 }
 
+// ─── Ebook Interfaces ────────────────────────────────────────
+
+export interface FirestoreEbook {
+  id: string;
+  title: string;
+  author: string;
+  description: string;
+  shortDescription: string;
+  price: number;
+  coverImage: string;
+  pdfUrl: string;
+  qrCodeUrl: string;
+  pages: number;
+  whatYouWillLearn: string;
+  createdAt?: unknown;
+}
+
+export interface EbookPaymentRequest {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  ebookId: string;
+  ebookTitle: string;
+  transactionId: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: unknown;
+}
+
+export interface EbookPurchase {
+  id: string;
+  userId: string;
+  ebookId: string;
+  purchasedAt: unknown;
+}
+
+// ─── Ebook Hooks ─────────────────────────────────────────────
+
+export function useEbooks() {
+  const [ebooks, setEbooks] = useState<FirestoreEbook[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "ebooks"), (snap) => {
+      setEbooks(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreEbook)));
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  return { ebooks, loading };
+}
+
+export function useEbook(id: string | undefined) {
+  const [ebook, setEbook] = useState<FirestoreEbook | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) { setLoading(false); return; }
+    const unsub = onSnapshot(doc(db, "ebooks", id), (snap) => {
+      setEbook(snap.exists() ? { id: snap.id, ...snap.data() } as FirestoreEbook : null);
+      setLoading(false);
+    }, (error) => { console.error("Error fetching ebook:", error); setLoading(false); });
+    return unsub;
+  }, [id]);
+
+  return { ebook, loading };
+}
+
+export function useEbookPaymentRequests() {
+  const [requests, setRequests] = useState<EbookPaymentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      query(collection(db, "ebook_payment_requests"), orderBy("createdAt", "desc")),
+      (snap) => {
+        setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() } as EbookPaymentRequest)));
+        setLoading(false);
+      },
+      (error) => { console.error("Ebook payment requests error:", error); setLoading(false); }
+    );
+    return unsub;
+  }, []);
+
+  return { requests, loading };
+}
+
+export function useUserEbookPayments(userId: string | undefined) {
+  const [payments, setPayments] = useState<EbookPaymentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    const q = query(collection(db, "ebook_payment_requests"), where("userId", "==", userId));
+    const unsub = onSnapshot(q, (snap) => {
+      setPayments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as EbookPaymentRequest)));
+      setLoading(false);
+    }, (error) => { console.error("User ebook payments error:", error); setLoading(false); });
+    return unsub;
+  }, [userId]);
+
+  return { payments, loading };
+}
+
+export function useUserEbookPurchases(userId: string | undefined) {
+  const [purchases, setPurchases] = useState<EbookPurchase[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    const q = query(collection(db, "ebook_purchases"), where("userId", "==", userId));
+    const unsub = onSnapshot(q, (snap) => {
+      setPurchases(snap.docs.map((d) => ({ id: d.id, ...d.data() } as EbookPurchase)));
+      setLoading(false);
+    }, (error) => { console.error("Ebook purchases error:", error); setLoading(false); });
+    return unsub;
+  }, [userId]);
+
+  return { purchases, loading };
+}
+
+// ─── Ebook CRUD ──────────────────────────────────────────────
+
+export async function addEbook(ebook: Omit<FirestoreEbook, "id">) {
+  return addDoc(collection(db, "ebooks"), { ...ebook, createdAt: serverTimestamp() });
+}
+
+export async function updateEbook(id: string, data: Partial<FirestoreEbook>) {
+  return updateDoc(doc(db, "ebooks", id), data);
+}
+
+export async function deleteEbook(id: string) {
+  return deleteDoc(doc(db, "ebooks", id));
+}
+
+// ─── Ebook Payment CRUD ─────────────────────────────────────
+
+export async function submitEbookPaymentRequest(data: {
+  userId: string; userEmail: string; userName: string;
+  ebookId: string; ebookTitle: string; transactionId: string;
+}) {
+  return addDoc(collection(db, "ebook_payment_requests"), { ...data, status: "pending", createdAt: serverTimestamp() });
+}
+
+export async function approveEbookPayment(requestId: string, userId: string, ebookId: string) {
+  await updateDoc(doc(db, "ebook_payment_requests", requestId), { status: "approved" });
+  await addDoc(collection(db, "ebook_purchases"), { userId, ebookId, purchasedAt: serverTimestamp() });
+}
+
+export async function rejectEbookPayment(requestId: string) {
+  await updateDoc(doc(db, "ebook_payment_requests", requestId), { status: "rejected" });
+}
+
+export async function deleteEbookPaymentRequest(requestId: string) {
+  return deleteDoc(doc(db, "ebook_payment_requests", requestId));
+}
+
+export async function hasEbookAccess(userId: string, ebookId: string): Promise<boolean> {
+  const q = query(collection(db, "ebook_purchases"), where("userId", "==", userId), where("ebookId", "==", ebookId));
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
 // ─── Admin Check ─────────────────────────────────────────────
 
 export async function checkIsAdmin(email: string): Promise<boolean> {

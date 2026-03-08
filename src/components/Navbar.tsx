@@ -12,6 +12,7 @@ const Navbar = () => {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/marketplace", label: "Courses" },
+    { href: "/ebooks", label: "Ebooks" },
     { href: "/dashboard", label: "Dashboard" },
   ];
 
