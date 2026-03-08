@@ -226,7 +226,7 @@ export function useLessonProgress(userId: string | undefined, courseId: string |
     const unsub = onSnapshot(q, (snap) => {
       setCompleted(new Set(snap.docs.map((d) => d.data().lessonId as string)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Lesson progress error:", error); setLoading(false); });
     return unsub;
   }, [userId, courseId]);
 
