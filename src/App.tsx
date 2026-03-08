@@ -13,6 +13,9 @@ import StudentDashboard from "./pages/StudentDashboard";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminPanel from "./pages/AdminPanel";
 import CourseLearningPage from "./pages/CourseLearningPage";
+import EbooksPage from "./pages/EbooksPage";
+import EbookDetailPage from "./pages/EbookDetailPage";
+import EbookReaderPage from "./pages/EbookReaderPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +35,9 @@ const App = () => (
             <Route path="/course/:id" element={<CourseDetailPage />} />
             <Route path="/dashboard" element={<StudentDashboard />} />
             <Route path="/learn/:id" element={<CourseLearningPage />} />
+            <Route path="/ebooks" element={<EbooksPage />} />
+            <Route path="/ebook/:id" element={<EbookDetailPage />} />
+            <Route path="/read-ebook/:id" element={<EbookReaderPage />} />
             <Route path="/admin-login" element={<AdminLoginPage />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="*" element={<NotFound />} />
