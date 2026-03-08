@@ -113,7 +113,7 @@ const AdminPanel = () => {
                     <div><Label>Title</Label><Input value={newCourse.title} onChange={(e) => setNewCourse({...newCourse, title: e.target.value})} placeholder="Course title" className="mt-1" /></div>
                     <div><Label>Instructor</Label><Input value={newCourse.instructor} onChange={(e) => setNewCourse({...newCourse, instructor: e.target.value})} placeholder="Instructor name" className="mt-1" /></div>
                     <div><Label>Category</Label>
-                      <select value={newCourse.category} onChange={(e) => setNewCourse({...newCourse, category: e.target.value})} className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground">
+                      <select value={newCourse.category} onChange={(e) => setNewCourse({...newCourse, category: e.target.value as any})} className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground">
                         {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
