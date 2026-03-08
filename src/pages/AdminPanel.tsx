@@ -243,7 +243,6 @@ const AdminPanel = () => {
                         <th className="text-left p-3 font-medium">User</th>
                         <th className="text-left p-3 font-medium">Course</th>
                         <th className="text-left p-3 font-medium">Transaction ID</th>
-                        <th className="text-left p-3 font-medium">Screenshot</th>
                         <th className="text-left p-3 font-medium">Status</th>
                         <th className="text-left p-3 font-medium">Actions</th>
                       </tr>
@@ -256,14 +255,8 @@ const AdminPanel = () => {
                             <p className="text-xs text-muted-foreground">{req.userEmail}</p>
                           </td>
                           <td className="p-3 font-medium">{req.courseTitle}</td>
-                          <td className="p-3 text-muted-foreground">{req.transactionId || "—"}</td>
                           <td className="p-3">
-                            <button
-                              onClick={() => setScreenshotPreview(req.screenshotURL)}
-                              className="flex items-center gap-1 text-xs text-accent hover:underline"
-                            >
-                              <Eye className="h-3 w-3" /> View
-                            </button>
+                            <span className="font-mono tracking-wider text-foreground">{req.transactionId || "—"}</span>
                           </td>
                           <td className="p-3">
                             <Badge className={`${STATUS_COLORS[req.status]} capitalize`}>{req.status}</Badge>
