@@ -31,6 +31,8 @@ import {
   CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings,
 } from "lucide-react";
 import AdminAnalytics from "@/components/AdminAnalytics";
+import AdminChat from "@/components/AdminChat";
+import AdminNews from "@/components/AdminNews";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
