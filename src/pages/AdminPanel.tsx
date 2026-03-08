@@ -15,9 +15,9 @@ import {
   saveCommunityLink, deleteCommunityLink,
   addEbook, updateEbook, deleteEbook,
   approveEbookPayment, rejectEbookPayment, deleteEbookPaymentRequest,
-  checkIsAdmin,
+  checkIsAdmin, updateUser, deleteUser, removeUserCourseAccess, enrollUser,
 } from "@/hooks/useFirestore";
-import type { FirestoreCourse, FirestoreEbook } from "@/hooks/useFirestore";
+import type { FirestoreCourse, FirestoreEbook, FirestoreUser } from "@/hooks/useFirestore";
 import { CATEGORIES } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
