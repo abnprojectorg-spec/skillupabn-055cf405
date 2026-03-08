@@ -677,7 +677,7 @@ const AdminPanel = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {ebooks.map((e) => (
+                      {filteredEbooks.map((e) => (
                         <tr key={e.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
                           <td className="p-3 font-medium">{e.title}</td>
                           <td className="p-3 text-muted-foreground">{e.author}</td>
