@@ -339,23 +339,29 @@ const AdminPanel = () => {
     }
   };
 
-  const filteredRequests = statusFilter === "all"
-    ? requests
-    : requests.filter((r) => r.status === statusFilter);
+  const filteredRequests = requests
+    .filter((r) => statusFilter === "all" || r.status === statusFilter)
+    .filter((r) => !paymentSearch || r.transactionId?.toLowerCase().includes(paymentSearch.toLowerCase()) || r.userName?.toLowerCase().includes(paymentSearch.toLowerCase()) || r.userEmail?.toLowerCase().includes(paymentSearch.toLowerCase()));
 
   const pendingCount = requests.filter((r) => r.status === "pending").length;
 
-  const filteredEbookRequests = ebookStatusFilter === "all"
-    ? ebookRequests
-    : ebookRequests.filter((r) => r.status === ebookStatusFilter);
+  const filteredEbookRequests = ebookRequests
+    .filter((r) => ebookStatusFilter === "all" || r.status === ebookStatusFilter)
+    .filter((r) => !ebookPaymentSearch || r.transactionId?.toLowerCase().includes(ebookPaymentSearch.toLowerCase()) || r.userName?.toLowerCase().includes(ebookPaymentSearch.toLowerCase()) || r.userEmail?.toLowerCase().includes(ebookPaymentSearch.toLowerCase()));
 
   const ebookPendingCount = ebookRequests.filter((r) => r.status === "pending").length;
 
-  const filteredFileRequests = fileStatusFilter === "all"
-    ? fileRequests
-    : fileRequests.filter((r) => r.status === fileStatusFilter);
+  const filteredFileRequests = fileRequests
+    .filter((r) => fileStatusFilter === "all" || r.status === fileStatusFilter)
+    .filter((r) => !filePaymentSearch || r.transactionId?.toLowerCase().includes(filePaymentSearch.toLowerCase()) || r.userName?.toLowerCase().includes(filePaymentSearch.toLowerCase()) || r.userEmail?.toLowerCase().includes(filePaymentSearch.toLowerCase()));
 
   const filePendingCount = fileRequests.filter((r) => r.status === "pending").length;
+
+  const filteredCourses = courses.filter((c) => !courseSearch || c.title.toLowerCase().includes(courseSearch.toLowerCase()) || c.instructor.toLowerCase().includes(courseSearch.toLowerCase()));
+
+  const filteredEbooks = ebooks.filter((e) => !ebookSearch || e.title.toLowerCase().includes(ebookSearch.toLowerCase()) || e.author.toLowerCase().includes(ebookSearch.toLowerCase()));
+
+  const filteredDigitalFiles = digitalFiles.filter((f) => !fileSearch || f.title.toLowerCase().includes(fileSearch.toLowerCase()) || f.developer.toLowerCase().includes(fileSearch.toLowerCase()));
 
   if (isAdmin === null) {
     return (
