@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Heart, MessageSquare, Loader2, Newspaper, Send } from "lucide-react";
-import ChatWidget from "@/components/ChatWidget";
+import ContactAdminButton from "@/components/ContactAdminButton";
 
 export default function NewsPage() {
   const { posts, loading } = useNewsPosts();
