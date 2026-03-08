@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -74,6 +74,12 @@ const LoginPage = () => {
             <p className="text-center text-sm text-muted-foreground pt-2">
               Don't have an account? <Link to="/signup" className="text-primary font-medium hover:underline">Sign up</Link>
             </p>
+            <div className="flex justify-center pt-2">
+              <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-1.5" onClick={() => navigate("/admin-login")}>
+                <Shield className="h-4 w-4" />
+                Admin Login
+              </Button>
+            </div>
           </form>
         </div>
       </div>
