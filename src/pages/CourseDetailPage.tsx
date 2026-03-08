@@ -16,6 +16,19 @@ import {
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
 
+const getYouTubeEmbedUrl = (url: string): string => {
+  if (!url) return "";
+  // Already an embed URL
+  if (url.includes("/embed/")) return url;
+  // Handle youtu.be/VIDEO_ID
+  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
+  // Handle youtube.com/watch?v=VIDEO_ID
+  const longMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+  if (longMatch) return `https://www.youtube.com/embed/${longMatch[1]}`;
+  return url;
+};
+
 const CourseDetailPage = () => {
   const { id } = useParams();
   const { course, loading } = useCourse(id);
@@ -176,9 +189,11 @@ const CourseDetailPage = () => {
                 </div>
 
                 {enrolled ? (
-                  <Button variant="hero" size="lg" className="w-full mb-3 shadow-glow">
-                    <CheckCircle className="h-4 w-4 mr-1" /> Start Learning
-                  </Button>
+                  <Link to="/dashboard">
+                    <Button variant="hero" size="lg" className="w-full mb-3 shadow-glow">
+                      <CheckCircle className="h-4 w-4 mr-1" /> Start Learning
+                    </Button>
+                  </Link>
                 ) : existingPayment?.status === "pending" ? (
                   <div className="mb-3 rounded-lg border border-warning/30 bg-warning/5 p-4 text-center">
                     <p className="text-sm font-medium text-warning">⏳ Payment Under Review</p>
@@ -345,7 +360,7 @@ const CourseDetailPage = () => {
             </div>
             <div className="aspect-video rounded-xl overflow-hidden bg-secondary">
               <iframe
-                src={course.howToPayVideoUrl}
+                src={getYouTubeEmbedUrl(course.howToPayVideoUrl)}
                 className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
