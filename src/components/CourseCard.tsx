@@ -46,7 +46,7 @@ const CourseCard = ({ course, isUnlocked }: CourseCardProps) => {
         </div>
         <div className="flex items-center justify-between">
           <span className="font-display text-lg font-bold text-gradient-glow">{course.price} ETB</span>
-          <Link to={`/course/${course.id}`}>
+          <Link to={isUnlocked ? `/learn/${course.id}` : `/course/${course.id}`}>
             <Button size="sm" variant={isUnlocked ? "secondary" : "hero"} className={isUnlocked ? "" : "shadow-glow"}>
               {isUnlocked ? "Continue" : "View Course"}
             </Button>

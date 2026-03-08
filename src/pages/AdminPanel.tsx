@@ -7,24 +7,28 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 import {
-  useCourses, useUsers, usePaymentRequests,
+  useCourses, useUsers, usePaymentRequests, useLessons, useCourseProject,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
+  addLesson, updateLesson, deleteLesson,
+  saveCourseProject, deleteCourseProject,
   checkIsAdmin,
 } from "@/hooks/useFirestore";
-import type { FirestoreCourse } from "@/hooks/useFirestore";
+import type { FirestoreCourse, FirestoreLesson } from "@/hooks/useFirestore";
 import { CATEGORIES } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Edit, Shield,
+  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award,
 } from "lucide-react";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "courses", label: "Courses", icon: BookOpen },
+  { id: "lessons", label: "Lessons", icon: FileText },
+  { id: "projects", label: "Projects", icon: Award },
   { id: "users", label: "Users", icon: Users },
 ];
 
@@ -405,6 +409,12 @@ const AdminPanel = () => {
             </div>
           )}
 
+          {/* Lessons Management */}
+          {activeTab === "lessons" && <LessonsManager courses={courses} toast={toast} />}
+
+          {/* Projects Management */}
+          {activeTab === "projects" && <ProjectsManager courses={courses} toast={toast} />}
+
           {/* Users */}
           {activeTab === "users" && (
             <div>
@@ -440,9 +450,245 @@ const AdminPanel = () => {
           )}
         </main>
       </div>
-
     </div>
   );
 };
+
+// ─── Lessons Manager Sub-component ───────────────────────────
+
+function LessonsManager({ courses, toast }: { courses: FirestoreCourse[]; toast: any }) {
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
+  const { lessons, loading } = useLessons(selectedCourseId || undefined);
+  const [showForm, setShowForm] = useState(false);
+  const [editingLesson, setEditingLesson] = useState<FirestoreLesson | null>(null);
+  const [form, setForm] = useState({ title: "", videoUrl: "", notes: "", order: 1 });
+
+  const handleSave = async () => {
+    if (!selectedCourseId || !form.title) return;
+    try {
+      if (editingLesson) {
+        await updateLesson(editingLesson.id, form);
+        toast({ title: "Lesson updated!" });
+      } else {
+        await addLesson({ ...form, courseId: selectedCourseId });
+        toast({ title: "Lesson added!" });
+      }
+      setShowForm(false);
+      setEditingLesson(null);
+      setForm({ title: "", videoUrl: "", notes: "", order: 1 });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleEdit = (lesson: FirestoreLesson) => {
+    setEditingLesson(lesson);
+    setForm({ title: lesson.title, videoUrl: lesson.videoUrl, notes: lesson.notes, order: lesson.order });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteLesson(id);
+      toast({ title: "Lesson deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  return (
+    <div>
+      <h1 className="font-display text-2xl font-bold mb-6">Manage Lessons</h1>
+
+      <div className="mb-6">
+        <Label>Select Course</Label>
+        <select
+          value={selectedCourseId}
+          onChange={(e) => setSelectedCourseId(e.target.value)}
+          className="mt-1 w-full max-w-md rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground"
+        >
+          <option value="">-- Choose a course --</option>
+          {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+        </select>
+      </div>
+
+      {selectedCourseId && (
+        <>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-muted-foreground">{lessons.length} lesson(s)</p>
+            <Button variant="hero" size="sm" onClick={() => {
+              setEditingLesson(null);
+              setForm({ title: "", videoUrl: "", notes: "", order: lessons.length + 1 });
+              setShowForm(true);
+            }}>
+              <Plus className="h-4 w-4 mr-1" /> Add Lesson
+            </Button>
+          </div>
+
+          {showForm && (
+            <div className="mb-6 rounded-2xl border border-border bg-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display text-lg font-semibold">{editingLesson ? "Edit Lesson" : "New Lesson"}</h2>
+                <button onClick={() => { setShowForm(false); setEditingLesson(null); }}><X className="h-5 w-5 text-muted-foreground" /></button>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div><Label>Lesson Title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Introduction to..." className="mt-1" /></div>
+                <div><Label>Order</Label><Input type="number" value={form.order} onChange={(e) => setForm({ ...form, order: Number(e.target.value) })} className="mt-1" /></div>
+                <div className="sm:col-span-2"><Label>Video URL (YouTube)</Label><Input value={form.videoUrl} onChange={(e) => setForm({ ...form, videoUrl: e.target.value })} placeholder="https://youtube.com/watch?v=..." className="mt-1" /></div>
+                <div className="sm:col-span-2"><Label>Lesson Notes</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Key concepts, explanations, examples..." rows={6} className="mt-1" /></div>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <Button variant="hero" onClick={handleSave}>{editingLesson ? "Update" : "Save"} Lesson</Button>
+                <Button variant="outline" onClick={() => { setShowForm(false); setEditingLesson(null); }}>Cancel</Button>
+              </div>
+            </div>
+          )}
+
+          {loading ? (
+            <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+          ) : (
+            <div className="rounded-xl border border-border bg-card overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary">
+                  <tr>
+                    <th className="text-left p-3 font-medium">#</th>
+                    <th className="text-left p-3 font-medium">Title</th>
+                    <th className="text-left p-3 font-medium">Video</th>
+                    <th className="text-left p-3 font-medium">Notes</th>
+                    <th className="text-left p-3 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...lessons].sort((a, b) => a.order - b.order).map((l) => (
+                    <tr key={l.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
+                      <td className="p-3 font-mono text-muted-foreground">{l.order}</td>
+                      <td className="p-3 font-medium">{l.title}</td>
+                      <td className="p-3">
+                        {l.videoUrl ? <Badge className="bg-accent/10 text-accent border-accent/20">Set</Badge> : <Badge variant="secondary">None</Badge>}
+                      </td>
+                      <td className="p-3 text-muted-foreground max-w-[200px] truncate">{l.notes || "—"}</td>
+                      <td className="p-3">
+                        <div className="flex gap-1">
+                          <Button size="icon" variant="ghost" onClick={() => handleEdit(l)} className="hover:bg-primary/10"><Edit className="h-4 w-4 text-primary" /></Button>
+                          <Button size="icon" variant="ghost" onClick={() => handleDelete(l.id)} className="hover:bg-destructive/10"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {lessons.length === 0 && (
+                    <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No lessons yet. Add one above.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── Projects Manager Sub-component ─────────────────────────
+
+function ProjectsManager({ courses, toast }: { courses: FirestoreCourse[]; toast: any }) {
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
+  const { project, loading } = useCourseProject(selectedCourseId || undefined);
+  const [form, setForm] = useState({ projectTitle: "", projectDescription: "" });
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (project) {
+      setForm({ projectTitle: project.projectTitle, projectDescription: project.projectDescription });
+    } else {
+      setForm({ projectTitle: "", projectDescription: "" });
+    }
+    setEditing(false);
+  }, [project, selectedCourseId]);
+
+  const handleSave = async () => {
+    if (!selectedCourseId || !form.projectTitle) return;
+    try {
+      await saveCourseProject(selectedCourseId, form.projectTitle, form.projectDescription, project?.id);
+      toast({ title: project ? "Project updated!" : "Project created!" });
+      setEditing(false);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (!project) return;
+    try {
+      await deleteCourseProject(project.id);
+      toast({ title: "Project deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  return (
+    <div>
+      <h1 className="font-display text-2xl font-bold mb-6">Course Project Assignments</h1>
+
+      <div className="mb-6">
+        <Label>Select Course</Label>
+        <select
+          value={selectedCourseId}
+          onChange={(e) => setSelectedCourseId(e.target.value)}
+          className="mt-1 w-full max-w-md rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground"
+        >
+          <option value="">-- Choose a course --</option>
+          {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+        </select>
+      </div>
+
+      {selectedCourseId && (
+        loading ? (
+          <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+        ) : project && !editing ? (
+          <div className="rounded-xl border border-border bg-card p-6 max-w-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                <Award className="h-5 w-5 text-accent" /> Current Project
+              </h2>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+                  <Edit className="h-3 w-3 mr-1" /> Edit
+                </Button>
+                <Button size="sm" variant="ghost" onClick={handleDeleteProject} className="hover:bg-destructive/10">
+                  <Trash2 className="h-3 w-3 mr-1 text-destructive" /> Delete
+                </Button>
+              </div>
+            </div>
+            <h3 className="font-display font-semibold text-lg mb-2">{project.projectTitle}</h3>
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{project.projectDescription}</p>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-border bg-card p-6 max-w-2xl">
+            <h2 className="font-display text-lg font-semibold mb-4">
+              {project ? "Edit Project" : "Create Project Assignment"}
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <Label>Project Title</Label>
+                <Input value={form.projectTitle} onChange={(e) => setForm({ ...form, projectTitle: e.target.value })} placeholder="Build a Portfolio Website" className="mt-1" />
+              </div>
+              <div>
+                <Label>Project Description</Label>
+                <Textarea value={form.projectDescription} onChange={(e) => setForm({ ...form, projectDescription: e.target.value })} placeholder="Describe what the student must build, requirements, deliverables..." rows={8} className="mt-1" />
+              </div>
+              <div className="flex gap-2">
+                <Button variant="hero" onClick={handleSave}>
+                  {project ? "Update Project" : "Create Project"}
+                </Button>
+                {project && <Button variant="outline" onClick={() => setEditing(false)}>Cancel</Button>}
+              </div>
+            </div>
+          </div>
+        )
+      )}
+    </div>
+  );
+}
 
 export default AdminPanel;

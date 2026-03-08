@@ -189,7 +189,7 @@ const CourseDetailPage = () => {
                 </div>
 
                 {enrolled ? (
-                  <Link to="/dashboard">
+                  <Link to={`/learn/${id}`}>
                     <Button variant="hero" size="lg" className="w-full mb-3 shadow-glow">
                       <CheckCircle className="h-4 w-4 mr-1" /> Start Learning
                     </Button>

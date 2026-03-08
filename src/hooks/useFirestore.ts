@@ -9,13 +9,15 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  setDoc,
   onSnapshot,
   serverTimestamp,
   arrayUnion,
   orderBy,
 } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+
+// ─── Interfaces ──────────────────────────────────────────────
 
 export interface FirestoreCourse {
   id: string;
@@ -65,15 +67,31 @@ export interface PaymentRequest {
   createdAt: unknown;
 }
 
-// Real-time courses listener
+export interface FirestoreLesson {
+  id: string;
+  courseId: string;
+  title: string;
+  videoUrl: string;
+  notes: string;
+  order: number;
+}
+
+export interface FirestoreCourseProject {
+  id: string;
+  courseId: string;
+  projectTitle: string;
+  projectDescription: string;
+}
+
+// ─── Course Hooks ────────────────────────────────────────────
+
 export function useCourses() {
   const [courses, setCourses] = useState<FirestoreCourse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "courses"), (snap) => {
-      const data = snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreCourse));
-      setCourses(data);
+      setCourses(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreCourse)));
       setLoading(false);
     });
     return unsub;
@@ -82,7 +100,6 @@ export function useCourses() {
   return { courses, loading };
 }
 
-// Fetch single course
 export function useCourse(id: string | undefined) {
   const [course, setCourse] = useState<FirestoreCourse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,7 +115,8 @@ export function useCourse(id: string | undefined) {
   return { course, loading };
 }
 
-// Enrollments for a user
+// ─── Enrollment Hooks ────────────────────────────────────────
+
 export function useEnrollments(userId: string | undefined) {
   const [enrollments, setEnrollments] = useState<FirestoreEnrollment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,7 +134,8 @@ export function useEnrollments(userId: string | undefined) {
   return { enrollments, loading };
 }
 
-// All users (admin)
+// ─── User Hooks ──────────────────────────────────────────────
+
 export function useUsers() {
   const [users, setUsers] = useState<FirestoreUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,7 +151,8 @@ export function useUsers() {
   return { users, loading };
 }
 
-// Payment requests (admin - real-time)
+// ─── Payment Hooks ───────────────────────────────────────────
+
 export function usePaymentRequests() {
   const [requests, setRequests] = useState<PaymentRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -151,7 +171,6 @@ export function usePaymentRequests() {
   return { requests, loading };
 }
 
-// User's own payment requests
 export function useUserPayments(userId: string | undefined) {
   const [payments, setPayments] = useState<PaymentRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -169,81 +188,160 @@ export function useUserPayments(userId: string | undefined) {
   return { payments, loading };
 }
 
-// Add course
+// ─── Lesson Hooks ────────────────────────────────────────────
+
+export function useLessons(courseId: string | undefined) {
+  const [lessons, setLessons] = useState<FirestoreLesson[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!courseId) { setLoading(false); return; }
+    const q = query(collection(db, "lessons"), where("courseId", "==", courseId), orderBy("order", "asc"));
+    const unsub = onSnapshot(q, (snap) => {
+      setLessons(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreLesson)));
+      setLoading(false);
+    });
+    return unsub;
+  }, [courseId]);
+
+  return { lessons, loading };
+}
+
+export function useLessonProgress(userId: string | undefined, courseId: string | undefined) {
+  const [completedLessonIds, setCompleted] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId || !courseId) { setLoading(false); return; }
+    const q = query(
+      collection(db, "lesson_progress"),
+      where("userId", "==", userId),
+      where("courseId", "==", courseId)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setCompleted(new Set(snap.docs.map((d) => d.data().lessonId as string)));
+      setLoading(false);
+    });
+    return unsub;
+  }, [userId, courseId]);
+
+  return { completedLessonIds, loading };
+}
+
+// ─── Course Project Hook ─────────────────────────────────────
+
+export function useCourseProject(courseId: string | undefined) {
+  const [project, setProject] = useState<FirestoreCourseProject | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!courseId) { setLoading(false); return; }
+    const q = query(collection(db, "course_projects"), where("courseId", "==", courseId));
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const d = snap.docs[0];
+        setProject({ id: d.id, ...d.data() } as FirestoreCourseProject);
+      } else {
+        setProject(null);
+      }
+      setLoading(false);
+    });
+    return unsub;
+  }, [courseId]);
+
+  return { project, loading };
+}
+
+// ─── Course CRUD ─────────────────────────────────────────────
+
 export async function addCourse(course: Omit<FirestoreCourse, "id">) {
   return addDoc(collection(db, "courses"), { ...course, createdAt: serverTimestamp() });
 }
 
-// Update course
 export async function updateCourse(id: string, data: Partial<FirestoreCourse>) {
   return updateDoc(doc(db, "courses", id), data);
 }
 
-// Delete course
 export async function deleteCourse(id: string) {
   return deleteDoc(doc(db, "courses", id));
 }
 
-// Enroll user
+// ─── Enrollment CRUD ─────────────────────────────────────────
+
 export async function enrollUser(userId: string, courseId: string) {
-  // Add to enrollments collection
   await addDoc(collection(db, "enrollments"), {
-    userId,
-    courseId,
-    enrolledAt: serverTimestamp(),
-    progress: 0,
+    userId, courseId, enrolledAt: serverTimestamp(), progress: 0,
   });
-  // Also update courses_unlocked on user doc
   const userRef = doc(db, "users", userId);
-  await updateDoc(userRef, {
-    courses_unlocked: arrayUnion(courseId),
-  });
+  await updateDoc(userRef, { courses_unlocked: arrayUnion(courseId) });
 }
 
-// Check enrollment
 export async function isEnrolled(userId: string, courseId: string): Promise<boolean> {
-  const q = query(
-    collection(db, "enrollments"),
-    where("userId", "==", userId),
-    where("courseId", "==", courseId)
-  );
+  const q = query(collection(db, "enrollments"), where("userId", "==", userId), where("courseId", "==", courseId));
   const snap = await getDocs(q);
   return !snap.empty;
 }
 
-// Submit payment request (transaction ID only)
+// ─── Payment CRUD ────────────────────────────────────────────
+
 export async function submitPaymentRequest(data: {
-  userId: string;
-  userEmail: string;
-  userName: string;
-  courseId: string;
-  courseTitle: string;
-  transactionId: string;
+  userId: string; userEmail: string; userName: string;
+  courseId: string; courseTitle: string; transactionId: string;
 }) {
-  return addDoc(collection(db, "payment_requests"), {
-    ...data,
-    status: "pending",
-    createdAt: serverTimestamp(),
-  });
+  return addDoc(collection(db, "payment_requests"), { ...data, status: "pending", createdAt: serverTimestamp() });
 }
 
-// Approve payment (admin)
 export async function approvePayment(requestId: string, userId: string, courseId: string) {
   await updateDoc(doc(db, "payment_requests", requestId), { status: "approved" });
   await enrollUser(userId, courseId);
 }
 
-// Reject payment (admin)
 export async function rejectPayment(requestId: string) {
   await updateDoc(doc(db, "payment_requests", requestId), { status: "rejected" });
 }
 
-// Delete payment request (admin)
 export async function deletePaymentRequest(requestId: string) {
   return deleteDoc(doc(db, "payment_requests", requestId));
 }
 
-// Check if user is admin (checks admins collection)
+// ─── Lesson CRUD (Admin) ────────────────────────────────────
+
+export async function addLesson(lesson: Omit<FirestoreLesson, "id">) {
+  return addDoc(collection(db, "lessons"), lesson);
+}
+
+export async function updateLesson(id: string, data: Partial<FirestoreLesson>) {
+  return updateDoc(doc(db, "lessons", id), data);
+}
+
+export async function deleteLesson(id: string) {
+  return deleteDoc(doc(db, "lessons", id));
+}
+
+// ─── Lesson Progress ─────────────────────────────────────────
+
+export async function markLessonComplete(userId: string, courseId: string, lessonId: string) {
+  const docId = `${userId}_${courseId}_${lessonId}`;
+  await setDoc(doc(db, "lesson_progress", docId), {
+    userId, courseId, lessonId, completedAt: serverTimestamp(),
+  });
+}
+
+// ─── Course Project CRUD (Admin) ─────────────────────────────
+
+export async function saveCourseProject(courseId: string, projectTitle: string, projectDescription: string, existingId?: string) {
+  if (existingId) {
+    return updateDoc(doc(db, "course_projects", existingId), { projectTitle, projectDescription });
+  }
+  return addDoc(collection(db, "course_projects"), { courseId, projectTitle, projectDescription });
+}
+
+export async function deleteCourseProject(id: string) {
+  return deleteDoc(doc(db, "course_projects", id));
+}
+
+// ─── Admin Check ─────────────────────────────────────────────
+
 export async function checkIsAdmin(email: string): Promise<boolean> {
   const q = query(collection(db, "admins"), where("email", "==", email));
   const snap = await getDocs(q);
