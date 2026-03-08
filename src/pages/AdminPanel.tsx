@@ -248,6 +248,80 @@ const AdminPanel = () => {
     }
   };
 
+  // ─── File Handlers ─────────────────────────────────────────
+  const emptyFile = {
+    title: "", developer: "", category: "Software", description: "", shortDescription: "",
+    price: 0, coverImage: "", fileUrl: "", qrCodeUrl: "", fileType: "Application", fileSize: "", whatYouWillGet: "",
+  };
+
+  const [fileForm, setFileForm] = useState(emptyFile);
+
+  const handleSaveFile = async () => {
+    if (!fileForm.title) return;
+    try {
+      if (editingFile) {
+        await updateDigitalFile(editingFile.id, fileForm);
+        toast({ title: "File updated!" });
+        setEditingFile(null);
+      } else {
+        await addDigitalFile(fileForm as any);
+        toast({ title: "File added!" });
+      }
+      setShowAddFile(false);
+      setFileForm(emptyFile);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleEditFile = (file: FirestoreDigitalFile) => {
+    setEditingFile(file);
+    setFileForm({
+      title: file.title, developer: file.developer, category: file.category,
+      description: file.description, shortDescription: file.shortDescription,
+      price: file.price, coverImage: file.coverImage, fileUrl: file.fileUrl,
+      qrCodeUrl: file.qrCodeUrl || "", fileType: file.fileType, fileSize: file.fileSize,
+      whatYouWillGet: file.whatYouWillGet || "",
+    });
+    setShowAddFile(true);
+  };
+
+  const handleDeleteFile = async (id: string) => {
+    try {
+      await deleteDigitalFile(id);
+      toast({ title: "File deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleApproveFilePayment = async (req: any) => {
+    try {
+      await approveFilePayment(req.id, req.userId, req.fileId);
+      toast({ title: "Payment approved! File unlocked for user." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleRejectFilePayment = async (id: string) => {
+    try {
+      await rejectFilePayment(id);
+      toast({ title: "Payment rejected" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteFilePayment = async (id: string) => {
+    try {
+      await deleteFilePaymentRequest(id);
+      toast({ title: "File payment request deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   const filteredRequests = statusFilter === "all"
     ? requests
     : requests.filter((r) => r.status === statusFilter);
