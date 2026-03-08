@@ -131,7 +131,7 @@ export function useEnrollments(userId: string | undefined) {
     const unsub = onSnapshot(q, (snap) => {
       setEnrollments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreEnrollment)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Enrollments error:", error); setLoading(false); });
     return unsub;
   }, [userId]);
 
@@ -167,7 +167,8 @@ export function usePaymentRequests() {
       (snap) => {
         setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() } as PaymentRequest)));
         setLoading(false);
-      }
+      },
+      (error) => { console.error("Payment requests error:", error); setLoading(false); }
     );
     return unsub;
   }, []);
@@ -185,7 +186,7 @@ export function useUserPayments(userId: string | undefined) {
     const unsub = onSnapshot(q, (snap) => {
       setPayments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as PaymentRequest)));
       setLoading(false);
-    });
+    }, (error) => { console.error("User payments error:", error); setLoading(false); });
     return unsub;
   }, [userId]);
 
@@ -204,7 +205,7 @@ export function useLessons(courseId: string | undefined) {
     const unsub = onSnapshot(q, (snap) => {
       setLessons(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreLesson)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Lessons error:", error); setLoading(false); });
     return unsub;
   }, [courseId]);
 
@@ -225,7 +226,7 @@ export function useLessonProgress(userId: string | undefined, courseId: string |
     const unsub = onSnapshot(q, (snap) => {
       setCompleted(new Set(snap.docs.map((d) => d.data().lessonId as string)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Lesson progress error:", error); setLoading(false); });
     return unsub;
   }, [userId, courseId]);
 
@@ -249,7 +250,7 @@ export function useCourseProject(courseId: string | undefined) {
         setProject(null);
       }
       setLoading(false);
-    });
+    }, (error) => { console.error("Course project error:", error); setLoading(false); });
     return unsub;
   }, [courseId]);
 
