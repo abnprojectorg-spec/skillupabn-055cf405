@@ -298,9 +298,9 @@ const AdminPanel = () => {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
                 {[
                   { label: "Total Courses", value: coursesLoading ? "…" : courses.length, color: "text-primary" },
+                  { label: "Total Ebooks", value: ebooksLoading ? "…" : ebooks.length, color: "text-primary" },
                   { label: "Total Users", value: usersLoading ? "…" : users.length, color: "text-accent" },
-                  { label: "Pending Payments", value: paymentsLoading ? "…" : pendingCount, color: "text-warning" },
-                  { label: "Categories", value: CATEGORIES.length, color: "text-foreground" },
+                  { label: "Pending Payments", value: paymentsLoading ? "…" : pendingCount + ebookPendingCount, color: "text-warning" },
                 ].map((stat) => (
                   <div key={stat.label} className="rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors">
                     <p className="text-sm text-muted-foreground">{stat.label}</p>
