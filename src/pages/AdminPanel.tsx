@@ -64,12 +64,18 @@ const AdminPanel = () => {
   const [showAddCourse, setShowAddCourse] = useState(false);
   const [editingCourse, setEditingCourse] = useState<FirestoreCourse | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [paymentSearch, setPaymentSearch] = useState("");
+  const [courseSearch, setCourseSearch] = useState("");
   const [showAddEbook, setShowAddEbook] = useState(false);
   const [editingEbook, setEditingEbook] = useState<FirestoreEbook | null>(null);
   const [ebookStatusFilter, setEbookStatusFilter] = useState<string>("all");
+  const [ebookPaymentSearch, setEbookPaymentSearch] = useState("");
+  const [ebookSearch, setEbookSearch] = useState("");
   const [showAddFile, setShowAddFile] = useState(false);
   const [editingFile, setEditingFile] = useState<FirestoreDigitalFile | null>(null);
   const [fileStatusFilter, setFileStatusFilter] = useState<string>("all");
+  const [filePaymentSearch, setFilePaymentSearch] = useState("");
+  const [fileSearch, setFileSearch] = useState("");
   
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
@@ -333,23 +339,29 @@ const AdminPanel = () => {
     }
   };
 
-  const filteredRequests = statusFilter === "all"
-    ? requests
-    : requests.filter((r) => r.status === statusFilter);
+  const filteredRequests = requests
+    .filter((r) => statusFilter === "all" || r.status === statusFilter)
+    .filter((r) => !paymentSearch || r.transactionId?.toLowerCase().includes(paymentSearch.toLowerCase()) || r.userName?.toLowerCase().includes(paymentSearch.toLowerCase()) || r.userEmail?.toLowerCase().includes(paymentSearch.toLowerCase()));
 
   const pendingCount = requests.filter((r) => r.status === "pending").length;
 
-  const filteredEbookRequests = ebookStatusFilter === "all"
-    ? ebookRequests
-    : ebookRequests.filter((r) => r.status === ebookStatusFilter);
+  const filteredEbookRequests = ebookRequests
+    .filter((r) => ebookStatusFilter === "all" || r.status === ebookStatusFilter)
+    .filter((r) => !ebookPaymentSearch || r.transactionId?.toLowerCase().includes(ebookPaymentSearch.toLowerCase()) || r.userName?.toLowerCase().includes(ebookPaymentSearch.toLowerCase()) || r.userEmail?.toLowerCase().includes(ebookPaymentSearch.toLowerCase()));
 
   const ebookPendingCount = ebookRequests.filter((r) => r.status === "pending").length;
 
-  const filteredFileRequests = fileStatusFilter === "all"
-    ? fileRequests
-    : fileRequests.filter((r) => r.status === fileStatusFilter);
+  const filteredFileRequests = fileRequests
+    .filter((r) => fileStatusFilter === "all" || r.status === fileStatusFilter)
+    .filter((r) => !filePaymentSearch || r.transactionId?.toLowerCase().includes(filePaymentSearch.toLowerCase()) || r.userName?.toLowerCase().includes(filePaymentSearch.toLowerCase()) || r.userEmail?.toLowerCase().includes(filePaymentSearch.toLowerCase()));
 
   const filePendingCount = fileRequests.filter((r) => r.status === "pending").length;
+
+  const filteredCourses = courses.filter((c) => !courseSearch || c.title.toLowerCase().includes(courseSearch.toLowerCase()) || c.instructor.toLowerCase().includes(courseSearch.toLowerCase()));
+
+  const filteredEbooks = ebooks.filter((e) => !ebookSearch || e.title.toLowerCase().includes(ebookSearch.toLowerCase()) || e.author.toLowerCase().includes(ebookSearch.toLowerCase()));
+
+  const filteredDigitalFiles = digitalFiles.filter((f) => !fileSearch || f.title.toLowerCase().includes(fileSearch.toLowerCase()) || f.developer.toLowerCase().includes(fileSearch.toLowerCase()));
 
   if (isAdmin === null) {
     return (
@@ -418,18 +430,18 @@ const AdminPanel = () => {
           {activeTab === "payments" && (
             <div>
               <h1 className="font-display text-2xl font-bold mb-6">Payment Requests</h1>
-              <div className="flex gap-2 mb-6">
-                {["all", "pending", "approved", "rejected"].map((s) => (
-                  <Button
-                    key={s}
-                    size="sm"
-                    variant={statusFilter === s ? "default" : "outline"}
-                    onClick={() => setStatusFilter(s)}
-                    className="capitalize hover:scale-105 transition-transform"
-                  >
-                    {s} {s === "pending" && pendingCount > 0 && `(${pendingCount})`}
-                  </Button>
-                ))}
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search by name, email or transaction ID..." value={paymentSearch} onChange={(e) => setPaymentSearch(e.target.value)} className="pl-9" />
+                </div>
+                <div className="flex gap-2">
+                  {["all", "pending", "approved", "rejected"].map((s) => (
+                    <Button key={s} size="sm" variant={statusFilter === s ? "default" : "outline"} onClick={() => setStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
+                      {s} {s === "pending" && pendingCount > 0 && `(${pendingCount})`}
+                    </Button>
+                  ))}
+                </div>
               </div>
 
               {paymentsLoading ? (
@@ -516,6 +528,10 @@ const AdminPanel = () => {
                   <Plus className="h-4 w-4 mr-1" /> Add Course
                 </Button>
               </div>
+              <div className="relative max-w-md mb-6">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search courses..." value={courseSearch} onChange={(e) => setCourseSearch(e.target.value)} className="pl-9" />
+              </div>
 
               {showAddCourse && (
                 <div className="mb-8 rounded-2xl border border-border bg-card p-6">
@@ -570,7 +586,7 @@ const AdminPanel = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {courses.map((c) => (
+                      {filteredCourses.map((c) => (
                         <tr key={c.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
                           <td className="p-3 font-medium">{c.title}</td>
                           <td className="p-3"><Badge variant="secondary">{c.category}</Badge></td>
@@ -594,7 +610,7 @@ const AdminPanel = () => {
                           </td>
                         </tr>
                       ))}
-                      {courses.length === 0 && (
+                      {filteredCourses.length === 0 && (
                         <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No courses yet.</td></tr>
                       )}
                     </tbody>
@@ -613,6 +629,10 @@ const AdminPanel = () => {
                 <Button variant="hero" onClick={() => { setEditingEbook(null); setEbookForm(emptyEbook); setShowAddEbook(true); }} className="hover:scale-105 transition-transform">
                   <Plus className="h-4 w-4 mr-1" /> Add Ebook
                 </Button>
+              </div>
+              <div className="relative max-w-md mb-6">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search ebooks..." value={ebookSearch} onChange={(e) => setEbookSearch(e.target.value)} className="pl-9" />
               </div>
 
               {showAddEbook && (
@@ -657,7 +677,7 @@ const AdminPanel = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {ebooks.map((e) => (
+                      {filteredEbooks.map((e) => (
                         <tr key={e.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
                           <td className="p-3 font-medium">{e.title}</td>
                           <td className="p-3 text-muted-foreground">{e.author}</td>
@@ -675,7 +695,7 @@ const AdminPanel = () => {
                           </td>
                         </tr>
                       ))}
-                      {ebooks.length === 0 && (
+                      {filteredEbooks.length === 0 && (
                         <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No ebooks yet.</td></tr>
                       )}
                     </tbody>
@@ -689,12 +709,18 @@ const AdminPanel = () => {
           {activeTab === "ebook-payments" && (
             <div>
               <h1 className="font-display text-2xl font-bold mb-6">Ebook Payment Requests</h1>
-              <div className="flex gap-2 mb-6">
-                {["all", "pending", "approved", "rejected"].map((s) => (
-                  <Button key={s} size="sm" variant={ebookStatusFilter === s ? "default" : "outline"} onClick={() => setEbookStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
-                    {s} {s === "pending" && ebookPendingCount > 0 && `(${ebookPendingCount})`}
-                  </Button>
-                ))}
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search by name, email or transaction ID..." value={ebookPaymentSearch} onChange={(e) => setEbookPaymentSearch(e.target.value)} className="pl-9" />
+                </div>
+                <div className="flex gap-2">
+                  {["all", "pending", "approved", "rejected"].map((s) => (
+                    <Button key={s} size="sm" variant={ebookStatusFilter === s ? "default" : "outline"} onClick={() => setEbookStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
+                      {s} {s === "pending" && ebookPendingCount > 0 && `(${ebookPendingCount})`}
+                    </Button>
+                  ))}
+                </div>
               </div>
 
               {ebookPaymentsLoading ? (
@@ -759,6 +785,10 @@ const AdminPanel = () => {
                   <Plus className="h-4 w-4 mr-1" /> Add File
                 </Button>
               </div>
+              <div className="relative max-w-md mb-6">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search files..." value={fileSearch} onChange={(e) => setFileSearch(e.target.value)} className="pl-9" />
+              </div>
 
               {showAddFile && (
                 <div className="mb-8 rounded-2xl border border-border bg-card p-6">
@@ -812,7 +842,7 @@ const AdminPanel = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {digitalFiles.map((f) => (
+                      {filteredDigitalFiles.map((f) => (
                         <tr key={f.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
                           <td className="p-3 font-medium">{f.title}</td>
                           <td className="p-3"><Badge variant="secondary">{f.category}</Badge></td>
@@ -830,7 +860,7 @@ const AdminPanel = () => {
                           </td>
                         </tr>
                       ))}
-                      {digitalFiles.length === 0 && (
+                      {filteredDigitalFiles.length === 0 && (
                         <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No files yet.</td></tr>
                       )}
                     </tbody>
@@ -844,12 +874,18 @@ const AdminPanel = () => {
           {activeTab === "file-payments" && (
             <div>
               <h1 className="font-display text-2xl font-bold mb-6">File Payment Requests</h1>
-              <div className="flex gap-2 mb-6">
-                {["all", "pending", "approved", "rejected"].map((s) => (
-                  <Button key={s} size="sm" variant={fileStatusFilter === s ? "default" : "outline"} onClick={() => setFileStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
-                    {s} {s === "pending" && filePendingCount > 0 && `(${filePendingCount})`}
-                  </Button>
-                ))}
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search by name, email or transaction ID..." value={filePaymentSearch} onChange={(e) => setFilePaymentSearch(e.target.value)} className="pl-9" />
+                </div>
+                <div className="flex gap-2">
+                  {["all", "pending", "approved", "rejected"].map((s) => (
+                    <Button key={s} size="sm" variant={fileStatusFilter === s ? "default" : "outline"} onClick={() => setFileStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
+                      {s} {s === "pending" && filePendingCount > 0 && `(${filePendingCount})`}
+                    </Button>
+                  ))}
+                </div>
               </div>
 
               {filePaymentsLoading ? (

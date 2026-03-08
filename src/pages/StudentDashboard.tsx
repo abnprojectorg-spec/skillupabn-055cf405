@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import CourseCard from "@/components/CourseCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCourses, useEnrollments, useCommunityLinks } from "@/hooks/useFirestore";
@@ -41,8 +41,7 @@ const StudentDashboard = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="flex min-h-screen items-center justify-center pt-16">
+        <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
             <GraduationCap className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
             <h1 className="font-display text-2xl font-bold mb-2">Sign in to access your dashboard</h1>
@@ -60,10 +59,10 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="pt-16 flex">
+      
+      <div className="flex">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card min-h-[calc(100vh-4rem)] p-4 sticky top-16">
+        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card min-h-screen p-4 sticky top-0">
           <div className="flex items-center gap-3 p-3 mb-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary text-sm font-bold text-primary-foreground">
               {initials}
@@ -230,6 +229,7 @@ const StudentDashboard = () => {
           )}
         </main>
       </div>
+      <Footer />
       <ContactAdminButton />
     </div>
   );
