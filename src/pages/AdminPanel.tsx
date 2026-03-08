@@ -709,12 +709,18 @@ const AdminPanel = () => {
           {activeTab === "ebook-payments" && (
             <div>
               <h1 className="font-display text-2xl font-bold mb-6">Ebook Payment Requests</h1>
-              <div className="flex gap-2 mb-6">
-                {["all", "pending", "approved", "rejected"].map((s) => (
-                  <Button key={s} size="sm" variant={ebookStatusFilter === s ? "default" : "outline"} onClick={() => setEbookStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
-                    {s} {s === "pending" && ebookPendingCount > 0 && `(${ebookPendingCount})`}
-                  </Button>
-                ))}
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search by name, email or transaction ID..." value={ebookPaymentSearch} onChange={(e) => setEbookPaymentSearch(e.target.value)} className="pl-9" />
+                </div>
+                <div className="flex gap-2">
+                  {["all", "pending", "approved", "rejected"].map((s) => (
+                    <Button key={s} size="sm" variant={ebookStatusFilter === s ? "default" : "outline"} onClick={() => setEbookStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
+                      {s} {s === "pending" && ebookPendingCount > 0 && `(${ebookPendingCount})`}
+                    </Button>
+                  ))}
+                </div>
               </div>
 
               {ebookPaymentsLoading ? (
