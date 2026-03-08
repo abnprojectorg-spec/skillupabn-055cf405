@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -7,13 +7,12 @@ import { useCourse, useLessons, useLessonProgress, useCourseProject, markLessonC
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ArrowLeft, CheckCircle, Loader2, Play, Lock, BookOpen,
-  ChevronRight, FileText, Award,
+  ArrowLeft, CheckCircle, Loader2, Play, Lock,
+  ChevronLeft, ChevronRight, FileText, Award,
 } from "lucide-react";
 
 const getYouTubeEmbedUrl = (url: string): string => {
   if (!url) return "";
-  // Extract src from iframe HTML if pasted as full embed code
   const iframeSrcMatch = url.match(/src=["']([^"']+)["']/);
   if (iframeSrcMatch) return iframeSrcMatch[1];
   if (url.includes("/embed/")) return url;
@@ -46,7 +45,6 @@ const CourseLearningPage = () => {
 
   const isLessonAccessible = (index: number) => {
     if (index === 0) return true;
-    // Previous lesson must be completed
     const prevLesson = sortedLessons[index - 1];
     return prevLesson ? completedLessonIds.has(prevLesson.id) : false;
   };
@@ -57,7 +55,6 @@ const CourseLearningPage = () => {
     try {
       await markLessonComplete(user.uid, id, activeLesson.id);
       toast({ title: "Lesson completed! 🎉" });
-      // Auto-advance to next lesson
       if (activeLessonIndex < sortedLessons.length - 1) {
         setActiveLessonIndex(activeLessonIndex + 1);
       }
@@ -65,6 +62,17 @@ const CourseLearningPage = () => {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setMarking(false);
+    }
+  };
+
+  const goToPrevious = () => {
+    if (activeLessonIndex > 0) setActiveLessonIndex(activeLessonIndex - 1);
+  };
+
+  const goToNext = () => {
+    const nextIndex = activeLessonIndex + 1;
+    if (nextIndex < totalLessons && isLessonAccessible(nextIndex)) {
+      setActiveLessonIndex(nextIndex);
     }
   };
 
@@ -98,81 +106,35 @@ const CourseLearningPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-16 flex flex-col lg:flex-row">
-        {/* Sidebar - Lesson List */}
-        <aside className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-border bg-card lg:min-h-[calc(100vh-4rem)] lg:sticky lg:top-16 overflow-y-auto">
-          <div className="p-4 border-b border-border">
-            <Link to={`/course/${id}`} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-accent transition-colors mb-3">
-              <ArrowLeft className="h-3 w-3" /> Back to Course
+
+      <div className="pt-16">
+        {/* Top bar: back link + progress */}
+        <div className="border-b border-border bg-card/60 backdrop-blur-sm">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+            <Link
+              to={`/course/${id}`}
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">{course.title}</span>
+              <span className="sm:hidden">Back</span>
             </Link>
-            <h2 className="font-display text-sm font-bold line-clamp-2">{course.title}</h2>
-            <div className="mt-3">
-              <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-                <span>Course Progress</span>
-                <span className="font-medium text-accent">{progressPercent}%</span>
-              </div>
-              <Progress value={progressPercent} className="h-2" />
-              <p className="text-xs text-muted-foreground mt-1">{completedCount} / {totalLessons} lessons</p>
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                {completedCount}/{totalLessons} lessons
+              </span>
+              <Progress value={progressPercent} className="h-2 w-24 sm:w-32" />
+              <span className="text-xs font-semibold text-accent">{progressPercent}%</span>
             </div>
           </div>
+        </div>
 
-          <div className="p-2">
-            {sortedLessons.length === 0 ? (
-              <p className="text-sm text-muted-foreground p-4 text-center">No lessons available yet.</p>
-            ) : (
-              sortedLessons.map((lesson, index) => {
-                const isCompleted = completedLessonIds.has(lesson.id);
-                const isAccessible = isLessonAccessible(index);
-                const isActive = index === activeLessonIndex;
-
-                return (
-                  <button
-                    key={lesson.id}
-                    onClick={() => isAccessible && setActiveLessonIndex(index)}
-                    disabled={!isAccessible}
-                    className={`w-full flex items-center gap-3 rounded-lg px-3 py-3 text-left text-sm transition-all duration-200 mb-1 group ${
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-glow"
-                        : isAccessible
-                        ? "text-foreground hover:bg-secondary"
-                        : "text-muted-foreground/50 cursor-not-allowed"
-                    }`}
-                  >
-                    <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
-                      isCompleted
-                        ? "bg-accent text-accent-foreground"
-                        : isActive
-                        ? "bg-primary-foreground/20 text-primary-foreground"
-                        : "bg-secondary text-muted-foreground"
-                    }`}>
-                      {isCompleted ? <CheckCircle className="h-4 w-4" /> : isAccessible ? index + 1 : <Lock className="h-3 w-3" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{lesson.title}</p>
-                    </div>
-                    {isAccessible && !isActive && <ChevronRight className="h-4 w-4 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />}
-                  </button>
-                );
-              })
-            )}
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
-          {activeLesson ? (
-            <div className="max-w-4xl mx-auto">
-              {/* Lesson Header */}
-              <div className="mb-6">
-                <p className="text-xs text-accent font-medium uppercase tracking-wider mb-1">
-                  Lesson {activeLessonIndex + 1} of {totalLessons}
-                </p>
-                <h1 className="font-display text-2xl sm:text-3xl font-bold">{activeLesson.title}</h1>
-              </div>
-
-              {/* Video Player */}
+        {activeLesson ? (
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            {/* Video Player */}
+            <div className="w-full">
               {activeLesson.videoUrl ? (
-                <div className="aspect-video rounded-xl overflow-hidden bg-card border border-border mb-8 shadow-lg">
+                <div className="aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
                   <iframe
                     src={getYouTubeEmbedUrl(activeLesson.videoUrl)}
                     className="w-full h-full"
@@ -182,97 +144,137 @@ const CourseLearningPage = () => {
                   />
                 </div>
               ) : (
-                <div className="aspect-video rounded-xl bg-card border border-border mb-8 flex items-center justify-center">
+                <div className="aspect-video rounded-xl bg-card border border-border flex items-center justify-center">
                   <div className="text-center text-muted-foreground">
-                    <Play className="h-12 w-12 mx-auto mb-2 opacity-30" />
+                    <Play className="h-16 w-16 mx-auto mb-3 opacity-20" />
                     <p className="text-sm">No video available for this lesson</p>
                   </div>
                 </div>
               )}
+            </div>
 
-              {/* Lesson Notes */}
-              {activeLesson.notes && (
-                <div className="rounded-xl border border-border bg-card p-6 mb-8">
-                  <div className="flex items-center gap-2 mb-4">
-                    <FileText className="h-5 w-5 text-accent" />
-                    <h2 className="font-display text-lg font-semibold">Lesson Notes</h2>
-                  </div>
-                  <div className="prose prose-invert max-w-none text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {activeLesson.notes}
-                  </div>
-                </div>
-              )}
+            {/* Lesson Title + Mark Complete */}
+            <div className="mt-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-xs text-accent font-semibold uppercase tracking-wider mb-1">
+                  Lesson {activeLessonIndex + 1} of {totalLessons}
+                </p>
+                <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">
+                  {activeLesson.title}
+                </h1>
+              </div>
 
-              {/* Mark Complete Button */}
-              <div className="flex items-center justify-between rounded-xl border border-border bg-card p-5 mb-8">
-                <div>
-                  <p className="font-display font-semibold text-sm">
-                    {completedLessonIds.has(activeLesson.id) ? "✅ Lesson Completed" : "Ready to move on?"}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {completedLessonIds.has(activeLesson.id)
-                      ? "You've completed this lesson"
-                      : "Mark this lesson as complete to unlock the next one"}
-                  </p>
-                </div>
-                {!completedLessonIds.has(activeLesson.id) && (
+              <div className="shrink-0">
+                {completedLessonIds.has(activeLesson.id) ? (
+                  <div className="inline-flex items-center gap-2 rounded-lg bg-accent/10 border border-accent/20 px-4 py-2.5">
+                    <CheckCircle className="h-5 w-5 text-accent" />
+                    <span className="text-sm font-semibold text-accent">Completed</span>
+                  </div>
+                ) : (
                   <Button
                     variant="hero"
                     onClick={handleMarkComplete}
                     disabled={marking}
-                    className="shadow-glow hover:scale-105 transition-transform shrink-0"
+                    className="shadow-glow hover:scale-105 transition-transform"
                   >
                     {marking ? (
-                      <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Saving...</>
+                      <><Loader2 className="h-4 w-4 animate-spin mr-1.5" /> Saving...</>
                     ) : (
-                      <><CheckCircle className="h-4 w-4 mr-1" /> Mark Complete</>
+                      <><CheckCircle className="h-4 w-4 mr-1.5" /> Mark Complete</>
                     )}
                   </Button>
                 )}
               </div>
+            </div>
 
-              {/* Project Assignment — only after all lessons are completed */}
-              {allCompleted && !projectLoading && project && (
-                <div className="rounded-xl border-2 border-accent/30 bg-accent/5 p-6 animate-in fade-in slide-in-from-bottom-4">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
-                      <Award className="h-5 w-5 text-accent" />
-                    </div>
-                    <div>
-                      <h2 className="font-display text-xl font-bold">🎉 Course Complete!</h2>
-                      <p className="text-xs text-muted-foreground">Here's your final project assignment</p>
-                    </div>
+            {/* Divider */}
+            <div className="h-px bg-border my-6 sm:my-8" />
+
+            {/* Lesson Notes */}
+            {activeLesson.notes ? (
+              <div className="mb-8">
+                <div className="flex items-center gap-2.5 mb-5">
+                  <FileText className="h-5 w-5 text-accent" />
+                  <h2 className="font-display text-lg font-semibold">Lesson Notes</h2>
+                </div>
+                <div className="prose prose-invert max-w-none text-muted-foreground leading-relaxed whitespace-pre-wrap text-[15px]">
+                  {activeLesson.notes}
+                </div>
+              </div>
+            ) : (
+              <div className="mb-8 rounded-xl border border-border bg-card/50 p-8 text-center">
+                <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="text-sm text-muted-foreground">No notes available for this lesson.</p>
+              </div>
+            )}
+
+            {/* Previous / Next Navigation */}
+            <div className="flex items-center justify-between gap-4 py-6 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={goToPrevious}
+                disabled={activeLessonIndex === 0}
+                className="gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Previous Lesson</span>
+                <span className="sm:hidden">Previous</span>
+              </Button>
+
+              <span className="text-xs text-muted-foreground">
+                {activeLessonIndex + 1} / {totalLessons}
+              </span>
+
+              <Button
+                variant="outline"
+                onClick={goToNext}
+                disabled={activeLessonIndex >= totalLessons - 1 || !isLessonAccessible(activeLessonIndex + 1)}
+                className="gap-2"
+              >
+                <span className="hidden sm:inline">Next Lesson</span>
+                <span className="sm:hidden">Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Course Complete Section */}
+            {allCompleted && !projectLoading && project && (
+              <div className="rounded-xl border-2 border-accent/30 bg-accent/5 p-6 mt-4 animate-in fade-in slide-in-from-bottom-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
+                    <Award className="h-5 w-5 text-accent" />
                   </div>
-                  <div className="rounded-lg border border-border bg-card p-5 mt-4">
-                    <h3 className="font-display text-lg font-semibold mb-2">{project.projectTitle}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                      {project.projectDescription}
-                    </p>
+                  <div>
+                    <h2 className="font-display text-xl font-bold">🎉 Course Complete!</h2>
+                    <p className="text-xs text-muted-foreground">Here's your final project assignment</p>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-4 italic">
-                    Project submission feature coming soon.
+                </div>
+                <div className="rounded-lg border border-border bg-card p-5 mt-4">
+                  <h3 className="font-display text-lg font-semibold mb-2">{project.projectTitle}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {project.projectDescription}
                   </p>
                 </div>
-              )}
-
-              {allCompleted && !projectLoading && !project && (
-                <div className="rounded-xl border-2 border-accent/30 bg-accent/5 p-6 text-center">
-                  <Award className="h-10 w-10 mx-auto mb-3 text-accent" />
-                  <h2 className="font-display text-xl font-bold mb-1">🎉 Congratulations!</h2>
-                  <p className="text-sm text-muted-foreground">You've completed all lessons in this course!</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center min-h-[50vh]">
-              <div className="text-center">
-                <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
-                <h2 className="font-display text-xl font-bold mb-2">No lessons yet</h2>
-                <p className="text-sm text-muted-foreground">Lessons will appear here once the instructor adds them.</p>
               </div>
+            )}
+
+            {allCompleted && !projectLoading && !project && (
+              <div className="rounded-xl border-2 border-accent/30 bg-accent/5 p-6 text-center mt-4">
+                <Award className="h-10 w-10 mx-auto mb-3 text-accent" />
+                <h2 className="font-display text-xl font-bold mb-1">🎉 Congratulations!</h2>
+                <p className="text-sm text-muted-foreground">You've completed all lessons in this course!</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <Play className="h-16 w-16 mx-auto mb-4 text-muted-foreground/20" />
+              <h2 className="font-display text-xl font-bold mb-2">No lessons yet</h2>
+              <p className="text-sm text-muted-foreground">Lessons will appear here once the instructor adds them.</p>
             </div>
-          )}
-        </main>
+          </div>
+        )}
       </div>
     </div>
   );
