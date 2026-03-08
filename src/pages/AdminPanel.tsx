@@ -50,6 +50,12 @@ const AdminPanel = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const adminCode = sessionStorage.getItem("adminAuth");
+    if (adminCode) {
+      // Verified via access code on AdminLoginPage
+      setIsAdmin(true);
+      return;
+    }
     if (user?.email) {
       checkIsAdmin(user.email).then((result) => {
         setIsAdmin(result);
