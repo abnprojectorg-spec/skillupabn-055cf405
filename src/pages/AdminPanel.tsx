@@ -390,23 +390,15 @@ const AdminPanel = () => {
         <main className="flex-1 p-6">
           {/* Overview */}
           {activeTab === "overview" && (
-            <div>
-              <h1 className="font-display text-2xl font-bold mb-6">Dashboard Overview</h1>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-                {[
-                  { label: "Total Courses", value: coursesLoading ? "…" : courses.length, color: "text-primary" },
-                  { label: "Total Ebooks", value: ebooksLoading ? "…" : ebooks.length, color: "text-primary" },
-                  { label: "Total Files", value: filesLoading ? "…" : digitalFiles.length, color: "text-primary" },
-                  { label: "Total Users", value: usersLoading ? "…" : users.length, color: "text-accent" },
-                  { label: "Pending Payments", value: paymentsLoading ? "…" : pendingCount + ebookPendingCount + filePendingCount, color: "text-warning" },
-                ].map((stat) => (
-                  <div key={stat.label} className="rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors">
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className={`font-display text-2xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <AdminAnalytics
+              courses={courses}
+              ebooks={ebooks}
+              files={digitalFiles}
+              users={users}
+              coursePayments={requests}
+              ebookPayments={ebookRequests}
+              filePayments={fileRequests}
+            />
           )}
 
           {/* Payments */}
