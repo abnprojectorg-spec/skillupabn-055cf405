@@ -234,7 +234,7 @@ const LandingPage = () => {
 
       {/* CTA */}
       <section className="relative py-24 overflow-hidden">
-        <AnimatedBackground />
+        <TechParticlesBackground />
         <div className="relative mx-auto max-w-3xl px-4 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
