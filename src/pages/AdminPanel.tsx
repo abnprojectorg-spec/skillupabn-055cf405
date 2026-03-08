@@ -414,6 +414,9 @@ const AdminPanel = () => {
           {/* Lessons Management */}
           {activeTab === "lessons" && <LessonsManager courses={courses} toast={toast} />}
 
+          {/* Community Links Management */}
+          {activeTab === "community" && <CommunityLinksManager toast={toast} />}
+
           {/* Projects Management */}
           {activeTab === "projects" && <ProjectsManager courses={courses} toast={toast} />}
 
