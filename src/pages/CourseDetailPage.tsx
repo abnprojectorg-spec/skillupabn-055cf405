@@ -189,9 +189,11 @@ const CourseDetailPage = () => {
                 </div>
 
                 {enrolled ? (
-                  <Button variant="hero" size="lg" className="w-full mb-3 shadow-glow">
-                    <CheckCircle className="h-4 w-4 mr-1" /> Start Learning
-                  </Button>
+                  <Link to="/dashboard">
+                    <Button variant="hero" size="lg" className="w-full mb-3 shadow-glow">
+                      <CheckCircle className="h-4 w-4 mr-1" /> Start Learning
+                    </Button>
+                  </Link>
                 ) : existingPayment?.status === "pending" ? (
                   <div className="mb-3 rounded-lg border border-warning/30 bg-warning/5 p-4 text-center">
                     <p className="text-sm font-medium text-warning">⏳ Payment Under Review</p>
