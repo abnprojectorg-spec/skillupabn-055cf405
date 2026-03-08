@@ -16,6 +16,19 @@ import {
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
 
+const getYouTubeEmbedUrl = (url: string): string => {
+  if (!url) return "";
+  // Already an embed URL
+  if (url.includes("/embed/")) return url;
+  // Handle youtu.be/VIDEO_ID
+  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
+  // Handle youtube.com/watch?v=VIDEO_ID
+  const longMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+  if (longMatch) return `https://www.youtube.com/embed/${longMatch[1]}`;
+  return url;
+};
+
 const CourseDetailPage = () => {
   const { id } = useParams();
   const { course, loading } = useCourse(id);
