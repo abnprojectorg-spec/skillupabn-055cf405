@@ -41,8 +41,7 @@ const StudentDashboard = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="flex min-h-screen items-center justify-center pt-16">
+        <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
             <GraduationCap className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
             <h1 className="font-display text-2xl font-bold mb-2">Sign in to access your dashboard</h1>
