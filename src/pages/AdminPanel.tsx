@@ -35,6 +35,8 @@ const ADMIN_TABS = [
   { id: "courses", label: "Courses", icon: BookOpen },
   { id: "ebooks", label: "Ebooks", icon: Book },
   { id: "ebook-payments", label: "Ebook Payments", icon: CreditCard },
+  { id: "files", label: "Files", icon: FolderOpen },
+  { id: "file-payments", label: "File Payments", icon: CreditCard },
   { id: "projects", label: "Projects", icon: Award },
   { id: "community", label: "Community Links", icon: Link2 },
   { id: "users", label: "Users", icon: Users },
