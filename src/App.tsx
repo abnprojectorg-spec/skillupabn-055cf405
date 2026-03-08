@@ -16,6 +16,9 @@ import CourseLearningPage from "./pages/CourseLearningPage";
 import EbooksPage from "./pages/EbooksPage";
 import EbookDetailPage from "./pages/EbookDetailPage";
 import EbookReaderPage from "./pages/EbookReaderPage";
+import FilesPage from "./pages/FilesPage";
+import FileDetailPage from "./pages/FileDetailPage";
+import FileDownloadPage from "./pages/FileDownloadPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +41,9 @@ const App = () => (
             <Route path="/ebooks" element={<EbooksPage />} />
             <Route path="/ebook/:id" element={<EbookDetailPage />} />
             <Route path="/read-ebook/:id" element={<EbookReaderPage />} />
+            <Route path="/files" element={<FilesPage />} />
+            <Route path="/file/:id" element={<FileDetailPage />} />
+            <Route path="/download-file/:id" element={<FileDownloadPage />} />
             <Route path="/admin-login" element={<AdminLoginPage />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="*" element={<NotFound />} />

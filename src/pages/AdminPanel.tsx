@@ -9,21 +9,24 @@ import Navbar from "@/components/Navbar";
 import {
   useCourses, useUsers, usePaymentRequests, useCourseProject, useCommunityLinks,
   useEbooks, useEbookPaymentRequests,
+  useDigitalFiles, useFilePaymentRequests,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
   saveCourseProject, deleteCourseProject,
   saveCommunityLink, deleteCommunityLink,
   addEbook, updateEbook, deleteEbook,
   approveEbookPayment, rejectEbookPayment, deleteEbookPaymentRequest,
+  addDigitalFile, updateDigitalFile, deleteDigitalFile,
+  approveFilePayment, rejectFilePayment, deleteFilePaymentRequest,
   checkIsAdmin, updateUser, deleteUser, removeUserCourseAccess, enrollUser,
 } from "@/hooks/useFirestore";
-import type { FirestoreCourse, FirestoreEbook, FirestoreUser } from "@/hooks/useFirestore";
+import type { FirestoreCourse, FirestoreEbook, FirestoreDigitalFile, FirestoreUser } from "@/hooks/useFirestore";
 import { CATEGORIES } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus,
+  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen,
 } from "lucide-react";
 
 const ADMIN_TABS = [
@@ -32,6 +35,8 @@ const ADMIN_TABS = [
   { id: "courses", label: "Courses", icon: BookOpen },
   { id: "ebooks", label: "Ebooks", icon: Book },
   { id: "ebook-payments", label: "Ebook Payments", icon: CreditCard },
+  { id: "files", label: "Files", icon: FolderOpen },
+  { id: "file-payments", label: "File Payments", icon: CreditCard },
   { id: "projects", label: "Projects", icon: Award },
   { id: "community", label: "Community Links", icon: Link2 },
   { id: "users", label: "Users", icon: Users },
@@ -51,6 +56,9 @@ const AdminPanel = () => {
   const [showAddEbook, setShowAddEbook] = useState(false);
   const [editingEbook, setEditingEbook] = useState<FirestoreEbook | null>(null);
   const [ebookStatusFilter, setEbookStatusFilter] = useState<string>("all");
+  const [showAddFile, setShowAddFile] = useState(false);
+  const [editingFile, setEditingFile] = useState<FirestoreDigitalFile | null>(null);
+  const [fileStatusFilter, setFileStatusFilter] = useState<string>("all");
   
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
@@ -59,6 +67,8 @@ const AdminPanel = () => {
   const { requests, loading: paymentsLoading } = usePaymentRequests();
   const { ebooks, loading: ebooksLoading } = useEbooks();
   const { requests: ebookRequests, loading: ebookPaymentsLoading } = useEbookPaymentRequests();
+  const { files: digitalFiles, loading: filesLoading } = useDigitalFiles();
+  const { requests: fileRequests, loading: filePaymentsLoading } = useFilePaymentRequests();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -238,6 +248,80 @@ const AdminPanel = () => {
     }
   };
 
+  // ─── File Handlers ─────────────────────────────────────────
+  const emptyFile = {
+    title: "", developer: "", category: "Software", description: "", shortDescription: "",
+    price: 0, coverImage: "", fileUrl: "", qrCodeUrl: "", fileType: "Application", fileSize: "", whatYouWillGet: "",
+  };
+
+  const [fileForm, setFileForm] = useState(emptyFile);
+
+  const handleSaveFile = async () => {
+    if (!fileForm.title) return;
+    try {
+      if (editingFile) {
+        await updateDigitalFile(editingFile.id, fileForm);
+        toast({ title: "File updated!" });
+        setEditingFile(null);
+      } else {
+        await addDigitalFile(fileForm as any);
+        toast({ title: "File added!" });
+      }
+      setShowAddFile(false);
+      setFileForm(emptyFile);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleEditFile = (file: FirestoreDigitalFile) => {
+    setEditingFile(file);
+    setFileForm({
+      title: file.title, developer: file.developer, category: file.category,
+      description: file.description, shortDescription: file.shortDescription,
+      price: file.price, coverImage: file.coverImage, fileUrl: file.fileUrl,
+      qrCodeUrl: file.qrCodeUrl || "", fileType: file.fileType, fileSize: file.fileSize,
+      whatYouWillGet: file.whatYouWillGet || "",
+    });
+    setShowAddFile(true);
+  };
+
+  const handleDeleteFile = async (id: string) => {
+    try {
+      await deleteDigitalFile(id);
+      toast({ title: "File deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleApproveFilePayment = async (req: any) => {
+    try {
+      await approveFilePayment(req.id, req.userId, req.fileId);
+      toast({ title: "Payment approved! File unlocked for user." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleRejectFilePayment = async (id: string) => {
+    try {
+      await rejectFilePayment(id);
+      toast({ title: "Payment rejected" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteFilePayment = async (id: string) => {
+    try {
+      await deleteFilePaymentRequest(id);
+      toast({ title: "File payment request deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   const filteredRequests = statusFilter === "all"
     ? requests
     : requests.filter((r) => r.status === statusFilter);
@@ -249,6 +333,12 @@ const AdminPanel = () => {
     : ebookRequests.filter((r) => r.status === ebookStatusFilter);
 
   const ebookPendingCount = ebookRequests.filter((r) => r.status === "pending").length;
+
+  const filteredFileRequests = fileStatusFilter === "all"
+    ? fileRequests
+    : fileRequests.filter((r) => r.status === fileStatusFilter);
+
+  const filePendingCount = fileRequests.filter((r) => r.status === "pending").length;
 
   if (isAdmin === null) {
     return (
@@ -286,6 +376,9 @@ const AdminPanel = () => {
               {tab.id === "ebook-payments" && ebookPendingCount > 0 && (
                 <Badge className="ml-auto bg-warning/20 text-warning text-xs px-1.5">{ebookPendingCount}</Badge>
               )}
+              {tab.id === "file-payments" && filePendingCount > 0 && (
+                <Badge className="ml-auto bg-warning/20 text-warning text-xs px-1.5">{filePendingCount}</Badge>
+              )}
             </button>
           ))}
         </aside>
@@ -299,8 +392,9 @@ const AdminPanel = () => {
                 {[
                   { label: "Total Courses", value: coursesLoading ? "…" : courses.length, color: "text-primary" },
                   { label: "Total Ebooks", value: ebooksLoading ? "…" : ebooks.length, color: "text-primary" },
+                  { label: "Total Files", value: filesLoading ? "…" : digitalFiles.length, color: "text-primary" },
                   { label: "Total Users", value: usersLoading ? "…" : users.length, color: "text-accent" },
-                  { label: "Pending Payments", value: paymentsLoading ? "…" : pendingCount + ebookPendingCount, color: "text-warning" },
+                  { label: "Pending Payments", value: paymentsLoading ? "…" : pendingCount + ebookPendingCount + filePendingCount, color: "text-warning" },
                 ].map((stat) => (
                   <div key={stat.label} className="rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors">
                     <p className="text-sm text-muted-foreground">{stat.label}</p>
@@ -639,6 +733,161 @@ const AdminPanel = () => {
                       ))}
                       {filteredEbookRequests.length === 0 && (
                         <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No ebook payment requests found.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Files Management */}
+          {activeTab === "files" && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="font-display text-2xl font-bold">Manage Files</h1>
+                <Button variant="hero" onClick={() => { setEditingFile(null); setFileForm(emptyFile); setShowAddFile(true); }} className="hover:scale-105 transition-transform">
+                  <Plus className="h-4 w-4 mr-1" /> Add File
+                </Button>
+              </div>
+
+              {showAddFile && (
+                <div className="mb-8 rounded-2xl border border-border bg-card p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-display text-lg font-semibold">{editingFile ? "Edit File" : "New File"}</h2>
+                    <button onClick={() => { setShowAddFile(false); setEditingFile(null); }}><X className="h-5 w-5 text-muted-foreground" /></button>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div><Label>Title</Label><Input value={fileForm.title} onChange={(e) => setFileForm({...fileForm, title: e.target.value})} placeholder="File title" className="mt-1" /></div>
+                    <div><Label>Developer / Author</Label><Input value={fileForm.developer} onChange={(e) => setFileForm({...fileForm, developer: e.target.value})} placeholder="Developer name" className="mt-1" /></div>
+                    <div><Label>Category</Label>
+                      <select value={fileForm.category} onChange={(e) => setFileForm({...fileForm, category: e.target.value})} className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground">
+                        {["Software", "Application", "Website Code", "Template", "Plugin", "Document", "Other"].map((c) => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div><Label>File Type</Label>
+                      <select value={fileForm.fileType} onChange={(e) => setFileForm({...fileForm, fileType: e.target.value})} className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground">
+                        {["Application", "ZIP", "Source Code", "PDF", "APK", "EXE", "Other"].map((t) => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    </div>
+                    <div><Label>Price (ETB)</Label><Input type="number" value={fileForm.price || ""} onChange={(e) => setFileForm({...fileForm, price: Number(e.target.value)})} placeholder="199" className="mt-1" /></div>
+                    <div><Label>File Size</Label><Input value={fileForm.fileSize} onChange={(e) => setFileForm({...fileForm, fileSize: e.target.value})} placeholder="e.g. 25 MB" className="mt-1" /></div>
+                    <div><Label>Short Description</Label><Input value={fileForm.shortDescription} onChange={(e) => setFileForm({...fileForm, shortDescription: e.target.value})} placeholder="Brief summary" className="mt-1" /></div>
+                    <div><Label>Cover Image URL</Label><Input value={fileForm.coverImage} onChange={(e) => setFileForm({...fileForm, coverImage: e.target.value})} placeholder="https://..." className="mt-1" /></div>
+                    <div><Label>File Download URL</Label><Input value={fileForm.fileUrl} onChange={(e) => setFileForm({...fileForm, fileUrl: e.target.value})} placeholder="https://...file.zip" className="mt-1" /></div>
+                    <div><Label>Telebirr QR Code URL</Label><Input value={fileForm.qrCodeUrl} onChange={(e) => setFileForm({...fileForm, qrCodeUrl: e.target.value})} placeholder="https://...qr-code.png" className="mt-1" /></div>
+                    <div className="sm:col-span-2"><Label>Description</Label><Textarea value={fileForm.description} onChange={(e) => setFileForm({...fileForm, description: e.target.value})} placeholder="Full description..." className="mt-1" /></div>
+                    <div className="sm:col-span-2"><Label>What You'll Get (one item per line)</Label><Textarea value={fileForm.whatYouWillGet} onChange={(e) => setFileForm({...fileForm, whatYouWillGet: e.target.value})} placeholder="Full source code&#10;Documentation&#10;Free updates..." rows={5} className="mt-1" /></div>
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <Button variant="hero" onClick={handleSaveFile} className="hover:scale-105 transition-transform">
+                      {editingFile ? "Update File" : "Save File"}
+                    </Button>
+                    <Button variant="outline" onClick={() => { setShowAddFile(false); setEditingFile(null); }}>Cancel</Button>
+                  </div>
+                </div>
+              )}
+
+              {filesLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : (
+                <div className="rounded-xl border border-border bg-card overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-secondary">
+                      <tr>
+                        <th className="text-left p-3 font-medium">Title</th>
+                        <th className="text-left p-3 font-medium">Category</th>
+                        <th className="text-left p-3 font-medium">Type</th>
+                        <th className="text-left p-3 font-medium">Price</th>
+                        <th className="text-left p-3 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {digitalFiles.map((f) => (
+                        <tr key={f.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
+                          <td className="p-3 font-medium">{f.title}</td>
+                          <td className="p-3"><Badge variant="secondary">{f.category}</Badge></td>
+                          <td className="p-3 text-muted-foreground">{f.fileType}</td>
+                          <td className="p-3">{f.price} ETB</td>
+                          <td className="p-3">
+                            <div className="flex gap-1">
+                              <Button size="icon" variant="ghost" onClick={() => handleEditFile(f)} className="hover:bg-primary/10 transition-colors">
+                                <Edit className="h-4 w-4 text-primary" />
+                              </Button>
+                              <Button size="icon" variant="ghost" onClick={() => handleDeleteFile(f.id)} className="hover:bg-destructive/10 transition-colors">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {digitalFiles.length === 0 && (
+                        <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No files yet.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* File Payments */}
+          {activeTab === "file-payments" && (
+            <div>
+              <h1 className="font-display text-2xl font-bold mb-6">File Payment Requests</h1>
+              <div className="flex gap-2 mb-6">
+                {["all", "pending", "approved", "rejected"].map((s) => (
+                  <Button key={s} size="sm" variant={fileStatusFilter === s ? "default" : "outline"} onClick={() => setFileStatusFilter(s)} className="capitalize hover:scale-105 transition-transform">
+                    {s} {s === "pending" && filePendingCount > 0 && `(${filePendingCount})`}
+                  </Button>
+                ))}
+              </div>
+
+              {filePaymentsLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : (
+                <div className="rounded-xl border border-border bg-card overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-secondary">
+                      <tr>
+                        <th className="text-left p-3 font-medium">User</th>
+                        <th className="text-left p-3 font-medium">File</th>
+                        <th className="text-left p-3 font-medium">Transaction ID</th>
+                        <th className="text-left p-3 font-medium">Status</th>
+                        <th className="text-left p-3 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredFileRequests.map((req) => (
+                        <tr key={req.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
+                          <td className="p-3">
+                            <p className="font-medium">{req.userName}</p>
+                            <p className="text-xs text-muted-foreground">{req.userEmail}</p>
+                          </td>
+                          <td className="p-3 font-medium">{req.fileTitle}</td>
+                          <td className="p-3"><span className="font-mono tracking-wider text-foreground">{req.transactionId || "—"}</span></td>
+                          <td className="p-3"><Badge className={`${STATUS_COLORS[req.status]} capitalize`}>{req.status}</Badge></td>
+                          <td className="p-3">
+                            <div className="flex gap-1">
+                              {req.status === "pending" && (
+                                <>
+                                  <Button size="icon" variant="ghost" onClick={() => handleApproveFilePayment(req)} title="Approve" className="hover:bg-accent/10 hover:text-accent transition-colors">
+                                    <CheckCircle className="h-4 w-4 text-accent" />
+                                  </Button>
+                                  <Button size="icon" variant="ghost" onClick={() => handleRejectFilePayment(req.id)} title="Reject" className="hover:bg-destructive/10 hover:text-destructive transition-colors">
+                                    <XCircle className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </>
+                              )}
+                              <Button size="icon" variant="ghost" onClick={() => handleDeleteFilePayment(req.id)} title="Delete" className="hover:bg-destructive/10 transition-colors">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {filteredFileRequests.length === 0 && (
+                        <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No file payment requests found.</td></tr>
                       )}
                     </tbody>
                   </table>

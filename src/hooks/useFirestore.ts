@@ -543,6 +543,172 @@ export async function hasEbookAccess(userId: string, ebookId: string): Promise<b
   return !snap.empty;
 }
 
+// ─── Digital File Interfaces ─────────────────────────────────
+
+export interface FirestoreDigitalFile {
+  id: string;
+  title: string;
+  developer: string;
+  category: string;
+  description: string;
+  shortDescription: string;
+  price: number;
+  coverImage: string;
+  fileUrl: string;
+  qrCodeUrl: string;
+  fileType: string;
+  fileSize: string;
+  whatYouWillGet: string;
+  createdAt?: unknown;
+}
+
+export interface FilePaymentRequest {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  fileId: string;
+  fileTitle: string;
+  transactionId: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: unknown;
+}
+
+export interface FilePurchase {
+  id: string;
+  userId: string;
+  fileId: string;
+  purchasedAt: unknown;
+}
+
+// ─── Digital File Hooks ──────────────────────────────────────
+
+export function useDigitalFiles() {
+  const [files, setFiles] = useState<FirestoreDigitalFile[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "digital_files"), (snap) => {
+      setFiles(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreDigitalFile)));
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  return { files, loading };
+}
+
+export function useDigitalFile(id: string | undefined) {
+  const [file, setFile] = useState<FirestoreDigitalFile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) { setLoading(false); return; }
+    const unsub = onSnapshot(doc(db, "digital_files", id), (snap) => {
+      setFile(snap.exists() ? { id: snap.id, ...snap.data() } as FirestoreDigitalFile : null);
+      setLoading(false);
+    }, (error) => { console.error("Error fetching file:", error); setLoading(false); });
+    return unsub;
+  }, [id]);
+
+  return { file, loading };
+}
+
+export function useFilePaymentRequests() {
+  const [requests, setRequests] = useState<FilePaymentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      query(collection(db, "file_payment_requests"), orderBy("createdAt", "desc")),
+      (snap) => {
+        setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FilePaymentRequest)));
+        setLoading(false);
+      },
+      (error) => { console.error("File payment requests error:", error); setLoading(false); }
+    );
+    return unsub;
+  }, []);
+
+  return { requests, loading };
+}
+
+export function useUserFilePayments(userId: string | undefined) {
+  const [payments, setPayments] = useState<FilePaymentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    const q = query(collection(db, "file_payment_requests"), where("userId", "==", userId));
+    const unsub = onSnapshot(q, (snap) => {
+      setPayments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FilePaymentRequest)));
+      setLoading(false);
+    }, (error) => { console.error("User file payments error:", error); setLoading(false); });
+    return unsub;
+  }, [userId]);
+
+  return { payments, loading };
+}
+
+export function useUserFilePurchases(userId: string | undefined) {
+  const [purchases, setPurchases] = useState<FilePurchase[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    const q = query(collection(db, "file_purchases"), where("userId", "==", userId));
+    const unsub = onSnapshot(q, (snap) => {
+      setPurchases(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FilePurchase)));
+      setLoading(false);
+    }, (error) => { console.error("File purchases error:", error); setLoading(false); });
+    return unsub;
+  }, [userId]);
+
+  return { purchases, loading };
+}
+
+// ─── Digital File CRUD ───────────────────────────────────────
+
+export async function addDigitalFile(file: Omit<FirestoreDigitalFile, "id">) {
+  return addDoc(collection(db, "digital_files"), { ...file, createdAt: serverTimestamp() });
+}
+
+export async function updateDigitalFile(id: string, data: Partial<FirestoreDigitalFile>) {
+  return updateDoc(doc(db, "digital_files", id), data);
+}
+
+export async function deleteDigitalFile(id: string) {
+  return deleteDoc(doc(db, "digital_files", id));
+}
+
+// ─── Digital File Payment CRUD ───────────────────────────────
+
+export async function submitFilePaymentRequest(data: {
+  userId: string; userEmail: string; userName: string;
+  fileId: string; fileTitle: string; transactionId: string;
+}) {
+  return addDoc(collection(db, "file_payment_requests"), { ...data, status: "pending", createdAt: serverTimestamp() });
+}
+
+export async function approveFilePayment(requestId: string, userId: string, fileId: string) {
+  await updateDoc(doc(db, "file_payment_requests", requestId), { status: "approved" });
+  await addDoc(collection(db, "file_purchases"), { userId, fileId, purchasedAt: serverTimestamp() });
+}
+
+export async function rejectFilePayment(requestId: string) {
+  await updateDoc(doc(db, "file_payment_requests", requestId), { status: "rejected" });
+}
+
+export async function deleteFilePaymentRequest(requestId: string) {
+  return deleteDoc(doc(db, "file_payment_requests", requestId));
+}
+
+export async function hasFileAccess(userId: string, fileId: string): Promise<boolean> {
+  const q = query(collection(db, "file_purchases"), where("userId", "==", userId), where("fileId", "==", fileId));
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
 // ─── User CRUD (Admin) ───────────────────────────────────────
 
 export async function updateUser(userId: string, data: Partial<FirestoreUser>) {
