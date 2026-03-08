@@ -756,3 +756,96 @@ export async function checkIsAdmin(email: string): Promise<boolean> {
   const snap = await getDocs(q);
   return !snap.empty;
 }
+
+// ─── Course Completion Requests ──────────────────────────────
+
+export interface CourseCompletionRequest {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  courseId: string;
+  courseTitle: string;
+  status: "pending" | "project_assigned" | "certified";
+  createdAt: unknown;
+}
+
+export function useCompletionRequests() {
+  const [requests, setRequests] = useState<CourseCompletionRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      query(collection(db, "course_completion_requests"), orderBy("createdAt", "desc")),
+      (snap) => {
+        setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CourseCompletionRequest)));
+        setLoading(false);
+      },
+      (error) => { console.error("Completion requests error:", error); setLoading(false); }
+    );
+    return unsub;
+  }, []);
+
+  return { requests, loading };
+}
+
+export function useUserCompletionRequest(userId: string | undefined, courseId: string | undefined) {
+  const [request, setRequest] = useState<CourseCompletionRequest | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId || !courseId) { setLoading(false); return; }
+    const q = query(
+      collection(db, "course_completion_requests"),
+      where("userId", "==", userId),
+      where("courseId", "==", courseId)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setRequest(snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() } as CourseCompletionRequest);
+      setLoading(false);
+    }, (error) => { console.error("User completion error:", error); setLoading(false); });
+    return unsub;
+  }, [userId, courseId]);
+
+  return { request, loading };
+}
+
+export async function submitCompletionRequest(data: {
+  userId: string; userEmail: string; userName: string;
+  courseId: string; courseTitle: string;
+}) {
+  return addDoc(collection(db, "course_completion_requests"), {
+    ...data, status: "pending", createdAt: serverTimestamp(),
+  });
+}
+
+export async function updateCompletionStatus(requestId: string, status: CourseCompletionRequest["status"]) {
+  return updateDoc(doc(db, "course_completion_requests", requestId), { status });
+}
+
+export async function deleteCompletionRequest(requestId: string) {
+  return deleteDoc(doc(db, "course_completion_requests", requestId));
+}
+
+// ─── Admin Settings ──────────────────────────────────────────
+
+export function useAdminSettings() {
+  const [settings, setSettings] = useState<{ adminTelegram: string }>({ adminTelegram: "" });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "settings", "admin"), (snap) => {
+      if (snap.exists()) {
+        setSettings(snap.data() as { adminTelegram: string });
+      }
+      setLoading(false);
+    }, (error) => { console.error("Admin settings error:", error); setLoading(false); });
+    return unsub;
+  }, []);
+
+  return { settings, loading };
+}
+
+export async function saveAdminTelegram(username: string) {
+  return setDoc(doc(db, "settings", "admin"), { adminTelegram: username }, { merge: true });
+}
