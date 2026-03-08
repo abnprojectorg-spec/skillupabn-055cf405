@@ -37,6 +37,7 @@ export default function NewsPage() {
           </div>
         )}
       </div>
+      <Footer />
       <ContactAdminButton />
     </div>
   );
