@@ -2,20 +2,21 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import Navbar from "@/components/Navbar";
 import CourseCard from "@/components/CourseCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCourses, useEnrollments, useCommunityLinks } from "@/hooks/useFirestore";
+import { useNewsPosts, toggleLike, addComment, type NewsComment } from "@/hooks/useNews";
 import { COMMUNITY_LINKS } from "@/data/mockData";
 import {
-  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2,
+  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send,
 } from "lucide-react";
-import ChatWidget from "@/components/ChatWidget";
-
+import ContactAdminButton from "@/components/ContactAdminButton";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
   { id: "courses", label: "My Courses", icon: BookOpen },
-  { id: "projects", label: "Projects", icon: FolderOpen },
+  { id: "news", label: "News", icon: Newspaper },
   { id: "community", label: "Community", icon: Users },
   { id: "profile", label: "Profile", icon: User },
 ];
@@ -26,6 +27,7 @@ const StudentDashboard = () => {
   const { courses, loading: coursesLoading } = useCourses();
   const { enrollments, loading: enrollLoading } = useEnrollments(user?.uid);
   const { links: communityLinks, loading: linksLoading } = useCommunityLinks();
+  const { posts: newsPosts, loading: newsLoading } = useNewsPosts();
   const navigate = useNavigate();
 
   if (authLoading) {
@@ -160,18 +162,23 @@ const StudentDashboard = () => {
             </div>
           )}
 
-          {activeTab === "projects" && (
+          {activeTab === "news" && (
             <div>
-              <h1 className="font-display text-2xl font-bold mb-6">Projects & Resources</h1>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {["Starter Templates", "Code Snippets", "Design Assets", "Learning Roadmaps"].map((p) => (
-                  <div key={p} className="rounded-xl border border-border bg-card p-6 hover:shadow-glow hover:border-accent/30 transition-all duration-300">
-                    <FolderOpen className="h-5 w-5 text-accent mb-3" />
-                    <h3 className="font-display font-semibold mb-1">{p}</h3>
-                    <p className="text-sm text-muted-foreground">Coming soon</p>
-                  </div>
-                ))}
-              </div>
+              <h1 className="font-display text-2xl font-bold mb-6">News & Updates</h1>
+              {newsLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : newsPosts.length === 0 ? (
+                <div className="text-center py-16">
+                  <Newspaper className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
+                  <p className="text-muted-foreground">No news yet. Check back soon!</p>
+                </div>
+              ) : (
+                <div className="space-y-6 max-w-2xl">
+                  {newsPosts.map((post) => (
+                    <DashboardNewsCard key={post.id} post={post} userId={user?.uid} userName={displayName} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -223,9 +230,75 @@ const StudentDashboard = () => {
           )}
         </main>
       </div>
-      <ChatWidget />
+      <ContactAdminButton />
     </div>
   );
 };
+
+function DashboardNewsCard({ post, userId, userName }: { post: ReturnType<typeof useNewsPosts>["posts"][0]; userId?: string; userName: string }) {
+  const [showComments, setShowComments] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const isLiked = userId ? post.likes?.includes(userId) : false;
+  const likeCount = post.likes?.length || 0;
+  const commentCount = post.comments?.length || 0;
+
+  const handleLike = async () => {
+    if (!userId) return;
+    await toggleLike(post.id, userId, isLiked);
+  };
+
+  const handleComment = async () => {
+    if (!userId || !commentText.trim() || sending) return;
+    setSending(true);
+    const comment: NewsComment = { userId, userName, text: commentText.trim(), createdAt: Date.now() };
+    await addComment(post.id, comment);
+    setCommentText("");
+    setSending(false);
+  };
+
+  return (
+    <div className="rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/20 transition-colors">
+      {post.imageUrl && <img src={post.imageUrl} alt={post.title} className="w-full h-56 object-cover" />}
+      <div className="p-5">
+        <h2 className="font-display text-lg font-bold mb-2">{post.title}</h2>
+        <p className="text-sm text-muted-foreground whitespace-pre-wrap mb-4">{post.content}</p>
+        <div className="flex items-center gap-4 border-t border-border pt-3">
+          <button onClick={handleLike} className={`flex items-center gap-1.5 text-sm transition-colors ${isLiked ? "text-destructive" : "text-muted-foreground hover:text-destructive"}`} disabled={!userId}>
+            <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} /> {likeCount}
+          </button>
+          <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
+            <MessageSquare className="h-4 w-4" /> {commentCount}
+          </button>
+        </div>
+        {showComments && (
+          <div className="mt-4 space-y-3">
+            {post.comments?.length > 0 ? (
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {post.comments.map((c, i) => (
+                  <div key={i} className="rounded-lg bg-secondary/50 p-3">
+                    <p className="text-xs font-semibold text-foreground">{c.userName}</p>
+                    <p className="text-sm text-muted-foreground">{c.text}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground italic">No comments yet.</p>
+            )}
+            {userId && (
+              <div className="flex gap-2">
+                <Input value={commentText} onChange={(e) => setCommentText(e.target.value)} placeholder="Write a comment..." className="flex-1 text-sm" onKeyDown={(e) => e.key === "Enter" && handleComment()} />
+                <Button size="icon" variant="hero" onClick={handleComment} disabled={sending || !commentText.trim()}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default StudentDashboard;
