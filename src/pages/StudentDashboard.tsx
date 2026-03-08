@@ -62,7 +62,7 @@ const StudentDashboard = () => {
       <Navbar />
       <div className="flex">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card min-h-[calc(100vh-4rem)] p-4 sticky top-16">
+        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card min-h-screen p-4 sticky top-0">
           <div className="flex items-center gap-3 p-3 mb-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary text-sm font-bold text-primary-foreground">
               {initials}

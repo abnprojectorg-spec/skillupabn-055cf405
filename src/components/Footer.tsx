@@ -43,7 +43,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-8 border-t border-border pt-8 text-center text-sm text-muted-foreground">
-          © 2026 SkillUp. All rights reserved.
+          © 2026 ABN by Abenezar Mitiku. All rights reserved.
         </div>
       </div>
     </footer>
