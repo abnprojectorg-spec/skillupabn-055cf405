@@ -21,7 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award,
+  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2,
 } from "lucide-react";
 
 const ADMIN_TABS = [
