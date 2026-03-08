@@ -410,8 +410,6 @@ const AdminPanel = () => {
             </div>
           )}
 
-          {/* Lessons Management */}
-          {activeTab === "lessons" && <LessonsManager courses={courses} toast={toast} />}
 
           {/* Community Links Management */}
           {activeTab === "community" && <CommunityLinksManager toast={toast} />}
