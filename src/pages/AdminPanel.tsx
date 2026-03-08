@@ -10,6 +10,7 @@ import {
   useCourses, useUsers, usePaymentRequests, useCourseProject, useCommunityLinks,
   useEbooks, useEbookPaymentRequests,
   useDigitalFiles, useFilePaymentRequests,
+  useCompletionRequests, useAdminSettings,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
   saveCourseProject, deleteCourseProject,
@@ -19,19 +20,21 @@ import {
   addDigitalFile, updateDigitalFile, deleteDigitalFile,
   approveFilePayment, rejectFilePayment, deleteFilePaymentRequest,
   checkIsAdmin, updateUser, deleteUser, removeUserCourseAccess, enrollUser,
+  updateCompletionStatus, deleteCompletionRequest, saveAdminTelegram,
 } from "@/hooks/useFirestore";
-import type { FirestoreCourse, FirestoreEbook, FirestoreDigitalFile, FirestoreUser } from "@/hooks/useFirestore";
+import type { FirestoreCourse, FirestoreEbook, FirestoreDigitalFile, FirestoreUser, CourseCompletionRequest } from "@/hooks/useFirestore";
 import { CATEGORIES } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen,
+  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings,
 } from "lucide-react";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "payments", label: "Payments", icon: CreditCard },
+  { id: "completions", label: "Completions", icon: CheckCircle },
   { id: "courses", label: "Courses", icon: BookOpen },
   { id: "ebooks", label: "Ebooks", icon: Book },
   { id: "ebook-payments", label: "Ebook Payments", icon: CreditCard },
@@ -40,6 +43,7 @@ const ADMIN_TABS = [
   { id: "projects", label: "Projects", icon: Award },
   { id: "community", label: "Community Links", icon: Link2 },
   { id: "users", label: "Users", icon: Users },
+  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
@@ -902,6 +906,12 @@ const AdminPanel = () => {
           {/* Projects Management */}
           {activeTab === "projects" && <ProjectsManager courses={courses} toast={toast} />}
 
+          {/* Completions */}
+          {activeTab === "completions" && <CompletionsManager toast={toast} />}
+
+          {/* Settings */}
+          {activeTab === "settings" && <AdminSettingsManager toast={toast} />}
+
           {/* Users */}
           {activeTab === "users" && (
             <UsersManager users={users} courses={courses} loading={usersLoading} toast={toast} />
@@ -1311,6 +1321,148 @@ function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Completions Manager Sub-component ──────────────────────
+
+const COMPLETION_STATUS_COLORS: Record<string, string> = {
+  pending: "bg-warning/10 text-warning border-warning/20",
+  project_assigned: "bg-primary/10 text-primary border-primary/20",
+  certified: "bg-accent/10 text-accent border-accent/20",
+};
+
+function CompletionsManager({ toast }: { toast: any }) {
+  const { requests, loading } = useCompletionRequests();
+
+  const handleStatus = async (id: string, status: CourseCompletionRequest["status"]) => {
+    try {
+      await updateCompletionStatus(id, status);
+      toast({ title: `Status updated to ${status.replace("_", " ")}` });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCompletionRequest(id);
+      toast({ title: "Request deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  return (
+    <div>
+      <h1 className="font-display text-2xl font-bold mb-6">Course Completion Requests</h1>
+      {loading ? (
+        <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-card">
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Student</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Course</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {requests.map((r) => (
+                <tr key={r.id} className="border-b border-border hover:bg-card/50">
+                  <td className="px-4 py-3">
+                    <p className="font-medium">{r.userName}</p>
+                    <p className="text-xs text-muted-foreground">{r.userEmail}</p>
+                  </td>
+                  <td className="px-4 py-3">{r.courseTitle}</td>
+                  <td className="px-4 py-3">
+                    <Badge className={COMPLETION_STATUS_COLORS[r.status] || ""} variant="outline">
+                      {r.status.replace("_", " ")}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex gap-1 justify-end flex-wrap">
+                      {r.status === "pending" && (
+                        <Button size="sm" variant="outline" onClick={() => handleStatus(r.id, "project_assigned")}>
+                          <Award className="h-3 w-3 mr-1" /> Assign Project
+                        </Button>
+                      )}
+                      {r.status === "project_assigned" && (
+                        <Button size="sm" variant="hero" onClick={() => handleStatus(r.id, "certified")}>
+                          <CheckCircle className="h-3 w-3 mr-1" /> Certify
+                        </Button>
+                      )}
+                      {r.status === "certified" && (
+                        <Badge className="bg-accent/10 text-accent border-accent/20" variant="outline">
+                          ✅ Certified
+                        </Badge>
+                      )}
+                      <Button size="sm" variant="ghost" onClick={() => handleDelete(r.id)} className="hover:bg-destructive/10">
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {requests.length === 0 && (
+                <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">No completion requests yet.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Admin Settings Manager Sub-component ────────────────────
+
+function AdminSettingsManager({ toast }: { toast: any }) {
+  const { settings, loading } = useAdminSettings();
+  const [telegram, setTelegram] = useState("");
+
+  useEffect(() => {
+    if (settings.adminTelegram) setTelegram(settings.adminTelegram);
+  }, [settings.adminTelegram]);
+
+  const handleSave = async () => {
+    try {
+      await saveAdminTelegram(telegram.trim());
+      toast({ title: "Telegram username saved!" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
+
+  return (
+    <div>
+      <h1 className="font-display text-2xl font-bold mb-6">Admin Settings</h1>
+      <div className="rounded-xl border border-border bg-card p-6 max-w-lg">
+        <div className="flex items-center gap-2 mb-4">
+          <MessageCircle className="h-5 w-5 text-primary" />
+          <h2 className="font-display text-lg font-semibold">Telegram Contact</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Students will see a "Contact Admin" button linking to this Telegram username. They'll also use it to submit projects.
+        </p>
+        <div className="space-y-3">
+          <div>
+            <Label>Telegram Username</Label>
+            <Input
+              value={telegram}
+              onChange={(e) => setTelegram(e.target.value)}
+              placeholder="@yourusername"
+              className="mt-1"
+            />
+          </div>
+          <Button variant="hero" onClick={handleSave}>Save</Button>
+        </div>
+      </div>
     </div>
   );
 }
