@@ -528,6 +528,10 @@ const AdminPanel = () => {
                   <Plus className="h-4 w-4 mr-1" /> Add Course
                 </Button>
               </div>
+              <div className="relative max-w-md mb-6">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search courses..." value={courseSearch} onChange={(e) => setCourseSearch(e.target.value)} className="pl-9" />
+              </div>
 
               {showAddCourse && (
                 <div className="mb-8 rounded-2xl border border-border bg-card p-6">
