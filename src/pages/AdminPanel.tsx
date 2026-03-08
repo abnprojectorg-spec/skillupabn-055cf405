@@ -165,11 +165,90 @@ const AdminPanel = () => {
     }
   };
 
+  // ─── Ebook Handlers ────────────────────────────────────────
+  const emptyEbook = {
+    title: "", author: "", description: "", shortDescription: "",
+    price: 0, coverImage: "", pdfUrl: "", qrCodeUrl: "", pages: 0, whatYouWillLearn: "",
+  };
+
+  const [ebookForm, setEbookForm] = useState(emptyEbook);
+
+  const handleSaveEbook = async () => {
+    if (!ebookForm.title) return;
+    try {
+      if (editingEbook) {
+        await updateEbook(editingEbook.id, ebookForm);
+        toast({ title: "Ebook updated!" });
+        setEditingEbook(null);
+      } else {
+        await addEbook(ebookForm as any);
+        toast({ title: "Ebook added!" });
+      }
+      setShowAddEbook(false);
+      setEbookForm(emptyEbook);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleEditEbook = (ebook: FirestoreEbook) => {
+    setEditingEbook(ebook);
+    setEbookForm({
+      title: ebook.title, author: ebook.author, description: ebook.description,
+      shortDescription: ebook.shortDescription, price: ebook.price,
+      coverImage: ebook.coverImage, pdfUrl: ebook.pdfUrl, qrCodeUrl: ebook.qrCodeUrl || "",
+      pages: ebook.pages, whatYouWillLearn: ebook.whatYouWillLearn || "",
+    });
+    setShowAddEbook(true);
+  };
+
+  const handleDeleteEbook = async (id: string) => {
+    try {
+      await deleteEbook(id);
+      toast({ title: "Ebook deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleApproveEbookPayment = async (req: any) => {
+    try {
+      await approveEbookPayment(req.id, req.userId, req.ebookId);
+      toast({ title: "Payment approved! Ebook unlocked for user." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleRejectEbookPayment = async (id: string) => {
+    try {
+      await rejectEbookPayment(id);
+      toast({ title: "Payment rejected" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteEbookPayment = async (id: string) => {
+    try {
+      await deleteEbookPaymentRequest(id);
+      toast({ title: "Ebook payment request deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   const filteredRequests = statusFilter === "all"
     ? requests
     : requests.filter((r) => r.status === statusFilter);
 
   const pendingCount = requests.filter((r) => r.status === "pending").length;
+
+  const filteredEbookRequests = ebookStatusFilter === "all"
+    ? ebookRequests
+    : ebookRequests.filter((r) => r.status === ebookStatusFilter);
+
+  const ebookPendingCount = ebookRequests.filter((r) => r.status === "pending").length;
 
   if (isAdmin === null) {
     return (
