@@ -610,7 +610,7 @@ const AdminPanel = () => {
                           </td>
                         </tr>
                       ))}
-                      {courses.length === 0 && (
+                      {filteredCourses.length === 0 && (
                         <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No courses yet.</td></tr>
                       )}
                     </tbody>
