@@ -166,7 +166,17 @@ const CourseDetailPage = () => {
               </div>
 
               <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8">
-                <img src={course.thumbnail} alt={course.title} className="h-full w-full object-cover" />
+                {course.videoUrl ? (
+                  <iframe
+                    src={getYouTubeEmbedUrl(course.videoUrl)}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    title={course.title}
+                  />
+                ) : (
+                  <img src={course.thumbnail} alt={course.title} className="h-full w-full object-cover" />
+                )}
               </div>
 
               <h2 className="font-display text-xl font-semibold mb-3">About This Course</h2>
