@@ -106,10 +106,14 @@ export function useCourse(id: string | undefined) {
 
   useEffect(() => {
     if (!id) { setLoading(false); return; }
-    getDoc(doc(db, "courses", id)).then((snap) => {
+    const unsub = onSnapshot(doc(db, "courses", id), (snap) => {
       setCourse(snap.exists() ? { id: snap.id, ...snap.data() } as FirestoreCourse : null);
       setLoading(false);
+    }, (error) => {
+      console.error("Error fetching course:", error);
+      setLoading(false);
     });
+    return unsub;
   }, [id]);
 
   return { course, loading };
