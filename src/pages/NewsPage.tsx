@@ -36,7 +36,7 @@ export default function NewsPage() {
           </div>
         )}
       </div>
-      <ChatWidget />
+      <ContactAdminButton />
     </div>
   );
 }
