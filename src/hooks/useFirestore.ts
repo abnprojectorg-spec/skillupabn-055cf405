@@ -250,7 +250,7 @@ export function useCourseProject(courseId: string | undefined) {
         setProject(null);
       }
       setLoading(false);
-    });
+    }, (error) => { console.error("Course project error:", error); setLoading(false); });
     return unsub;
   }, [courseId]);
 

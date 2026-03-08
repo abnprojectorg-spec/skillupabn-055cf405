@@ -13,6 +13,9 @@ import {
 
 const getYouTubeEmbedUrl = (url: string): string => {
   if (!url) return "";
+  // Extract src from iframe HTML if pasted as full embed code
+  const iframeSrcMatch = url.match(/src=["']([^"']+)["']/);
+  if (iframeSrcMatch) return iframeSrcMatch[1];
   if (url.includes("/embed/")) return url;
   const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
   if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;

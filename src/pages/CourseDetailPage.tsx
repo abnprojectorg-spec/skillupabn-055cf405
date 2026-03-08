@@ -18,6 +18,9 @@ const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
 
 const getYouTubeEmbedUrl = (url: string): string => {
   if (!url) return "";
+  // Extract src from iframe HTML if pasted as full embed code
+  const iframeSrcMatch = url.match(/src=["']([^"']+)["']/);
+  if (iframeSrcMatch) return iframeSrcMatch[1];
   // Already an embed URL
   if (url.includes("/embed/")) return url;
   // Handle youtu.be/VIDEO_ID
