@@ -131,7 +131,7 @@ export function useEnrollments(userId: string | undefined) {
     const unsub = onSnapshot(q, (snap) => {
       setEnrollments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreEnrollment)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Enrollments error:", error); setLoading(false); });
     return unsub;
   }, [userId]);
 
