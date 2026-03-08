@@ -230,7 +230,7 @@ const StudentDashboard = () => {
           )}
         </main>
       </div>
-      <ChatWidget />
+      <ContactAdminButton />
     </div>
   );
 };
