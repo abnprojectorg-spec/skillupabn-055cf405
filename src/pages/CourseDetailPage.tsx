@@ -4,16 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useCourse, isEnrolled, uploadPaymentScreenshot, submitPaymentRequest, useUserPayments } from "@/hooks/useFirestore";
+import { useCourse, isEnrolled, submitPaymentRequest, useUserPayments } from "@/hooks/useFirestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   Star, Users, Clock, BookOpen, ArrowLeft, CheckCircle, Loader2,
-  Download, Upload, Play, X, FileImage, HelpCircle,
+  Download, Play, X, HelpCircle,
 } from "lucide-react";
+
+const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
 
 const CourseDetailPage = () => {
   const { id } = useParams();
@@ -22,11 +23,10 @@ const CourseDetailPage = () => {
   const [enrolled, setEnrolled] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [transactionId, setTransactionId] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [txError, setTxError] = useState("");
   const { toast } = useToast();
   const { payments } = useUserPayments(user?.uid);
 
@@ -36,57 +36,61 @@ const CourseDetailPage = () => {
     }
   }, [user, id]);
 
-  // Check if there's already a pending payment for this course
   const existingPayment = payments.find(
     (p) => p.courseId === id && (p.status === "pending" || p.status === "approved")
   );
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast({ title: "File too large", description: "Maximum 10MB", variant: "destructive" });
-        return;
-      }
-      setScreenshotFile(file);
-    }
+  const handleTransactionIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase();
+    // Only allow alphanumeric
+    const cleaned = value.replace(/[^A-Z0-9]/g, "");
+    setTransactionId(cleaned);
+    setTxError("");
   };
 
   const handleSubmitPayment = async () => {
-    if (!screenshotFile || !user || !course || !id) {
-      console.log("Missing data:", { screenshotFile: !!screenshotFile, user: !!user, course: !!course, id });
-      toast({ title: "Missing information", description: "Please make sure you're logged in and have selected a file.", variant: "destructive" });
+    if (!transactionId.trim()) {
+      setTxError("Transaction ID is required.");
       return;
     }
-    setUploading(true);
-    setUploadProgress(20);
+    if (!TRANSACTION_ID_REGEX.test(transactionId.trim())) {
+      setTxError("Only letters (A-Z) and numbers (0-9) allowed.");
+      return;
+    }
+    if (transactionId.trim().length < 4) {
+      setTxError("Transaction ID is too short.");
+      return;
+    }
+    if (!user || !course || !id) {
+      toast({ title: "Please log in first", variant: "destructive" });
+      return;
+    }
+
+    setSubmitting(true);
     try {
-      console.log("Starting upload for user:", user.uid, "file:", screenshotFile.name);
-      setUploadProgress(40);
-      const screenshotURL = await uploadPaymentScreenshot(screenshotFile, user.uid);
-      console.log("Upload success, URL:", screenshotURL);
-      setUploadProgress(70);
       await submitPaymentRequest({
         userId: user.uid,
         userEmail: user.email || "",
         userName: profile?.full_name || user.displayName || "",
         courseId: id,
         courseTitle: course.title,
-        screenshotURL,
         transactionId: transactionId.trim(),
       });
-      setUploadProgress(100);
       setSubmitted(true);
-      toast({ title: "Payment submitted!" });
+      toast({ title: "Transaction ID submitted!" });
     } catch (err: any) {
       console.error("Payment submission error:", err);
-      const message = err?.code === "storage/unauthorized" 
-        ? "Storage access denied. Please check Firebase Storage rules."
-        : err?.message || "Something went wrong";
-      toast({ title: "Error submitting payment", description: message, variant: "destructive" });
+      toast({ title: "Error submitting", description: err?.message || "Something went wrong", variant: "destructive" });
     } finally {
-      setUploading(false);
+      setSubmitting(false);
     }
+  };
+
+  const resetModal = () => {
+    setShowPaymentModal(false);
+    setSubmitted(false);
+    setTransactionId("");
+    setTxError("");
   };
 
   const handleDownloadQR = () => {
@@ -193,11 +197,10 @@ const CourseDetailPage = () => {
                       setShowPaymentModal(true);
                     }}
                   >
-                    <Upload className="h-4 w-4 mr-1" /> Pay with Telebirr
+                    Pay with Telebirr
                   </Button>
                 )}
 
-                {/* How to Pay button */}
                 {course.howToPayVideoUrl && (
                   <Button
                     variant="outline"
@@ -209,7 +212,6 @@ const CourseDetailPage = () => {
                   </Button>
                 )}
 
-                {/* QR Code section */}
                 {course.qrCodeUrl && !enrolled && (
                   <div className="mt-4 rounded-xl border border-border bg-secondary/30 p-4">
                     <p className="text-xs font-medium text-center mb-3">Scan QR to pay via Telebirr</p>
@@ -245,13 +247,13 @@ const CourseDetailPage = () => {
         </div>
       </div>
 
-      {/* Payment Modal */}
+      {/* Payment Modal — Transaction ID Only */}
       {showPaymentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
           <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-lg animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display text-xl font-bold">Submit Payment Proof</h2>
-              <button onClick={() => { setShowPaymentModal(false); setSubmitted(false); setScreenshotFile(null); setTransactionId(""); setUploadProgress(0); }}>
+              <h2 className="font-display text-xl font-bold">Enter Transaction ID</h2>
+              <button onClick={resetModal}>
                 <X className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
               </button>
             </div>
@@ -259,25 +261,22 @@ const CourseDetailPage = () => {
             {submitted ? (
               <div className="text-center py-8">
                 <CheckCircle className="h-16 w-16 mx-auto mb-4 text-accent" />
-                <h3 className="font-display text-lg font-semibold mb-2">Payment Submitted Successfully!</h3>
+                <h3 className="font-display text-lg font-semibold mb-2">Transaction ID Submitted!</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Verification may take up to 5 hours. Your course will unlock automatically once approved.
                 </p>
-                <Button
-                  variant="hero"
-                  className="mt-6"
-                  onClick={() => { setShowPaymentModal(false); setSubmitted(false); setScreenshotFile(null); setTransactionId(""); setUploadProgress(0); }}
-                >
+                <Button variant="hero" className="mt-6" onClick={resetModal}>
                   Done
                 </Button>
               </div>
             ) : (
               <div className="space-y-5">
-                {/* QR Code in modal */}
+                {/* Step 1: QR Code */}
                 {course.qrCodeUrl && (
                   <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">Step 1: Scan or download the QR code and pay {course.price} ETB</p>
-                    <img src={course.qrCodeUrl} alt="QR Code" className="w-36 h-36 mx-auto rounded-lg border border-border object-contain" />
+                    <p className="text-sm font-medium mb-1">Step 1: Scan QR & Pay {course.price} ETB</p>
+                    <p className="text-xs text-muted-foreground mb-3">Use Telebirr to scan and complete payment</p>
+                    <img src={course.qrCodeUrl} alt="QR Code" className="w-40 h-40 mx-auto rounded-lg border border-border object-contain" />
                     <Button variant="ghost" size="sm" className="mt-2" onClick={handleDownloadQR}>
                       <Download className="h-3 w-3 mr-1" /> Download QR
                     </Button>
@@ -286,55 +285,44 @@ const CourseDetailPage = () => {
 
                 <hr className="border-border" />
 
+                {/* Step 2: Transaction ID */}
                 <div>
-                  <Label className="text-sm">Step 2: Upload payment screenshot *</Label>
-                  <div className="mt-2">
-                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-secondary/20 p-6 transition-colors hover:border-accent/50 hover:bg-secondary/40">
-                      <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                      {screenshotFile ? (
-                        <div className="flex items-center gap-2 text-sm">
-                          <FileImage className="h-5 w-5 text-accent" />
-                          <span className="text-foreground font-medium">{screenshotFile.name}</span>
-                        </div>
-                      ) : (
-                        <div className="text-center">
-                          <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground">Click to upload screenshot</p>
-                          <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</p>
-                        </div>
-                      )}
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm">Transaction ID (optional)</Label>
+                  <Label className="text-sm font-medium">Step 2: Enter your Transaction ID *</Label>
+                  <p className="text-xs text-muted-foreground mt-1 mb-2">
+                    Find this in your Telebirr payment confirmation (e.g. DC76ILX5RC)
+                  </p>
                   <Input
                     value={transactionId}
-                    onChange={(e) => setTransactionId(e.target.value)}
-                    placeholder="Enter Telebirr transaction ID"
-                    className="mt-1"
+                    onChange={handleTransactionIdChange}
+                    placeholder="e.g. DC76ILX5RC"
+                    maxLength={20}
+                    className={`mt-1 font-mono tracking-wider uppercase ${txError ? "border-destructive" : ""}`}
                   />
+                  {txError && (
+                    <p className="text-xs text-destructive mt-1">{txError}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">Only letters and numbers allowed. No spaces or symbols.</p>
                 </div>
 
-                {uploading && (
-                  <div className="space-y-2">
-                    <Progress value={uploadProgress} className="h-2" />
-                    <p className="text-xs text-center text-muted-foreground">Uploading... {uploadProgress}%</p>
-                  </div>
-                )}
+                {/* Warning */}
+                <div className="rounded-lg border border-warning/30 bg-warning/5 p-3">
+                  <p className="text-xs text-warning font-medium">⚠️ Important</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Invalid, fake, or missing transaction IDs will be rejected. You cannot bypass the QR payment system.
+                  </p>
+                </div>
 
                 <Button
                   variant="hero"
                   size="lg"
                   className="w-full shadow-glow hover:scale-105 transition-transform"
-                  disabled={!screenshotFile || uploading}
+                  disabled={!transactionId.trim() || submitting}
                   onClick={handleSubmitPayment}
                 >
-                  {uploading ? (
+                  {submitting ? (
                     <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Submitting...</>
                   ) : (
-                    "Submit Payment"
+                    "Submit Transaction ID"
                   )}
                 </Button>
               </div>

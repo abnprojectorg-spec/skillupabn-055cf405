@@ -212,21 +212,13 @@ export async function isEnrolled(userId: string, courseId: string): Promise<bool
   return !snap.empty;
 }
 
-// Upload screenshot to Firebase Storage
-export async function uploadPaymentScreenshot(file: File, userId: string): Promise<string> {
-  const fileRef = ref(storage, `payment_screenshots/${userId}_${Date.now()}_${file.name}`);
-  await uploadBytes(fileRef, file);
-  return getDownloadURL(fileRef);
-}
-
-// Submit payment request
+// Submit payment request (transaction ID only)
 export async function submitPaymentRequest(data: {
   userId: string;
   userEmail: string;
   userName: string;
   courseId: string;
   courseTitle: string;
-  screenshotURL: string;
   transactionId: string;
 }) {
   return addDoc(collection(db, "payment_requests"), {
