@@ -12,6 +12,7 @@ import CourseDetailPage from "./pages/CourseDetailPage";
 import StudentDashboard from "./pages/StudentDashboard";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminPanel from "./pages/AdminPanel";
+import CourseLearningPage from "./pages/CourseLearningPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
