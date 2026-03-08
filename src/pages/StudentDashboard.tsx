@@ -229,6 +229,7 @@ const StudentDashboard = () => {
           )}
         </main>
       </div>
+      <Footer />
       <ContactAdminButton />
     </div>
   );
