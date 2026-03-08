@@ -19,6 +19,7 @@ import EbookReaderPage from "./pages/EbookReaderPage";
 import FilesPage from "./pages/FilesPage";
 import FileDetailPage from "./pages/FileDetailPage";
 import FileDownloadPage from "./pages/FileDownloadPage";
+import NewsPage from "./pages/NewsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
