@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 import {
-  useCourses, useUsers, usePaymentRequests, useLessons, useCourseProject,
+  useCourses, useUsers, usePaymentRequests, useLessons, useCourseProject, useCommunityLinks,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
   addLesson, updateLesson, deleteLesson,
   saveCourseProject, deleteCourseProject,
+  saveCommunityLink, deleteCommunityLink,
   checkIsAdmin,
 } from "@/hooks/useFirestore";
 import type { FirestoreCourse, FirestoreLesson } from "@/hooks/useFirestore";
