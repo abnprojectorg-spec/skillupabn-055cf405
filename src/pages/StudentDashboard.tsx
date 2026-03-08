@@ -2,16 +2,17 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import Navbar from "@/components/Navbar";
 import CourseCard from "@/components/CourseCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCourses, useEnrollments, useCommunityLinks } from "@/hooks/useFirestore";
+import { useNewsPosts, toggleLike, addComment, type NewsComment } from "@/hooks/useNews";
 import { COMMUNITY_LINKS } from "@/data/mockData";
 import {
-  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2,
+  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send,
 } from "lucide-react";
-import ChatWidget from "@/components/ChatWidget";
-
+import ContactAdminButton from "@/components/ContactAdminButton";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
   { id: "courses", label: "My Courses", icon: BookOpen },
