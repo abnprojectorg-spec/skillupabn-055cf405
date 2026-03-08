@@ -655,36 +655,7 @@ const AdminPanel = () => {
 
           {/* Users */}
           {activeTab === "users" && (
-            <div>
-              <h1 className="font-display text-2xl font-bold mb-6">Users</h1>
-              {usersLoading ? (
-                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-              ) : (
-                <div className="rounded-xl border border-border bg-card overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-secondary">
-                      <tr>
-                        <th className="text-left p-3 font-medium">Name</th>
-                        <th className="text-left p-3 font-medium">Email</th>
-                        <th className="text-left p-3 font-medium">Courses</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users.map((u) => (
-                        <tr key={u.user_id} className="border-t border-border hover:bg-secondary/50 transition-colors">
-                          <td className="p-3 font-medium">{u.full_name}</td>
-                          <td className="p-3 text-muted-foreground">{u.email}</td>
-                          <td className="p-3">{u.courses_unlocked?.length || 0}</td>
-                        </tr>
-                      ))}
-                      {users.length === 0 && (
-                        <tr><td colSpan={3} className="p-8 text-center text-muted-foreground">No users yet.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+            <UsersManager users={users} courses={courses} loading={usersLoading} toast={toast} />
           )}
         </main>
       </div>
