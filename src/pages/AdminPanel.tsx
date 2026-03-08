@@ -395,6 +395,12 @@ const AdminPanel = () => {
         </aside>
 
         <main className="flex-1 p-6">
+          {/* Messages */}
+          {activeTab === "messages" && <AdminChat />}
+
+          {/* News */}
+          {activeTab === "news" && <AdminNews toast={toast} />}
+
           {/* Overview */}
           {activeTab === "overview" && (
             <AdminAnalytics

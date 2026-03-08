@@ -223,7 +223,7 @@ const StudentDashboard = () => {
           )}
         </main>
       </div>
-      <ContactAdminButton />
+      <ChatWidget />
     </div>
   );
 };
