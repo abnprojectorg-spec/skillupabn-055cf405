@@ -60,7 +60,7 @@ const StudentDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-16 flex">
+      <div className="flex">
         {/* Sidebar */}
         <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card min-h-[calc(100vh-4rem)] p-4 sticky top-16">
           <div className="flex items-center gap-3 p-3 mb-6">
