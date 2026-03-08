@@ -859,4 +859,211 @@ function CommunityLinksManager({ toast }: { toast: any }) {
   );
 }
 
+// ─── Users Manager Sub-component ─────────────────────────────
+
+function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser[]; courses: FirestoreCourse[]; loading: boolean; toast: any }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [editingUser, setEditingUser] = useState<FirestoreUser | null>(null);
+  const [editForm, setEditForm] = useState({ full_name: "", email: "" });
+  const [selectedUser, setSelectedUser] = useState<FirestoreUser | null>(null);
+  const [addCourseId, setAddCourseId] = useState("");
+
+  const filteredUsers = users.filter((u) =>
+    u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const startEdit = (user: FirestoreUser) => {
+    setEditingUser(user);
+    setEditForm({ full_name: user.full_name, email: user.email });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingUser || !editForm.full_name.trim()) return;
+    try {
+      await updateUser(editingUser.user_id, { full_name: editForm.full_name.trim(), email: editForm.email.trim() });
+      toast({ title: "User updated!" });
+      setEditingUser(null);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteUser = async (user: FirestoreUser) => {
+    if (!confirm(`Delete user "${user.full_name}"? This will remove all their enrollments and payments.`)) return;
+    try {
+      await deleteUser(user.user_id);
+      toast({ title: "User deleted" });
+      if (selectedUser?.user_id === user.user_id) setSelectedUser(null);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleRemoveCourse = async (userId: string, courseId: string) => {
+    try {
+      await removeUserCourseAccess(userId, courseId);
+      toast({ title: "Course access removed" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleAddCourse = async (userId: string) => {
+    if (!addCourseId) return;
+    try {
+      await enrollUser(userId, addCourseId);
+      toast({ title: "Course access granted!" });
+      setAddCourseId("");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const getCourseName = (courseId: string) => {
+    return courses.find((c) => c.id === courseId)?.title || courseId;
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="font-display text-2xl font-bold">Users Management</h1>
+          <p className="text-muted-foreground text-sm">{users.length} total users</p>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="relative max-w-md mb-6">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search by name or email..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+
+      {/* Edit User Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 z-50 bg-background/80 flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-lg font-semibold">Edit User</h2>
+              <Button size="icon" variant="ghost" onClick={() => setEditingUser(null)}><X className="h-4 w-4" /></Button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label>Full Name</Label>
+                <Input value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} className="mt-1" />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="mt-1" />
+              </div>
+              <div className="flex gap-2">
+                <Button variant="hero" onClick={handleSaveEdit}>Save Changes</Button>
+                <Button variant="outline" onClick={() => setEditingUser(null)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Detail Panel */}
+      {selectedUser && (
+        <div className="rounded-xl border border-border bg-card p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" /> {selectedUser.full_name}
+            </h2>
+            <Button size="sm" variant="ghost" onClick={() => setSelectedUser(null)}><X className="h-4 w-4" /></Button>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">{selectedUser.email}</p>
+
+          {/* Enrolled Courses */}
+          <h3 className="text-sm font-semibold mb-2">Enrolled Courses ({selectedUser.courses_unlocked?.length || 0})</h3>
+          {selectedUser.courses_unlocked?.length > 0 ? (
+            <div className="space-y-2 mb-4">
+              {selectedUser.courses_unlocked.map((courseId) => (
+                <div key={courseId} className="flex items-center justify-between rounded-lg border border-border bg-secondary/50 p-3">
+                  <span className="text-sm font-medium">{getCourseName(courseId)}</span>
+                  <Button size="sm" variant="ghost" onClick={() => handleRemoveCourse(selectedUser.user_id, courseId)} className="hover:bg-destructive/10">
+                    <BookMinus className="h-3 w-3 mr-1 text-destructive" /> Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground mb-4 italic">No courses enrolled.</p>
+          )}
+
+          {/* Grant Course Access */}
+          <h3 className="text-sm font-semibold mb-2">Grant Course Access</h3>
+          <div className="flex gap-2">
+            <select
+              value={addCourseId}
+              onChange={(e) => setAddCourseId(e.target.value)}
+              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="">Select a course...</option>
+              {courses
+                .filter((c) => !selectedUser.courses_unlocked?.includes(c.id))
+                .map((c) => (
+                  <option key={c.id} value={c.id}>{c.title}</option>
+                ))}
+            </select>
+            <Button size="sm" variant="hero" onClick={() => handleAddCourse(selectedUser.user_id)}>
+              <BookPlus className="h-3 w-3 mr-1" /> Grant
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : (
+        <div className="rounded-xl border border-border bg-card overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-secondary">
+              <tr>
+                <th className="text-left p-3 font-medium">Name</th>
+                <th className="text-left p-3 font-medium">Email</th>
+                <th className="text-left p-3 font-medium">Courses</th>
+                <th className="text-right p-3 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((u) => (
+                <tr key={u.user_id} className="border-t border-border hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => setSelectedUser(u)}>
+                  <td className="p-3 font-medium">{u.full_name}</td>
+                  <td className="p-3 text-muted-foreground">{u.email}</td>
+                  <td className="p-3">
+                    <Badge variant="secondary">{u.courses_unlocked?.length || 0} courses</Badge>
+                  </td>
+                  <td className="p-3 text-right">
+                    <div className="flex gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
+                      <Button size="sm" variant="ghost" onClick={() => startEdit(u)} className="hover:bg-primary/10">
+                        <Edit className="h-3 w-3 text-primary" />
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => handleDeleteUser(u)} className="hover:bg-destructive/10">
+                        <UserX className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filteredUsers.length === 0 && (
+                <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">
+                  {searchQuery ? "No users match your search." : "No users yet."}
+                </td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default AdminPanel;
