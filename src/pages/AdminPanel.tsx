@@ -39,7 +39,7 @@ const AdminPanel = () => {
   const [showAddCourse, setShowAddCourse] = useState(false);
   const [editingCourse, setEditingCourse] = useState<FirestoreCourse | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   const { courses, loading: coursesLoading } = useCourses();
