@@ -42,7 +42,7 @@ const LandingPage = () => {
 
       {/* Hero */}
       <section className="relative overflow-hidden pt-32 pb-20 lg:pt-44 lg:pb-32">
-        <AnimatedBackground />
+        <TechParticlesBackground />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
