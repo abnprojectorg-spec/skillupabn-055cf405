@@ -345,7 +345,7 @@ const CourseDetailPage = () => {
             </div>
             <div className="aspect-video rounded-xl overflow-hidden bg-secondary">
               <iframe
-                src={course.howToPayVideoUrl}
+                src={getYouTubeEmbedUrl(course.howToPayVideoUrl)}
                 className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
