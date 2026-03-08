@@ -13,6 +13,9 @@ import StudentDashboard from "./pages/StudentDashboard";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminPanel from "./pages/AdminPanel";
 import CourseLearningPage from "./pages/CourseLearningPage";
+import EbooksPage from "./pages/EbooksPage";
+import EbookDetailPage from "./pages/EbookDetailPage";
+import EbookReaderPage from "./pages/EbookReaderPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
