@@ -842,7 +842,7 @@ const AdminPanel = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {digitalFiles.map((f) => (
+                      {filteredDigitalFiles.map((f) => (
                         <tr key={f.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
                           <td className="p-3 font-medium">{f.title}</td>
                           <td className="p-3"><Badge variant="secondary">{f.category}</Badge></td>
