@@ -53,12 +53,18 @@ const CourseDetailPage = () => {
   };
 
   const handleSubmitPayment = async () => {
-    if (!screenshotFile || !user || !course || !id) return;
+    if (!screenshotFile || !user || !course || !id) {
+      console.log("Missing data:", { screenshotFile: !!screenshotFile, user: !!user, course: !!course, id });
+      toast({ title: "Missing information", description: "Please make sure you're logged in and have selected a file.", variant: "destructive" });
+      return;
+    }
     setUploading(true);
     setUploadProgress(20);
     try {
+      console.log("Starting upload for user:", user.uid, "file:", screenshotFile.name);
       setUploadProgress(40);
       const screenshotURL = await uploadPaymentScreenshot(screenshotFile, user.uid);
+      console.log("Upload success, URL:", screenshotURL);
       setUploadProgress(70);
       await submitPaymentRequest({
         userId: user.uid,
@@ -73,7 +79,11 @@ const CourseDetailPage = () => {
       setSubmitted(true);
       toast({ title: "Payment submitted!" });
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      console.error("Payment submission error:", err);
+      const message = err?.code === "storage/unauthorized" 
+        ? "Storage access denied. Please check Firebase Storage rules."
+        : err?.message || "Something went wrong";
+      toast({ title: "Error submitting payment", description: message, variant: "destructive" });
     } finally {
       setUploading(false);
     }
