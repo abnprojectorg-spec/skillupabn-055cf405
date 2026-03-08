@@ -24,6 +24,7 @@ const StudentDashboard = () => {
   const { user, profile, loading: authLoading } = useAuth();
   const { courses, loading: coursesLoading } = useCourses();
   const { enrollments, loading: enrollLoading } = useEnrollments(user?.uid);
+  const { links: communityLinks, loading: linksLoading } = useCommunityLinks();
   const navigate = useNavigate();
 
   if (authLoading) {
