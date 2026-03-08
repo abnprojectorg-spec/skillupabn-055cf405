@@ -186,7 +186,7 @@ export function useUserPayments(userId: string | undefined) {
     const unsub = onSnapshot(q, (snap) => {
       setPayments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as PaymentRequest)));
       setLoading(false);
-    });
+    }, (error) => { console.error("User payments error:", error); setLoading(false); });
     return unsub;
   }, [userId]);
 
