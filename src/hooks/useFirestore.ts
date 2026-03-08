@@ -106,10 +106,14 @@ export function useCourse(id: string | undefined) {
 
   useEffect(() => {
     if (!id) { setLoading(false); return; }
-    getDoc(doc(db, "courses", id)).then((snap) => {
+    const unsub = onSnapshot(doc(db, "courses", id), (snap) => {
       setCourse(snap.exists() ? { id: snap.id, ...snap.data() } as FirestoreCourse : null);
       setLoading(false);
+    }, (error) => {
+      console.error("Error fetching course:", error);
+      setLoading(false);
     });
+    return unsub;
   }, [id]);
 
   return { course, loading };
@@ -338,6 +342,40 @@ export async function saveCourseProject(courseId: string, projectTitle: string, 
 
 export async function deleteCourseProject(id: string) {
   return deleteDoc(doc(db, "course_projects", id));
+}
+
+// ─── Community Links ─────────────────────────────────────────
+
+export interface CommunityLink {
+  id: string;
+  category: string;
+  url: string;
+}
+
+export function useCommunityLinks() {
+  const [links, setLinks] = useState<CommunityLink[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "community_links"), (snap) => {
+      setLinks(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CommunityLink)));
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  return { links, loading };
+}
+
+export async function saveCommunityLink(category: string, url: string, existingId?: string) {
+  if (existingId) {
+    return updateDoc(doc(db, "community_links", existingId), { url });
+  }
+  return addDoc(collection(db, "community_links"), { category, url });
+}
+
+export async function deleteCommunityLink(id: string) {
+  return deleteDoc(doc(db, "community_links", id));
 }
 
 // ─── Admin Check ─────────────────────────────────────────────

@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 import {
-  useCourses, useUsers, usePaymentRequests, useLessons, useCourseProject,
+  useCourses, useUsers, usePaymentRequests, useLessons, useCourseProject, useCommunityLinks,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
   addLesson, updateLesson, deleteLesson,
   saveCourseProject, deleteCourseProject,
+  saveCommunityLink, deleteCommunityLink,
   checkIsAdmin,
 } from "@/hooks/useFirestore";
 import type { FirestoreCourse, FirestoreLesson } from "@/hooks/useFirestore";
@@ -20,7 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award,
+  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2,
 } from "lucide-react";
 
 const ADMIN_TABS = [
@@ -29,6 +30,7 @@ const ADMIN_TABS = [
   { id: "courses", label: "Courses", icon: BookOpen },
   { id: "lessons", label: "Lessons", icon: FileText },
   { id: "projects", label: "Projects", icon: Award },
+  { id: "community", label: "Community Links", icon: Link2 },
   { id: "users", label: "Users", icon: Users },
 ];
 
@@ -412,6 +414,9 @@ const AdminPanel = () => {
           {/* Lessons Management */}
           {activeTab === "lessons" && <LessonsManager courses={courses} toast={toast} />}
 
+          {/* Community Links Management */}
+          {activeTab === "community" && <CommunityLinksManager toast={toast} />}
+
           {/* Projects Management */}
           {activeTab === "projects" && <ProjectsManager courses={courses} toast={toast} />}
 
@@ -686,6 +691,99 @@ function ProjectsManager({ courses, toast }: { courses: FirestoreCourse[]; toast
             </div>
           </div>
         )
+      )}
+    </div>
+  );
+}
+
+// ─── Community Links Manager Sub-component ───────────────────
+
+function CommunityLinksManager({ toast }: { toast: any }) {
+  const { links, loading } = useCommunityLinks();
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [urlValue, setUrlValue] = useState("");
+
+  const handleSave = async (category: string) => {
+    if (!urlValue.trim()) return;
+    const existing = links.find((l) => l.category === category);
+    try {
+      await saveCommunityLink(category, urlValue.trim(), existing?.id);
+      toast({ title: `${category} link saved!` });
+      setEditingCategory(null);
+      setUrlValue("");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCommunityLink(id);
+      toast({ title: "Link deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const startEditing = (category: string) => {
+    const existing = links.find((l) => l.category === category);
+    setEditingCategory(category);
+    setUrlValue(existing?.url || "");
+  };
+
+  return (
+    <div>
+      <h1 className="font-display text-2xl font-bold mb-2">Community Links</h1>
+      <p className="text-muted-foreground mb-6">Set Telegram group links for each course category</p>
+
+      {loading ? (
+        <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : (
+        <div className="space-y-3 max-w-2xl">
+          {CATEGORIES.map((category) => {
+            const existing = links.find((l) => l.category === category);
+            const isEditing = editingCategory === category;
+
+            return (
+              <div key={category} className="rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-sm font-semibold">{category}</h3>
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="ghost" onClick={() => startEditing(category)} className="hover:bg-primary/10">
+                      <Edit className="h-3 w-3 mr-1 text-primary" /> Edit
+                    </Button>
+                    {existing && (
+                      <Button size="sm" variant="ghost" onClick={() => handleDelete(existing.id)} className="hover:bg-destructive/10">
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {isEditing ? (
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      value={urlValue}
+                      onChange={(e) => setUrlValue(e.target.value)}
+                      placeholder="https://t.me/your_group"
+                      className="flex-1"
+                    />
+                    <Button size="sm" variant="hero" onClick={() => handleSave(category)}>Save</Button>
+                    <Button size="sm" variant="outline" onClick={() => setEditingCategory(null)}>Cancel</Button>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground truncate">
+                    {existing ? (
+                      <a href={existing.url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{existing.url}</a>
+                    ) : (
+                      <span className="italic">No link set</span>
+                    )}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
