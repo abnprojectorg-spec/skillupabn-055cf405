@@ -1,101 +1,91 @@
-import { useEffect, useRef } from "react";
+import { useRef, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Points, PointMaterial } from "@react-three/drei";
+import * as THREE from "three";
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
+function ParticleField() {
+  const ref = useRef<THREE.Points>(null!);
+  const count = 1500;
+
+  const positions = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 12;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 12;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 12;
+    }
+    return pos;
+  }, []);
+
+  useFrame((_, delta) => {
+    if (ref.current) {
+      ref.current.rotation.x += delta * 0.03;
+      ref.current.rotation.y += delta * 0.05;
+    }
+  });
+
+  return (
+    <Points ref={ref} positions={positions} stride={3} frustumCulled={false}>
+      <PointMaterial
+        transparent
+        color="#34d399"
+        size={0.025}
+        sizeAttenuation
+        depthWrite={false}
+        opacity={0.7}
+      />
+    </Points>
+  );
+}
+
+function ParticleField2() {
+  const ref = useRef<THREE.Points>(null!);
+  const count = 800;
+
+  const positions = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 15;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 15;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 15;
+    }
+    return pos;
+  }, []);
+
+  useFrame((_, delta) => {
+    if (ref.current) {
+      ref.current.rotation.x -= delta * 0.02;
+      ref.current.rotation.y -= delta * 0.04;
+    }
+  });
+
+  return (
+    <Points ref={ref} positions={positions} stride={3} frustumCulled={false}>
+      <PointMaterial
+        transparent
+        color="#3b82f6"
+        size={0.018}
+        sizeAttenuation
+        depthWrite={false}
+        opacity={0.5}
+      />
+    </Points>
+  );
 }
 
 const TechParticlesBackground = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animationId: number;
-    let particles: Particle[] = [];
-    const CONNECTION_DIST = 140;
-    const PARTICLE_COUNT = 70;
-
-    const resize = () => {
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    };
-
-    const init = () => {
-      resize();
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      particles = Array.from({ length: PARTICLE_COUNT }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        radius: Math.random() * 1.5 + 0.5,
-      }));
-    };
-
-    const draw = () => {
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      ctx.clearRect(0, 0, w, h);
-
-      // Update & draw particles
-      for (const p of particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > w) p.vx *= -1;
-        if (p.y < 0 || p.y > h) p.vy *= -1;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "hsla(142, 70%, 45%, 0.6)";
-        ctx.fill();
-      }
-
-      // Draw connections
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < CONNECTION_DIST) {
-            const alpha = (1 - dist / CONNECTION_DIST) * 0.15;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `hsla(222, 80%, 45%, ${alpha})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-
-      animationId = requestAnimationFrame(draw);
-    };
-
-    init();
-    draw();
-    window.addEventListener("resize", () => { resize(); });
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 0.7 }}
-    />
+    <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.8 }}>
+      <Canvas
+        camera={{ position: [0, 0, 5], fov: 60 }}
+        dpr={[1, 1.5]}
+        gl={{ antialias: false, alpha: true }}
+        style={{ background: "transparent" }}
+      >
+        <ParticleField />
+        <ParticleField2 />
+      </Canvas>
+    </div>
   );
 };
 
