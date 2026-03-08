@@ -133,10 +133,10 @@ const CourseLearningPage = () => {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
             {/* Video Player */}
             <div className="w-full">
-              {activeLesson.videoUrl ? (
+              {course.videoUrl ? (
                 <div className="aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg">
                   <iframe
-                    src={getYouTubeEmbedUrl(activeLesson.videoUrl)}
+                    src={getYouTubeEmbedUrl(course.videoUrl)}
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                     allowFullScreen
@@ -147,7 +147,7 @@ const CourseLearningPage = () => {
                 <div className="aspect-video rounded-xl bg-card border border-border flex items-center justify-center">
                   <div className="text-center text-muted-foreground">
                     <Play className="h-16 w-16 mx-auto mb-3 opacity-20" />
-                    <p className="text-sm">No video available for this lesson</p>
+                    <p className="text-sm">No video available for this course</p>
                   </div>
                 </div>
               )}
