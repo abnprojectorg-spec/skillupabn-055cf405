@@ -162,18 +162,23 @@ const StudentDashboard = () => {
             </div>
           )}
 
-          {activeTab === "projects" && (
+          {activeTab === "news" && (
             <div>
-              <h1 className="font-display text-2xl font-bold mb-6">Projects & Resources</h1>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {["Starter Templates", "Code Snippets", "Design Assets", "Learning Roadmaps"].map((p) => (
-                  <div key={p} className="rounded-xl border border-border bg-card p-6 hover:shadow-glow hover:border-accent/30 transition-all duration-300">
-                    <FolderOpen className="h-5 w-5 text-accent mb-3" />
-                    <h3 className="font-display font-semibold mb-1">{p}</h3>
-                    <p className="text-sm text-muted-foreground">Coming soon</p>
-                  </div>
-                ))}
-              </div>
+              <h1 className="font-display text-2xl font-bold mb-6">News & Updates</h1>
+              {newsLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : newsPosts.length === 0 ? (
+                <div className="text-center py-16">
+                  <Newspaper className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
+                  <p className="text-muted-foreground">No news yet. Check back soon!</p>
+                </div>
+              ) : (
+                <div className="space-y-6 max-w-2xl">
+                  {newsPosts.map((post) => (
+                    <DashboardNewsCard key={post.id} post={post} userId={user?.uid} userName={displayName} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
