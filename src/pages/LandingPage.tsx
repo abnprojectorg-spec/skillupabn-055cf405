@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import AnimatedBackground from "@/components/AnimatedBackground";
+import TechParticlesBackground from "@/components/TechParticlesBackground";
 import { useCourses } from "@/hooks/useFirestore";
 import CourseCard from "@/components/CourseCard";
 import { CATEGORIES } from "@/data/mockData";
@@ -42,7 +42,7 @@ const LandingPage = () => {
 
       {/* Hero */}
       <section className="relative overflow-hidden pt-32 pb-20 lg:pt-44 lg:pb-32">
-        <AnimatedBackground />
+        <TechParticlesBackground />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -234,7 +234,7 @@ const LandingPage = () => {
 
       {/* CTA */}
       <section className="relative py-24 overflow-hidden">
-        <AnimatedBackground />
+        <TechParticlesBackground />
         <div className="relative mx-auto max-w-3xl px-4 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
