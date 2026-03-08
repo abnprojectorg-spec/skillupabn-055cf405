@@ -48,12 +48,17 @@ const AdminPanel = () => {
   const [showAddCourse, setShowAddCourse] = useState(false);
   const [editingCourse, setEditingCourse] = useState<FirestoreCourse | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [showAddEbook, setShowAddEbook] = useState(false);
+  const [editingEbook, setEditingEbook] = useState<FirestoreEbook | null>(null);
+  const [ebookStatusFilter, setEbookStatusFilter] = useState<string>("all");
   
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   const { courses, loading: coursesLoading } = useCourses();
   const { users, loading: usersLoading } = useUsers();
   const { requests, loading: paymentsLoading } = usePaymentRequests();
+  const { ebooks, loading: ebooksLoading } = useEbooks();
+  const { requests: ebookRequests, loading: ebookPaymentsLoading } = useEbookPaymentRequests();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
