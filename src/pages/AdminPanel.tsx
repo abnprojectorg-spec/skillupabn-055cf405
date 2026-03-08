@@ -10,6 +10,7 @@ import {
   useCourses, useUsers, usePaymentRequests, useCourseProject, useCommunityLinks,
   useEbooks, useEbookPaymentRequests,
   useDigitalFiles, useFilePaymentRequests,
+  useCompletionRequests, useAdminSettings,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
   saveCourseProject, deleteCourseProject,
@@ -19,8 +20,9 @@ import {
   addDigitalFile, updateDigitalFile, deleteDigitalFile,
   approveFilePayment, rejectFilePayment, deleteFilePaymentRequest,
   checkIsAdmin, updateUser, deleteUser, removeUserCourseAccess, enrollUser,
+  updateCompletionStatus, deleteCompletionRequest, saveAdminTelegram,
 } from "@/hooks/useFirestore";
-import type { FirestoreCourse, FirestoreEbook, FirestoreDigitalFile, FirestoreUser } from "@/hooks/useFirestore";
+import type { FirestoreCourse, FirestoreEbook, FirestoreDigitalFile, FirestoreUser, CourseCompletionRequest } from "@/hooks/useFirestore";
 import { CATEGORIES } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
