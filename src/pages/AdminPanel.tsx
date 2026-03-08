@@ -64,12 +64,18 @@ const AdminPanel = () => {
   const [showAddCourse, setShowAddCourse] = useState(false);
   const [editingCourse, setEditingCourse] = useState<FirestoreCourse | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [paymentSearch, setPaymentSearch] = useState("");
+  const [courseSearch, setCourseSearch] = useState("");
   const [showAddEbook, setShowAddEbook] = useState(false);
   const [editingEbook, setEditingEbook] = useState<FirestoreEbook | null>(null);
   const [ebookStatusFilter, setEbookStatusFilter] = useState<string>("all");
+  const [ebookPaymentSearch, setEbookPaymentSearch] = useState("");
+  const [ebookSearch, setEbookSearch] = useState("");
   const [showAddFile, setShowAddFile] = useState(false);
   const [editingFile, setEditingFile] = useState<FirestoreDigitalFile | null>(null);
   const [fileStatusFilter, setFileStatusFilter] = useState<string>("all");
+  const [filePaymentSearch, setFilePaymentSearch] = useState("");
+  const [fileSearch, setFileSearch] = useState("");
   
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
