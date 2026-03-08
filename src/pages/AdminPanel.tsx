@@ -334,6 +334,12 @@ const AdminPanel = () => {
 
   const ebookPendingCount = ebookRequests.filter((r) => r.status === "pending").length;
 
+  const filteredFileRequests = fileStatusFilter === "all"
+    ? fileRequests
+    : fileRequests.filter((r) => r.status === fileStatusFilter);
+
+  const filePendingCount = fileRequests.filter((r) => r.status === "pending").length;
+
   if (isAdmin === null) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
