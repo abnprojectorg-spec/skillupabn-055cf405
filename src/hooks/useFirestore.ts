@@ -6,14 +6,16 @@ import {
   doc,
   getDoc,
   where,
-  orderBy,
   addDoc,
   updateDoc,
   deleteDoc,
   onSnapshot,
   serverTimestamp,
+  arrayUnion,
+  orderBy,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "@/lib/firebase";
 
 export interface FirestoreCourse {
   id: string;
@@ -25,6 +27,8 @@ export interface FirestoreCourse {
   price: number;
   thumbnail: string;
   videoUrl: string;
+  qrCodeUrl: string;
+  howToPayVideoUrl: string;
   rating: number;
   students: number;
   lessons: number;
@@ -47,6 +51,19 @@ export interface FirestoreUser {
   courses_unlocked: string[];
   signup_date: unknown;
   profile_image: string | null;
+}
+
+export interface PaymentRequest {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  courseId: string;
+  courseTitle: string;
+  screenshotURL: string;
+  transactionId: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: unknown;
 }
 
 // Real-time courses listener
@@ -116,6 +133,43 @@ export function useUsers() {
   return { users, loading };
 }
 
+// Payment requests (admin - real-time)
+export function usePaymentRequests() {
+  const [requests, setRequests] = useState<PaymentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      query(collection(db, "payment_requests"), orderBy("createdAt", "desc")),
+      (snap) => {
+        setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() } as PaymentRequest)));
+        setLoading(false);
+      }
+    );
+    return unsub;
+  }, []);
+
+  return { requests, loading };
+}
+
+// User's own payment requests
+export function useUserPayments(userId: string | undefined) {
+  const [payments, setPayments] = useState<PaymentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    const q = query(collection(db, "payment_requests"), where("userId", "==", userId));
+    const unsub = onSnapshot(q, (snap) => {
+      setPayments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as PaymentRequest)));
+      setLoading(false);
+    });
+    return unsub;
+  }, [userId]);
+
+  return { payments, loading };
+}
+
 // Add course
 export async function addCourse(course: Omit<FirestoreCourse, "id">) {
   return addDoc(collection(db, "courses"), { ...course, createdAt: serverTimestamp() });
@@ -133,11 +187,17 @@ export async function deleteCourse(id: string) {
 
 // Enroll user
 export async function enrollUser(userId: string, courseId: string) {
-  return addDoc(collection(db, "enrollments"), {
+  // Add to enrollments collection
+  await addDoc(collection(db, "enrollments"), {
     userId,
     courseId,
     enrolledAt: serverTimestamp(),
     progress: 0,
+  });
+  // Also update courses_unlocked on user doc
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, {
+    courses_unlocked: arrayUnion(courseId),
   });
 }
 
@@ -148,6 +208,53 @@ export async function isEnrolled(userId: string, courseId: string): Promise<bool
     where("userId", "==", userId),
     where("courseId", "==", courseId)
   );
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
+// Upload screenshot to Firebase Storage
+export async function uploadPaymentScreenshot(file: File, userId: string): Promise<string> {
+  const fileRef = ref(storage, `payment_screenshots/${userId}_${Date.now()}_${file.name}`);
+  await uploadBytes(fileRef, file);
+  return getDownloadURL(fileRef);
+}
+
+// Submit payment request
+export async function submitPaymentRequest(data: {
+  userId: string;
+  userEmail: string;
+  userName: string;
+  courseId: string;
+  courseTitle: string;
+  screenshotURL: string;
+  transactionId: string;
+}) {
+  return addDoc(collection(db, "payment_requests"), {
+    ...data,
+    status: "pending",
+    createdAt: serverTimestamp(),
+  });
+}
+
+// Approve payment (admin)
+export async function approvePayment(requestId: string, userId: string, courseId: string) {
+  await updateDoc(doc(db, "payment_requests", requestId), { status: "approved" });
+  await enrollUser(userId, courseId);
+}
+
+// Reject payment (admin)
+export async function rejectPayment(requestId: string) {
+  await updateDoc(doc(db, "payment_requests", requestId), { status: "rejected" });
+}
+
+// Delete payment request (admin)
+export async function deletePaymentRequest(requestId: string) {
+  return deleteDoc(doc(db, "payment_requests", requestId));
+}
+
+// Check if user is admin (checks admins collection)
+export async function checkIsAdmin(email: string): Promise<boolean> {
+  const q = query(collection(db, "admins"), where("email", "==", email));
   const snap = await getDocs(q);
   return !snap.empty;
 }
