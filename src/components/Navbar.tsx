@@ -14,6 +14,7 @@ const Navbar = () => {
     { href: "/marketplace", label: "Courses" },
     { href: "/ebooks", label: "Ebooks" },
     { href: "/files", label: "Files" },
+    { href: "/news", label: "News" },
     { href: "/dashboard", label: "Dashboard" },
   ];
 
