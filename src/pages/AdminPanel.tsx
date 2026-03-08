@@ -56,6 +56,9 @@ const AdminPanel = () => {
   const [showAddEbook, setShowAddEbook] = useState(false);
   const [editingEbook, setEditingEbook] = useState<FirestoreEbook | null>(null);
   const [ebookStatusFilter, setEbookStatusFilter] = useState<string>("all");
+  const [showAddFile, setShowAddFile] = useState(false);
+  const [editingFile, setEditingFile] = useState<FirestoreDigitalFile | null>(null);
+  const [fileStatusFilter, setFileStatusFilter] = useState<string>("all");
   
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
