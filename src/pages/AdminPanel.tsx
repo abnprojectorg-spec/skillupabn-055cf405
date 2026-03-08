@@ -8,13 +8,16 @@ import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 import {
   useCourses, useUsers, usePaymentRequests, useCourseProject, useCommunityLinks,
+  useEbooks, useEbookPaymentRequests,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
   saveCourseProject, deleteCourseProject,
   saveCommunityLink, deleteCommunityLink,
+  addEbook, updateEbook, deleteEbook,
+  approveEbookPayment, rejectEbookPayment, deleteEbookPaymentRequest,
   checkIsAdmin,
 } from "@/hooks/useFirestore";
-import type { FirestoreCourse } from "@/hooks/useFirestore";
+import type { FirestoreCourse, FirestoreEbook } from "@/hooks/useFirestore";
 import { CATEGORIES } from "@/data/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
