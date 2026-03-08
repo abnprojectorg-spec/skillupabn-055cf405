@@ -205,7 +205,7 @@ export function useLessons(courseId: string | undefined) {
     const unsub = onSnapshot(q, (snap) => {
       setLessons(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreLesson)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Lessons error:", error); setLoading(false); });
     return unsub;
   }, [courseId]);
 
