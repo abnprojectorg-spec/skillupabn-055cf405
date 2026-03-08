@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 import CourseCard from "@/components/CourseCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCourses, useEnrollments } from "@/hooks/useFirestore";
+import { useCourses, useEnrollments, useCommunityLinks } from "@/hooks/useFirestore";
 import { COMMUNITY_LINKS } from "@/data/mockData";
 import {
   Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2,
