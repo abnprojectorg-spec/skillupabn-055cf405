@@ -18,7 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Eye, Edit, Shield,
+  CreditCard, CheckCircle, XCircle, Edit, Shield,
 } from "lucide-react";
 
 const ADMIN_TABS = [
@@ -39,7 +39,7 @@ const AdminPanel = () => {
   const [showAddCourse, setShowAddCourse] = useState(false);
   const [editingCourse, setEditingCourse] = useState<FirestoreCourse | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   const { courses, loading: coursesLoading } = useCourses();
@@ -243,7 +243,6 @@ const AdminPanel = () => {
                         <th className="text-left p-3 font-medium">User</th>
                         <th className="text-left p-3 font-medium">Course</th>
                         <th className="text-left p-3 font-medium">Transaction ID</th>
-                        <th className="text-left p-3 font-medium">Screenshot</th>
                         <th className="text-left p-3 font-medium">Status</th>
                         <th className="text-left p-3 font-medium">Actions</th>
                       </tr>
@@ -256,14 +255,8 @@ const AdminPanel = () => {
                             <p className="text-xs text-muted-foreground">{req.userEmail}</p>
                           </td>
                           <td className="p-3 font-medium">{req.courseTitle}</td>
-                          <td className="p-3 text-muted-foreground">{req.transactionId || "—"}</td>
                           <td className="p-3">
-                            <button
-                              onClick={() => setScreenshotPreview(req.screenshotURL)}
-                              className="flex items-center gap-1 text-xs text-accent hover:underline"
-                            >
-                              <Eye className="h-3 w-3" /> View
-                            </button>
+                            <span className="font-mono tracking-wider text-foreground">{req.transactionId || "—"}</span>
                           </td>
                           <td className="p-3">
                             <Badge className={`${STATUS_COLORS[req.status]} capitalize`}>{req.status}</Badge>
@@ -448,20 +441,6 @@ const AdminPanel = () => {
         </main>
       </div>
 
-      {/* Screenshot Preview Modal */}
-      {screenshotPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4" onClick={() => setScreenshotPreview(null)}>
-          <div className="max-w-2xl max-h-[80vh] rounded-2xl border border-border bg-card p-4 overflow-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-display font-semibold">Payment Screenshot</h3>
-              <button onClick={() => setScreenshotPreview(null)}>
-                <X className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-              </button>
-            </div>
-            <img src={screenshotPreview} alt="Payment screenshot" className="w-full rounded-lg" />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
