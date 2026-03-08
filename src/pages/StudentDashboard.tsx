@@ -178,14 +178,19 @@ const StudentDashboard = () => {
             <div>
               <h1 className="font-display text-2xl font-bold mb-2">Community</h1>
               <p className="text-muted-foreground mb-6">Join Telegram groups for each category</p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {COMMUNITY_LINKS.map((c) => (
-                  <a key={c.category} href={c.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 hover:border-accent/30 hover:shadow-glow transition-all duration-300">
-                    <span className="text-sm font-medium">{c.category}</span>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                  </a>
-                ))}
-              </div>
+              {linksLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {/* Show Firestore links first, fall back to hardcoded */}
+                  {(communityLinks.length > 0 ? communityLinks : COMMUNITY_LINKS).map((c) => (
+                    <a key={c.category} href={c.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 hover:border-accent/30 hover:shadow-glow transition-all duration-300">
+                      <span className="text-sm font-medium">{c.category}</span>
+                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
