@@ -860,7 +860,7 @@ const AdminPanel = () => {
                           </td>
                         </tr>
                       ))}
-                      {digitalFiles.length === 0 && (
+                      {filteredDigitalFiles.length === 0 && (
                         <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No files yet.</td></tr>
                       )}
                     </tbody>
