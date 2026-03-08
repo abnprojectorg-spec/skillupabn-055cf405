@@ -3,7 +3,7 @@ import { GraduationCap } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border bg-card">
+    <footer className="border-t border-border bg-card/50">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-4">
           <div>
@@ -18,9 +18,9 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-semibold mb-3">Platform</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/marketplace" className="hover:text-primary transition-colors">Browse Courses</Link></li>
-              <li><Link to="/signup" className="hover:text-primary transition-colors">Sign Up</Link></li>
-              <li><Link to="/login" className="hover:text-primary transition-colors">Login</Link></li>
+              <li><Link to="/marketplace" className="hover:text-accent transition-colors">Browse Courses</Link></li>
+              <li><Link to="/signup" className="hover:text-accent transition-colors">Sign Up</Link></li>
+              <li><Link to="/login" className="hover:text-accent transition-colors">Login</Link></li>
             </ul>
           </div>
           <div>
