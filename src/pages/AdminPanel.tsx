@@ -376,6 +376,9 @@ const AdminPanel = () => {
               {tab.id === "ebook-payments" && ebookPendingCount > 0 && (
                 <Badge className="ml-auto bg-warning/20 text-warning text-xs px-1.5">{ebookPendingCount}</Badge>
               )}
+              {tab.id === "file-payments" && filePendingCount > 0 && (
+                <Badge className="ml-auto bg-warning/20 text-warning text-xs px-1.5">{filePendingCount}</Badge>
+              )}
             </button>
           ))}
         </aside>
