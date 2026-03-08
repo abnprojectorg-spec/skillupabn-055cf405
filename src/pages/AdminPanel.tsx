@@ -586,7 +586,7 @@ const AdminPanel = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {courses.map((c) => (
+                      {filteredCourses.map((c) => (
                         <tr key={c.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
                           <td className="p-3 font-medium">{c.title}</td>
                           <td className="p-3"><Badge variant="secondary">{c.category}</Badge></td>
