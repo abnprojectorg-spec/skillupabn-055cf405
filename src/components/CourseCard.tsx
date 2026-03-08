@@ -11,20 +11,21 @@ interface CourseCardProps {
 
 const CourseCard = ({ course, isUnlocked }: CourseCardProps) => {
   return (
-    <div className="group overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    <div className="group overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-500 hover:shadow-glow hover:border-accent/30 hover:-translate-y-2">
       <div className="relative aspect-video overflow-hidden">
         <img
-          src={course.thumbnail}
+          src={course.thumbnail || "/placeholder.svg"}
           alt={course.title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
           loading="lazy"
         />
-        <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs">
+        <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <Badge className="absolute top-3 left-3 bg-primary/90 text-primary-foreground text-xs backdrop-blur-sm">
           {course.category}
         </Badge>
       </div>
       <div className="p-5">
-        <h3 className="font-display font-semibold text-card-foreground line-clamp-2 mb-1">
+        <h3 className="font-display font-semibold line-clamp-2 mb-1 group-hover:text-accent transition-colors duration-300">
           {course.title}
         </h3>
         <p className="text-sm text-muted-foreground mb-3">{course.instructor}</p>
@@ -44,9 +45,9 @@ const CourseCard = ({ course, isUnlocked }: CourseCardProps) => {
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="font-display text-lg font-bold text-foreground">{course.price} ETB</span>
+          <span className="font-display text-lg font-bold text-gradient-glow">{course.price} ETB</span>
           <Link to={`/course/${course.id}`}>
-            <Button size="sm" variant={isUnlocked ? "secondary" : "hero"}>
+            <Button size="sm" variant={isUnlocked ? "secondary" : "hero"} className={isUnlocked ? "" : "shadow-glow"}>
               {isUnlocked ? "Continue" : "View Course"}
             </Button>
           </Link>
