@@ -10,7 +10,7 @@ import { COMMUNITY_LINKS } from "@/data/mockData";
 import {
   Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2,
 } from "lucide-react";
-import ContactAdminButton from "@/components/ContactAdminButton";
+import ChatWidget from "@/components/ChatWidget";
 
 const TABS = [
   { id: "home", label: "Home", icon: Home },
@@ -223,7 +223,7 @@ const StudentDashboard = () => {
           )}
         </main>
       </div>
-      <ContactAdminButton />
+      <ChatWidget />
     </div>
   );
 };

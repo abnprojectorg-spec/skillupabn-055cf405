@@ -31,9 +31,15 @@ import {
   CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings,
 } from "lucide-react";
 import AdminAnalytics from "@/components/AdminAnalytics";
+import AdminChat from "@/components/AdminChat";
+import AdminNews from "@/components/AdminNews";
+
+import { Newspaper } from "lucide-react";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "messages", label: "Messages", icon: MessageCircle },
+  { id: "news", label: "News", icon: Newspaper },
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "completions", label: "Completions", icon: CheckCircle },
   { id: "courses", label: "Courses", icon: BookOpen },
@@ -389,6 +395,12 @@ const AdminPanel = () => {
         </aside>
 
         <main className="flex-1 p-6">
+          {/* Messages */}
+          {activeTab === "messages" && <AdminChat />}
+
+          {/* News */}
+          {activeTab === "news" && <AdminNews toast={toast} />}
+
           {/* Overview */}
           {activeTab === "overview" && (
             <AdminAnalytics

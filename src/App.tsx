@@ -19,6 +19,7 @@ import EbookReaderPage from "./pages/EbookReaderPage";
 import FilesPage from "./pages/FilesPage";
 import FileDetailPage from "./pages/FileDetailPage";
 import FileDownloadPage from "./pages/FileDownloadPage";
+import NewsPage from "./pages/NewsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/files" element={<FilesPage />} />
             <Route path="/file/:id" element={<FileDetailPage />} />
             <Route path="/download-file/:id" element={<FileDownloadPage />} />
+            <Route path="/news" element={<NewsPage />} />
             <Route path="/admin-login" element={<AdminLoginPage />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="*" element={<NotFound />} />
