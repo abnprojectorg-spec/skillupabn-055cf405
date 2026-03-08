@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { useNewsPosts, toggleLike, addComment, type NewsComment } from "@/hooks/useNews";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
