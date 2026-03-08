@@ -67,6 +67,8 @@ const AdminPanel = () => {
   const { requests, loading: paymentsLoading } = usePaymentRequests();
   const { ebooks, loading: ebooksLoading } = useEbooks();
   const { requests: ebookRequests, loading: ebookPaymentsLoading } = useEbookPaymentRequests();
+  const { files: digitalFiles, loading: filesLoading } = useDigitalFiles();
+  const { requests: fileRequests, loading: filePaymentsLoading } = useFilePaymentRequests();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
