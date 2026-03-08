@@ -543,6 +543,46 @@ export async function hasEbookAccess(userId: string, ebookId: string): Promise<b
   return !snap.empty;
 }
 
+// ─── User CRUD (Admin) ───────────────────────────────────────
+
+export async function updateUser(userId: string, data: Partial<FirestoreUser>) {
+  return updateDoc(doc(db, "users", userId), data);
+}
+
+export async function deleteUser(userId: string) {
+  // Delete enrollments
+  const enrollQ = query(collection(db, "enrollments"), where("userId", "==", userId));
+  const enrollSnap = await getDocs(enrollQ);
+  for (const d of enrollSnap.docs) await deleteDoc(d.ref);
+  // Delete payment requests
+  const payQ = query(collection(db, "payment_requests"), where("userId", "==", userId));
+  const paySnap = await getDocs(payQ);
+  for (const d of paySnap.docs) await deleteDoc(d.ref);
+  // Delete ebook purchases & payments
+  const ebookPayQ = query(collection(db, "ebook_payment_requests"), where("userId", "==", userId));
+  const ebookPaySnap = await getDocs(ebookPayQ);
+  for (const d of ebookPaySnap.docs) await deleteDoc(d.ref);
+  const ebookPurchQ = query(collection(db, "ebook_purchases"), where("userId", "==", userId));
+  const ebookPurchSnap = await getDocs(ebookPurchQ);
+  for (const d of ebookPurchSnap.docs) await deleteDoc(d.ref);
+  // Delete user doc
+  return deleteDoc(doc(db, "users", userId));
+}
+
+export async function removeUserCourseAccess(userId: string, courseId: string) {
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists()) {
+    const data = userSnap.data() as FirestoreUser;
+    const updated = (data.courses_unlocked || []).filter((id) => id !== courseId);
+    await updateDoc(userRef, { courses_unlocked: updated });
+  }
+  // Remove enrollment
+  const q = query(collection(db, "enrollments"), where("userId", "==", userId), where("courseId", "==", courseId));
+  const snap = await getDocs(q);
+  for (const d of snap.docs) await deleteDoc(d.ref);
+}
+
 // ─── Admin Check ─────────────────────────────────────────────
 
 export async function checkIsAdmin(email: string): Promise<boolean> {
