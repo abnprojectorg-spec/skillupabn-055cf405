@@ -64,14 +64,17 @@ const StudentDashboard = () => {
       <div className="flex">
         {/* Sidebar */}
         <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card min-h-screen p-4 sticky top-0">
-          <div className="flex items-center gap-3 p-3 mb-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary text-sm font-bold text-primary-foreground">
-              {initials}
+          <div className="flex items-center justify-between p-3 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary text-sm font-bold text-primary-foreground">
+                {initials}
+              </div>
+              <div>
+                <p className="text-sm font-semibold">{displayName}</p>
+                <p className="text-xs text-muted-foreground">{user.email}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold">{displayName}</p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
-            </div>
+            <NotificationBell userId={user.uid} />
           </div>
           {TABS.map((tab) => (
             <button
