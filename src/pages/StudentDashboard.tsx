@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import CourseCard from "@/components/CourseCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCourses, useEnrollments, useCommunityLinks, useEbooks, useDigitalFiles, useUserEbookPurchases, useUserFilePurchases } from "@/hooks/useFirestore";
@@ -48,7 +49,8 @@ const StudentDashboard = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="flex min-h-screen items-center justify-center">
+        <Navbar />
+        <div className="flex min-h-screen items-center justify-center pt-16">
           <div className="text-center">
             <GraduationCap className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
             <h1 className="font-display text-2xl font-bold mb-2">Sign in to access your dashboard</h1>
@@ -70,8 +72,8 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      
-      <div className="flex">
+      <Navbar />
+      <div className="flex pt-16">
         {/* Sidebar */}
         <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card min-h-screen p-4 sticky top-0">
           <div className="flex items-center justify-between p-3 mb-6">
