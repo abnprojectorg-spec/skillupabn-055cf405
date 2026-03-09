@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input";
 import Footer from "@/components/Footer";
 import CourseCard from "@/components/CourseCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCourses, useEnrollments, useCommunityLinks, useEbooks, useDigitalFiles, useUserEbookPurchases, useUserFilePurchases } from "@/hooks/useFirestore";
+import { useCourses, useEnrollments, useCommunityLinks, useEbooks, useDigitalFiles, useUserEbookPurchases, useUserFilePurchases, useEbooks, useDigitalFiles, useUserEbookPurchases, useUserFilePurchases } from "@/hooks/useFirestore";
 import { useNewsPosts, toggleLike, addComment, type NewsComment } from "@/hooks/useNews";
 import { COMMUNITY_LINKS } from "@/data/mockData";
 import {
-  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send,
+  Home, BookOpen, FolderOpen, Users, User, Award, Ext BookMarked, Download,ernalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send,
 } from "lucide-react";
 import ContactAdminButton from "@/components/ContactAdminButton";
 import NotificationBell from "@/components/NotificationBell";
