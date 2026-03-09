@@ -889,3 +889,47 @@ export async function updateCollaboration(id: string, data: Partial<FirestoreCol
 export async function deleteCollaboration(id: string) {
   return deleteDoc(doc(db, "collaborations", id));
 }
+
+// ─── Notifications ───────────────────────────────────────────
+
+export interface FirestoreNotification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: "payment_approved" | "course_unlocked" | "new_course" | "general";
+  read: boolean;
+  createdAt?: unknown;
+}
+
+export function useNotifications(userId?: string) {
+  const [notifications, setNotifications] = useState<FirestoreNotification[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    const q = query(collection(db, "notifications"), where("userId", "==", userId), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(q, (snap) => {
+      setNotifications(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreNotification)));
+      setLoading(false);
+    }, () => setLoading(false));
+    return unsub;
+  }, [userId]);
+
+  return { notifications, loading };
+}
+
+export async function addNotification(data: Omit<FirestoreNotification, "id">) {
+  return addDoc(collection(db, "notifications"), { ...data, createdAt: serverTimestamp() });
+}
+
+export async function markNotificationRead(id: string) {
+  return updateDoc(doc(db, "notifications", id), { read: true });
+}
+
+export async function markAllNotificationsRead(userId: string) {
+  const q = query(collection(db, "notifications"), where("userId", "==", userId), where("read", "==", false));
+  const snap = await getDocs(q);
+  const promises = snap.docs.map((d) => updateDoc(d.ref, { read: true }));
+  return Promise.all(promises);
+}
