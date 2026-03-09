@@ -50,6 +50,7 @@ const ADMIN_TABS = [
   { id: "file-payments", label: "File Payments", icon: CreditCard },
   { id: "projects", label: "Projects", icon: Award },
   { id: "community", label: "Community Links", icon: Link2 },
+  { id: "collaborations", label: "Collaborations", icon: Handshake },
   { id: "users", label: "Users", icon: Users },
   { id: "settings", label: "Settings", icon: Settings },
 ];
