@@ -849,3 +849,43 @@ export function useAdminSettings() {
 export async function saveAdminTelegram(username: string) {
   return setDoc(doc(db, "settings", "admin"), { adminTelegram: username }, { merge: true });
 }
+
+// ─── Collaborations ──────────────────────────────────────────
+
+export interface FirestoreCollaboration {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  badgeUrl: string;
+  platformType: string; // TikToker, YouTuber, Company, Influencer
+  createdAt?: unknown;
+}
+
+export function useCollaborations() {
+  const [collaborations, setCollaborations] = useState<FirestoreCollaboration[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const q = query(collection(db, "collaborations"), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(q, (snap) => {
+      setCollaborations(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreCollaboration)));
+      setLoading(false);
+    }, () => setLoading(false));
+    return unsub;
+  }, []);
+
+  return { collaborations, loading };
+}
+
+export async function addCollaboration(data: Omit<FirestoreCollaboration, "id">) {
+  return addDoc(collection(db, "collaborations"), { ...data, createdAt: serverTimestamp() });
+}
+
+export async function updateCollaboration(id: string, data: Partial<FirestoreCollaboration>) {
+  return updateDoc(doc(db, "collaborations", id), data);
+}
+
+export async function deleteCollaboration(id: string) {
+  return deleteDoc(doc(db, "collaborations", id));
+}

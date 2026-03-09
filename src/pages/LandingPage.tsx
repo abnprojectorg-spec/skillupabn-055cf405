@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TechParticlesBackground from "@/components/TechParticlesBackground";
+import CollaborationsSection from "@/components/CollaborationsSection";
 import { useCourses } from "@/hooks/useFirestore";
 import CourseCard from "@/components/CourseCard";
 import { CATEGORIES } from "@/data/mockData";
@@ -231,6 +232,9 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Collaborations */}
+      <CollaborationsSection />
 
       {/* CTA */}
       <section className="relative py-24 overflow-hidden">

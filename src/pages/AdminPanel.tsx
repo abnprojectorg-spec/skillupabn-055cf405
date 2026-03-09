@@ -33,8 +33,9 @@ import {
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminChat from "@/components/AdminChat";
 import AdminNews from "@/components/AdminNews";
+import AdminCollaborations from "@/components/AdminCollaborations";
 
-import { Newspaper } from "lucide-react";
+import { Newspaper, Handshake } from "lucide-react";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -49,6 +50,7 @@ const ADMIN_TABS = [
   { id: "file-payments", label: "File Payments", icon: CreditCard },
   { id: "projects", label: "Projects", icon: Award },
   { id: "community", label: "Community Links", icon: Link2 },
+  { id: "collaborations", label: "Collaborations", icon: Handshake },
   { id: "users", label: "Users", icon: Users },
   { id: "settings", label: "Settings", icon: Settings },
 ];
@@ -943,6 +945,8 @@ const AdminPanel = () => {
 
           {/* Community Links Management */}
           {activeTab === "community" && <CommunityLinksManager toast={toast} />}
+
+          {activeTab === "collaborations" && <AdminCollaborations />}
 
           {/* Projects Management */}
           {activeTab === "projects" && <ProjectsManager courses={courses} toast={toast} />}
