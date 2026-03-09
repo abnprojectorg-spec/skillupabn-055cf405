@@ -33,8 +33,9 @@ import {
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminChat from "@/components/AdminChat";
 import AdminNews from "@/components/AdminNews";
+import AdminCollaborations from "@/components/AdminCollaborations";
 
-import { Newspaper } from "lucide-react";
+import { Newspaper, Handshake } from "lucide-react";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
