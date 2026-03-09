@@ -175,6 +175,81 @@ const StudentDashboard = () => {
             </div>
           )}
 
+          {activeTab === "ebooks" && (
+            <div>
+              <h1 className="font-display text-2xl font-bold mb-6">My Ebooks</h1>
+              {ebookPurchLoading || ebooksLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : purchasedEbooks.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {purchasedEbooks.map((ebook) => (
+                    <Link key={ebook.id} to={`/ebook/${ebook.id}`} className="group">
+                      <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-glow transition-all duration-300">
+                        <div className="aspect-[3/4] overflow-hidden bg-secondary">
+                          <img src={ebook.coverImage || "/placeholder.svg"} alt={ebook.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-display font-semibold text-sm mb-1 line-clamp-2 group-hover:text-accent transition-colors">{ebook.title}</h3>
+                          <p className="text-xs text-muted-foreground mb-2">by {ebook.author}</p>
+                          <Badge variant="secondary" className="text-xs">{ebook.pages} pages</Badge>
+                          <div className="mt-3">
+                            <Button size="sm" variant="secondary" className="w-full text-xs">
+                              <BookMarked className="h-3 w-3 mr-1" /> Read Now
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-16 text-center">
+                  <BookMarked className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+                  <p className="text-muted-foreground mb-4">No ebooks purchased yet.</p>
+                  <Link to="/ebooks"><Button variant="hero">Browse Ebooks</Button></Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "files" && (
+            <div>
+              <h1 className="font-display text-2xl font-bold mb-6">My Files</h1>
+              {filePurchLoading || filesLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : purchasedFiles.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {purchasedFiles.map((file) => (
+                    <Link key={file.id} to={`/file/${file.id}`} className="group">
+                      <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-glow transition-all duration-300">
+                        <div className="aspect-video overflow-hidden bg-secondary">
+                          <img src={file.coverImage || "/placeholder.svg"} alt={file.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        </div>
+                        <div className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="secondary" className="text-xs">{file.category}</Badge>
+                            <Badge variant="outline" className="text-xs">{file.fileType}</Badge>
+                          </div>
+                          <h3 className="font-display font-semibold text-sm mb-1 line-clamp-2 group-hover:text-accent transition-colors">{file.title}</h3>
+                          <p className="text-xs text-muted-foreground mb-3">by {file.developer}</p>
+                          <Button size="sm" variant="secondary" className="w-full text-xs">
+                            <Download className="h-3 w-3 mr-1" /> Access File
+                          </Button>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-16 text-center">
+                  <FolderOpen className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+                  <p className="text-muted-foreground mb-4">No files purchased yet.</p>
+                  <Link to="/files"><Button variant="hero">Browse Files</Button></Link>
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === "news" && (
             <div>
               <h1 className="font-display text-2xl font-bold mb-6">News & Updates</h1>
