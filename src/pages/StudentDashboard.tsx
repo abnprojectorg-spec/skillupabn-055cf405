@@ -17,6 +17,8 @@ import NotificationBell from "@/components/NotificationBell";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
   { id: "courses", label: "My Courses", icon: BookOpen },
+  { id: "ebooks", label: "My Ebooks", icon: BookMarked },
+  { id: "files", label: "My Files", icon: FolderOpen },
   { id: "news", label: "News", icon: Newspaper },
   { id: "community", label: "Community", icon: Users },
   { id: "profile", label: "Profile", icon: User },
