@@ -24,6 +24,7 @@ const NotFound = () => {
           </Button>
         </Link>
       </motion.div>
+      </div>
     </div>
   );
 };
