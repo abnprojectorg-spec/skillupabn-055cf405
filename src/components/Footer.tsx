@@ -19,26 +19,26 @@ const Footer = () => {
             <h4 className="font-display font-semibold mb-3">Platform</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/marketplace" className="hover:text-accent transition-colors">Browse Courses</Link></li>
+              <li><Link to="/ebooks" className="hover:text-accent transition-colors">Ebooks</Link></li>
+              <li><Link to="/files" className="hover:text-accent transition-colors">Files</Link></li>
+              <li><Link to="/news" className="hover:text-accent transition-colors">News</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-display font-semibold mb-3">Company</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><Link to="/about" className="hover:text-accent transition-colors">About</Link></li>
+              <li><Link to="/contact" className="hover:text-accent transition-colors">Contact Us</Link></li>
               <li><Link to="/signup" className="hover:text-accent transition-colors">Sign Up</Link></li>
               <li><Link to="/login" className="hover:text-accent transition-colors">Login</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-display font-semibold mb-3">Categories</h4>
+            <h4 className="font-display font-semibold mb-3">Legal</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Programming & Tech</li>
-              <li>Design & Creativity</li>
-              <li>Business</li>
-              <li>Marketing</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-display font-semibold mb-3">Support</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Help Center</li>
-              <li>Contact Us</li>
-              <li>Terms of Service</li>
-              <li>Privacy Policy</li>
+              <li><Link to="/terms" className="hover:text-accent transition-colors">Terms of Service</Link></li>
+              <li><Link to="/privacy" className="hover:text-accent transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/refund" className="hover:text-accent transition-colors">Refund Policy</Link></li>
             </ul>
           </div>
         </div>
