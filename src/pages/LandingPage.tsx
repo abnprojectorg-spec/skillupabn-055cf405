@@ -233,6 +233,9 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Collaborations */}
+      <CollaborationsSection />
+
       {/* CTA */}
       <section className="relative py-24 overflow-hidden">
         <TechParticlesBackground />
