@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import Footer from "@/components/Footer";
 import CourseCard from "@/components/CourseCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCourses, useEnrollments, useCommunityLinks, useEbooks, useDigitalFiles, useUserEbookPurchases, useUserFilePurchases, useEbooks, useDigitalFiles, useUserEbookPurchases, useUserFilePurchases } from "@/hooks/useFirestore";
+import { useCourses, useEnrollments, useCommunityLinks, useEbooks, useDigitalFiles, useUserEbookPurchases, useUserFilePurchases } from "@/hooks/useFirestore";
 import { useNewsPosts, toggleLike, addComment, type NewsComment } from "@/hooks/useNews";
 import { COMMUNITY_LINKS } from "@/data/mockData";
 import {
