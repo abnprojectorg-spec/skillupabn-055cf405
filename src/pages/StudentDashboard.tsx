@@ -31,6 +31,10 @@ const StudentDashboard = () => {
   const { enrollments, loading: enrollLoading } = useEnrollments(user?.uid);
   const { links: communityLinks, loading: linksLoading } = useCommunityLinks();
   const { posts: newsPosts, loading: newsLoading } = useNewsPosts();
+  const { ebooks, loading: ebooksLoading } = useEbooks();
+  const { files: digitalFiles, loading: filesLoading } = useDigitalFiles();
+  const { purchases: ebookPurchases, loading: ebookPurchLoading } = useUserEbookPurchases(user?.uid);
+  const { purchases: filePurchases, loading: filePurchLoading } = useUserFilePurchases(user?.uid);
   const navigate = useNavigate();
 
   if (authLoading) {
