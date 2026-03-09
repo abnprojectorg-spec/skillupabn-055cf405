@@ -13,6 +13,7 @@ import {
   Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send,
 } from "lucide-react";
 import ContactAdminButton from "@/components/ContactAdminButton";
+import NotificationBell from "@/components/NotificationBell";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
   { id: "courses", label: "My Courses", icon: BookOpen },
