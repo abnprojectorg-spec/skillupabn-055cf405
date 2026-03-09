@@ -6,17 +6,19 @@ import { Input } from "@/components/ui/input";
 import Footer from "@/components/Footer";
 import CourseCard from "@/components/CourseCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCourses, useEnrollments, useCommunityLinks } from "@/hooks/useFirestore";
+import { useCourses, useEnrollments, useCommunityLinks, useEbooks, useDigitalFiles, useUserEbookPurchases, useUserFilePurchases } from "@/hooks/useFirestore";
 import { useNewsPosts, toggleLike, addComment, type NewsComment } from "@/hooks/useNews";
 import { COMMUNITY_LINKS } from "@/data/mockData";
 import {
-  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send,
+  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send, BookMarked, Download,
 } from "lucide-react";
 import ContactAdminButton from "@/components/ContactAdminButton";
 import NotificationBell from "@/components/NotificationBell";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
   { id: "courses", label: "My Courses", icon: BookOpen },
+  { id: "ebooks", label: "My Ebooks", icon: BookMarked },
+  { id: "files", label: "My Files", icon: FolderOpen },
   { id: "news", label: "News", icon: Newspaper },
   { id: "community", label: "Community", icon: Users },
   { id: "profile", label: "Profile", icon: User },
@@ -29,6 +31,10 @@ const StudentDashboard = () => {
   const { enrollments, loading: enrollLoading } = useEnrollments(user?.uid);
   const { links: communityLinks, loading: linksLoading } = useCommunityLinks();
   const { posts: newsPosts, loading: newsLoading } = useNewsPosts();
+  const { ebooks, loading: ebooksLoading } = useEbooks();
+  const { files: digitalFiles, loading: filesLoading } = useDigitalFiles();
+  const { purchases: ebookPurchases, loading: ebookPurchLoading } = useUserEbookPurchases(user?.uid);
+  const { purchases: filePurchases, loading: filePurchLoading } = useUserFilePurchases(user?.uid);
   const navigate = useNavigate();
 
   if (authLoading) {
@@ -55,6 +61,10 @@ const StudentDashboard = () => {
 
   const enrolledCourseIds = new Set(enrollments.map((e) => e.courseId));
   const enrolledCourses = courses.filter((c) => enrolledCourseIds.has(c.id));
+  const purchasedEbookIds = new Set(ebookPurchases.map((p) => p.ebookId));
+  const purchasedEbooks = ebooks.filter((e) => purchasedEbookIds.has(e.id));
+  const purchasedFileIds = new Set(filePurchases.map((p) => p.fileId));
+  const purchasedFiles = digitalFiles.filter((f) => purchasedFileIds.has(f.id));
   const displayName = profile?.full_name || user.displayName || "Student";
   const initials = displayName.split(" ").map((n) => n[0]).join("").slice(0, 2);
 
@@ -160,6 +170,81 @@ const StudentDashboard = () => {
                   <BookOpen className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
                   <p className="text-muted-foreground mb-4">You haven't enrolled in any courses yet.</p>
                   <Link to="/marketplace"><Button variant="hero">Browse Courses</Button></Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "ebooks" && (
+            <div>
+              <h1 className="font-display text-2xl font-bold mb-6">My Ebooks</h1>
+              {ebookPurchLoading || ebooksLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : purchasedEbooks.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {purchasedEbooks.map((ebook) => (
+                    <Link key={ebook.id} to={`/ebook/${ebook.id}`} className="group">
+                      <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-glow transition-all duration-300">
+                        <div className="aspect-[3/4] overflow-hidden bg-secondary">
+                          <img src={ebook.coverImage || "/placeholder.svg"} alt={ebook.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-display font-semibold text-sm mb-1 line-clamp-2 group-hover:text-accent transition-colors">{ebook.title}</h3>
+                          <p className="text-xs text-muted-foreground mb-2">by {ebook.author}</p>
+                          <Badge variant="secondary" className="text-xs">{ebook.pages} pages</Badge>
+                          <div className="mt-3">
+                            <Button size="sm" variant="secondary" className="w-full text-xs">
+                              <BookMarked className="h-3 w-3 mr-1" /> Read Now
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-16 text-center">
+                  <BookMarked className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+                  <p className="text-muted-foreground mb-4">No ebooks purchased yet.</p>
+                  <Link to="/ebooks"><Button variant="hero">Browse Ebooks</Button></Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "files" && (
+            <div>
+              <h1 className="font-display text-2xl font-bold mb-6">My Files</h1>
+              {filePurchLoading || filesLoading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : purchasedFiles.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {purchasedFiles.map((file) => (
+                    <Link key={file.id} to={`/file/${file.id}`} className="group">
+                      <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-glow transition-all duration-300">
+                        <div className="aspect-video overflow-hidden bg-secondary">
+                          <img src={file.coverImage || "/placeholder.svg"} alt={file.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        </div>
+                        <div className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="secondary" className="text-xs">{file.category}</Badge>
+                            <Badge variant="outline" className="text-xs">{file.fileType}</Badge>
+                          </div>
+                          <h3 className="font-display font-semibold text-sm mb-1 line-clamp-2 group-hover:text-accent transition-colors">{file.title}</h3>
+                          <p className="text-xs text-muted-foreground mb-3">by {file.developer}</p>
+                          <Button size="sm" variant="secondary" className="w-full text-xs">
+                            <Download className="h-3 w-3 mr-1" /> Access File
+                          </Button>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-16 text-center">
+                  <FolderOpen className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+                  <p className="text-muted-foreground mb-4">No files purchased yet.</p>
+                  <Link to="/files"><Button variant="hero">Browse Files</Button></Link>
                 </div>
               )}
             </div>
