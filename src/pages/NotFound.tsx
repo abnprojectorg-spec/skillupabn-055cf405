@@ -2,10 +2,13 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Home, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Navbar from "@/components/Navbar";
 
 const NotFound = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="flex min-h-screen items-center justify-center px-4 pt-16">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }} className="text-center max-w-md">
         <div className="flex justify-center mb-6">
           <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
