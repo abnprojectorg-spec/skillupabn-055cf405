@@ -61,6 +61,10 @@ const StudentDashboard = () => {
 
   const enrolledCourseIds = new Set(enrollments.map((e) => e.courseId));
   const enrolledCourses = courses.filter((c) => enrolledCourseIds.has(c.id));
+  const purchasedEbookIds = new Set(ebookPurchases.map((p) => p.ebookId));
+  const purchasedEbooks = ebooks.filter((e) => purchasedEbookIds.has(e.id));
+  const purchasedFileIds = new Set(filePurchases.map((p) => p.fileId));
+  const purchasedFiles = digitalFiles.filter((f) => purchasedFileIds.has(f.id));
   const displayName = profile?.full_name || user.displayName || "Student";
   const initials = displayName.split(" ").map((n) => n[0]).join("").slice(0, 2);
 
