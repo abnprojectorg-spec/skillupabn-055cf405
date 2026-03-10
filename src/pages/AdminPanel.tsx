@@ -606,7 +606,7 @@ const AdminPanel = () => {
                         <tr key={c.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
                           <td className="p-3 font-medium">{c.title}</td>
                           <td className="p-3"><Badge variant="secondary">{c.category}</Badge></td>
-                          <td className="p-3">{c.price} ETB</td>
+                          <td className="p-3">{c.isFree ? <Badge className="bg-accent/10 text-accent border-accent/20">Free</Badge> : `${c.price} ETB`}</td>
                           <td className="p-3">
                             {c.qrCodeUrl ? (
                               <Badge className="bg-accent/10 text-accent border-accent/20">Set</Badge>
