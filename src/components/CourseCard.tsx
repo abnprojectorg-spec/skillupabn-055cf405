@@ -23,6 +23,11 @@ const CourseCard = ({ course, isUnlocked }: CourseCardProps) => {
         <Badge className="absolute top-3 left-3 bg-primary/90 text-primary-foreground text-xs backdrop-blur-sm">
           {course.category}
         </Badge>
+        {course.isFree && (
+          <Badge className="absolute top-3 right-3 bg-accent/90 text-accent-foreground text-xs backdrop-blur-sm">
+            FREE
+          </Badge>
+        )}
       </div>
       <div className="p-5">
         <h3 className="font-display font-semibold line-clamp-2 mb-1 group-hover:text-accent transition-colors duration-300">
@@ -45,7 +50,9 @@ const CourseCard = ({ course, isUnlocked }: CourseCardProps) => {
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="font-display text-lg font-bold text-gradient-glow">{course.price} ETB</span>
+          <span className="font-display text-lg font-bold text-gradient-glow">
+            {course.isFree ? "Free" : `${course.price} ETB`}
+          </span>
           <Link to={isUnlocked ? `/learn/${course.id}` : `/course/${course.id}`}>
             <Button size="sm" variant={isUnlocked ? "secondary" : "hero"} className={isUnlocked ? "" : "shadow-glow"}>
               {isUnlocked ? "Continue" : "View Course"}

@@ -1488,15 +1488,17 @@ function CompletionsManager({ toast }: { toast: any }) {
 function AdminSettingsManager({ toast }: { toast: any }) {
   const { settings, loading } = useAdminSettings();
   const [telegram, setTelegram] = useState("");
+  const [howToPayVideo, setHowToPayVideo] = useState("");
 
   useEffect(() => {
     if (settings.adminTelegram) setTelegram(settings.adminTelegram);
-  }, [settings.adminTelegram]);
+    if (settings.howToPayVideoUrl) setHowToPayVideo(settings.howToPayVideoUrl);
+  }, [settings.adminTelegram, settings.howToPayVideoUrl]);
 
   const handleSave = async () => {
     try {
-      await saveAdminTelegram(telegram.trim());
-      toast({ title: "Telegram username saved!" });
+      await saveAdminSettings({ adminTelegram: telegram.trim(), howToPayVideoUrl: howToPayVideo.trim() });
+      toast({ title: "Settings saved!" });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
@@ -1507,26 +1509,36 @@ function AdminSettingsManager({ toast }: { toast: any }) {
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-6">Admin Settings</h1>
-      <div className="rounded-xl border border-border bg-card p-6 max-w-lg">
-        <div className="flex items-center gap-2 mb-4">
-          <MessageCircle className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold">Telegram Contact</h2>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Students will see a "Contact Admin" button linking to this Telegram username. They'll also use it to submit projects.
-        </p>
-        <div className="space-y-3">
+      <div className="space-y-6 max-w-lg">
+        <div className="rounded-xl border border-border bg-card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <MessageCircle className="h-5 w-5 text-primary" />
+            <h2 className="font-display text-lg font-semibold">Telegram Contact</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Students will see a "Contact Admin" button linking to this Telegram username.
+          </p>
           <div>
             <Label>Telegram Username</Label>
-            <Input
-              value={telegram}
-              onChange={(e) => setTelegram(e.target.value)}
-              placeholder="@yourusername"
-              className="mt-1"
-            />
+            <Input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@yourusername" className="mt-1" />
           </div>
-          <Button variant="hero" onClick={handleSave}>Save</Button>
         </div>
+
+        <div className="rounded-xl border border-border bg-card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <ListMusic className="h-5 w-5 text-primary" />
+            <h2 className="font-display text-lg font-semibold">How to Pay Video</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            This video will be shown to all users on paid course and playlist pages. Set it once here instead of per course.
+          </p>
+          <div>
+            <Label>YouTube Video URL</Label>
+            <Input value={howToPayVideo} onChange={(e) => setHowToPayVideo(e.target.value)} placeholder="https://youtube.com/watch?v=..." className="mt-1" />
+          </div>
+        </div>
+
+        <Button variant="hero" onClick={handleSave}>Save All Settings</Button>
       </div>
     </div>
   );
