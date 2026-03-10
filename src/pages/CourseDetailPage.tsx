@@ -152,9 +152,15 @@ const CourseDetailPage = () => {
                 <span className="flex items-center gap-1"><BookOpen className="h-4 w-4" /> {course.lessons} lessons</span>
               </div>
 
-              <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8">
-                <img src={course.thumbnail || "/placeholder.svg"} alt={course.title} className="h-full w-full object-cover" />
-              </div>
+              {course.videoUrl ? (
+                <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8 shadow-lg">
+                  <SmartVideoPlayer url={course.videoUrl} title={`${course.title} Preview`} />
+                </div>
+              ) : (
+                <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8">
+                  <img src={course.thumbnail || "/placeholder.svg"} alt={course.title} className="h-full w-full object-cover" />
+                </div>
+              )}
 
               <h2 className="font-display text-xl font-semibold mb-3">About This Course</h2>
               <p className="text-muted-foreground leading-relaxed mb-6">{course.description}</p>
