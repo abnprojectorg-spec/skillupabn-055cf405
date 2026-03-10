@@ -25,6 +25,8 @@ export interface Course {
   price: number;
   thumbnail: string;
   videoUrl: string;
+  isFree?: boolean;
+  playlistId?: string;
   rating: number;
   students: number;
   lessons: number;

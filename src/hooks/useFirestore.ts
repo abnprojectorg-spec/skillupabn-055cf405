@@ -831,14 +831,19 @@ export async function deleteCompletionRequest(requestId: string) {
 
 // ─── Admin Settings ──────────────────────────────────────────
 
+export interface AdminSettings {
+  adminTelegram: string;
+  howToPayVideoUrl: string;
+}
+
 export function useAdminSettings() {
-  const [settings, setSettings] = useState<{ adminTelegram: string }>({ adminTelegram: "" });
+  const [settings, setSettings] = useState<AdminSettings>({ adminTelegram: "", howToPayVideoUrl: "" });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "settings", "admin"), (snap) => {
       if (snap.exists()) {
-        setSettings(snap.data() as { adminTelegram: string });
+        setSettings(snap.data() as AdminSettings);
       }
       setLoading(false);
     }, (error) => { console.error("Admin settings error:", error); setLoading(false); });
@@ -850,6 +855,159 @@ export function useAdminSettings() {
 
 export async function saveAdminTelegram(username: string) {
   return setDoc(doc(db, "settings", "admin"), { adminTelegram: username }, { merge: true });
+}
+
+export async function saveAdminSettings(data: Partial<AdminSettings>) {
+  return setDoc(doc(db, "settings", "admin"), data, { merge: true });
+}
+
+// ─── Playlists ───────────────────────────────────────────────
+
+export interface FirestorePlaylist {
+  id: string;
+  title: string;
+  description: string;
+  coverImage: string;
+  price: number;
+  isFree: boolean;
+  courseIds: string[];
+  qrCodeUrl: string;
+  createdAt?: unknown;
+}
+
+export interface PlaylistPaymentRequest {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  playlistId: string;
+  playlistTitle: string;
+  transactionId: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: unknown;
+}
+
+export function usePlaylists() {
+  const [playlists, setPlaylists] = useState<FirestorePlaylist[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "playlists"), (snap) => {
+      setPlaylists(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestorePlaylist)));
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  return { playlists, loading };
+}
+
+export function usePlaylist(id: string | undefined) {
+  const [playlist, setPlaylist] = useState<FirestorePlaylist | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) { setLoading(false); return; }
+    const unsub = onSnapshot(doc(db, "playlists", id), (snap) => {
+      setPlaylist(snap.exists() ? { id: snap.id, ...snap.data() } as FirestorePlaylist : null);
+      setLoading(false);
+    }, (error) => { console.error("Error fetching playlist:", error); setLoading(false); });
+    return unsub;
+  }, [id]);
+
+  return { playlist, loading };
+}
+
+export async function addPlaylist(playlist: Omit<FirestorePlaylist, "id">) {
+  return addDoc(collection(db, "playlists"), { ...playlist, createdAt: serverTimestamp() });
+}
+
+export async function updatePlaylist(id: string, data: Partial<FirestorePlaylist>) {
+  return updateDoc(doc(db, "playlists", id), data);
+}
+
+export async function deletePlaylist(id: string) {
+  return deleteDoc(doc(db, "playlists", id));
+}
+
+export function usePlaylistPaymentRequests() {
+  const [requests, setRequests] = useState<PlaylistPaymentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      query(collection(db, "playlist_payment_requests"), orderBy("createdAt", "desc")),
+      (snap) => {
+        setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() } as PlaylistPaymentRequest)));
+        setLoading(false);
+      },
+      (error) => { console.error("Playlist payment requests error:", error); setLoading(false); }
+    );
+    return unsub;
+  }, []);
+
+  return { requests, loading };
+}
+
+export function useUserPlaylistPayments(userId: string | undefined) {
+  const [payments, setPayments] = useState<PlaylistPaymentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    const q = query(collection(db, "playlist_payment_requests"), where("userId", "==", userId));
+    const unsub = onSnapshot(q, (snap) => {
+      setPayments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as PlaylistPaymentRequest)));
+      setLoading(false);
+    }, (error) => { console.error("User playlist payments error:", error); setLoading(false); });
+    return unsub;
+  }, [userId]);
+
+  return { payments, loading };
+}
+
+export async function submitPlaylistPaymentRequest(data: {
+  userId: string; userEmail: string; userName: string;
+  playlistId: string; playlistTitle: string; transactionId: string;
+}) {
+  return addDoc(collection(db, "playlist_payment_requests"), { ...data, status: "pending", createdAt: serverTimestamp() });
+}
+
+export async function approvePlaylistPayment(requestId: string, userId: string, playlistId: string) {
+  await updateDoc(doc(db, "playlist_payment_requests", requestId), { status: "approved" });
+  // Get the playlist to find all course IDs
+  const playlistSnap = await getDoc(doc(db, "playlists", playlistId));
+  if (playlistSnap.exists()) {
+    const playlist = playlistSnap.data() as FirestorePlaylist;
+    // Enroll user in all courses in the playlist
+    for (const courseId of playlist.courseIds || []) {
+      const alreadyEnrolled = await isEnrolled(userId, courseId);
+      if (!alreadyEnrolled) {
+        await enrollUser(userId, courseId);
+      }
+    }
+  }
+}
+
+export async function rejectPlaylistPayment(requestId: string) {
+  await updateDoc(doc(db, "playlist_payment_requests", requestId), { status: "rejected" });
+}
+
+export async function deletePlaylistPaymentRequest(requestId: string) {
+  return deleteDoc(doc(db, "playlist_payment_requests", requestId));
+}
+
+export async function enrollFreePlaylist(userId: string, playlistId: string) {
+  const playlistSnap = await getDoc(doc(db, "playlists", playlistId));
+  if (playlistSnap.exists()) {
+    const playlist = playlistSnap.data() as FirestorePlaylist;
+    for (const courseId of playlist.courseIds || []) {
+      const alreadyEnrolled = await isEnrolled(userId, courseId);
+      if (!alreadyEnrolled) {
+        await enrollUser(userId, courseId);
+      }
+    }
+  }
 }
 
 // ─── Collaborations ──────────────────────────────────────────
