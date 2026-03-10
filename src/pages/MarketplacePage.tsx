@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CourseCard from "@/components/CourseCard";
-import { useCourses, useEnrollments } from "@/hooks/useFirestore";
+import { useCourses, useEnrollments, usePlaylists } from "@/hooks/useFirestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { CATEGORIES } from "@/data/mockData";
-import { Search, X, GraduationCap } from "lucide-react";
+import { Search, X, GraduationCap, ListMusic, BookOpen } from "lucide-react";
 
 const MarketplacePage = () => {
   const [searchParams] = useSearchParams();
@@ -17,6 +17,7 @@ const MarketplacePage = () => {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const { courses, loading } = useCourses();
+  const { playlists, loading: playlistsLoading } = usePlaylists();
   const { user } = useAuth();
   const { enrollments } = useEnrollments(user?.uid);
 
@@ -27,6 +28,10 @@ const MarketplacePage = () => {
     const matchesCategory = !selectedCategory || c.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const filteredPlaylists = playlists.filter((p) =>
+    !search || p.title.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -53,6 +58,41 @@ const MarketplacePage = () => {
               ))}
             </div>
           </div>
+
+          {/* Playlists Section */}
+          {!selectedCategory && filteredPlaylists.length > 0 && (
+            <div className="mb-10">
+              <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2">
+                <ListMusic className="h-5 w-5 text-primary" /> Course Playlists
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredPlaylists.map((p) => (
+                  <Link key={p.id} to={`/playlist/${p.id}`}
+                    className="group rounded-xl border border-border bg-card p-5 hover:shadow-glow hover:border-accent/30 hover:-translate-y-1 transition-all duration-300"
+                  >
+                    {p.coverImage && (
+                      <div className="aspect-video rounded-lg overflow-hidden mb-3">
+                        <img src={p.coverImage} alt={p.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 mb-2">
+                      <ListMusic className="h-4 w-4 text-primary" />
+                      <h3 className="font-display font-semibold group-hover:text-accent transition-colors">{p.title}</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{p.description}</p>
+                    <div className="flex items-center justify-between">
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <BookOpen className="h-3 w-3" /> {p.courseIds?.length || 0} courses
+                      </Badge>
+                      <span className="font-display font-bold text-gradient-glow">
+                        {p.isFree ? "Free" : `${p.price} ETB`}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="mb-4">
             <Badge variant="secondary">{loading ? "Loading…" : `${filtered.length} course${filtered.length !== 1 ? "s" : ""}`}</Badge>
