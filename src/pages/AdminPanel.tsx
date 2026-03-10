@@ -573,6 +573,10 @@ const AdminPanel = () => {
                     <div><Label>How to Pay Video URL (YouTube Embed)</Label><Input value={courseForm.howToPayVideoUrl} onChange={(e) => setCourseForm({...courseForm, howToPayVideoUrl: e.target.value})} placeholder="https://youtube.com/embed/..." className="mt-1" /></div>
                     <div><Label>Lessons</Label><Input type="number" value={courseForm.lessons || ""} onChange={(e) => setCourseForm({...courseForm, lessons: Number(e.target.value)})} className="mt-1" /></div>
                     <div><Label>Rating</Label><Input type="number" step="0.1" value={courseForm.rating || ""} onChange={(e) => setCourseForm({...courseForm, rating: Number(e.target.value)})} className="mt-1" /></div>
+                    <div className="sm:col-span-2 flex items-center gap-2 pt-2">
+                      <Checkbox checked={courseForm.isFree} onCheckedChange={(checked) => setCourseForm({...courseForm, isFree: !!checked})} id="course-free" />
+                      <Label htmlFor="course-free" className="cursor-pointer">Free Course (no payment required)</Label>
+                    </div>
                   </div>
                   <div className="mt-4 flex gap-2">
                     <Button variant="hero" onClick={handleSaveCourse} className="hover:scale-105 transition-transform">
