@@ -103,10 +103,7 @@ const CourseLearningPage = () => {
           {/* Video Player */}
           {course.videoUrl ? (
             <div className="aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg mb-8 sm:mb-12">
-              <iframe
-                src={getYouTubeEmbedUrl(course.videoUrl)}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              <SmartVideoPlayer url={course.videoUrl} title={course.title} />
                 allowFullScreen
                 title={course.title}
               />
