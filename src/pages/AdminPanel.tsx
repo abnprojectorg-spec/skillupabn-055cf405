@@ -957,6 +957,12 @@ const AdminPanel = () => {
             </div>
           )}
 
+          {/* Playlists */}
+          {activeTab === "playlists" && <AdminPlaylistsManager toast={toast} />}
+
+          {/* Playlist Payments */}
+          {activeTab === "playlist-payments" && <AdminPlaylistPayments toast={toast} />}
+
           {/* Community Links Management */}
           {activeTab === "community" && <CommunityLinksManager toast={toast} />}
 
