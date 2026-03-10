@@ -31,6 +31,8 @@ export interface FirestoreCourse {
   videoUrl: string;
   qrCodeUrl: string;
   howToPayVideoUrl: string;
+  isFree: boolean;
+  playlistId?: string;
   rating: number;
   students: number;
   lessons: number;
