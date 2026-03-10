@@ -411,6 +411,9 @@ const AdminPanel = () => {
               {tab.id === "file-payments" && filePendingCount > 0 && (
                 <Badge className="ml-auto bg-warning/20 text-warning text-xs px-1.5">{filePendingCount}</Badge>
               )}
+              {tab.id === "playlist-payments" && playlistPayRequests.filter((r) => r.status === "pending").length > 0 && (
+                <Badge className="ml-auto bg-warning/20 text-warning text-xs px-1.5">{playlistPayRequests.filter((r) => r.status === "pending").length}</Badge>
+              )}
             </button>
           ))}
         </aside>
