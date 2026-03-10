@@ -5,19 +5,8 @@ import { useCourse, useCourseProject, useUserCompletionRequest, useAdminSettings
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Play, CheckCircle, Award, MessageCircle, Send, ExternalLink } from "lucide-react";
+import SmartVideoPlayer from "@/components/SmartVideoPlayer";
 import { useState } from "react";
-
-const getYouTubeEmbedUrl = (url: string): string => {
-  if (!url) return "";
-  const iframeSrcMatch = url.match(/src=["']([^"']+)["']/);
-  if (iframeSrcMatch) return iframeSrcMatch[1];
-  if (url.includes("/embed/")) return url;
-  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
-  const longMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
-  if (longMatch) return `https://www.youtube.com/embed/${longMatch[1]}`;
-  return url;
-};
 
 const CourseLearningPage = () => {
   const { id } = useParams();
@@ -114,13 +103,7 @@ const CourseLearningPage = () => {
           {/* Video Player */}
           {course.videoUrl ? (
             <div className="aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg mb-8 sm:mb-12">
-              <iframe
-                src={getYouTubeEmbedUrl(course.videoUrl)}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                allowFullScreen
-                title={course.title}
-              />
+              <SmartVideoPlayer url={course.videoUrl} title={course.title} />
             </div>
           ) : (
             <div className="aspect-video rounded-xl bg-card border border-border flex items-center justify-center mb-8 sm:mb-12">

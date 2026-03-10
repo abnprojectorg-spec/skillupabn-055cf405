@@ -13,20 +13,9 @@ import {
   Star, Users, Clock, BookOpen, ArrowLeft, CheckCircle, Loader2,
   Download, Play, X, HelpCircle,
 } from "lucide-react";
+import SmartVideoPlayer from "@/components/SmartVideoPlayer";
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
-
-const getYouTubeEmbedUrl = (url: string): string => {
-  if (!url) return "";
-  const iframeSrcMatch = url.match(/src=["']([^"']+)["']/);
-  if (iframeSrcMatch) return iframeSrcMatch[1];
-  if (url.includes("/embed/")) return url;
-  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
-  const longMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
-  if (longMatch) return `https://www.youtube.com/embed/${longMatch[1]}`;
-  return url;
-};
 
 const CourseDetailPage = () => {
   const { id } = useParams();
@@ -163,9 +152,15 @@ const CourseDetailPage = () => {
                 <span className="flex items-center gap-1"><BookOpen className="h-4 w-4" /> {course.lessons} lessons</span>
               </div>
 
-              <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8">
-                <img src={course.thumbnail || "/placeholder.svg"} alt={course.title} className="h-full w-full object-cover" />
-              </div>
+              {course.videoUrl ? (
+                <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8 shadow-lg">
+                  <SmartVideoPlayer url={course.videoUrl} title={`${course.title} Preview`} />
+                </div>
+              ) : (
+                <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8">
+                  <img src={course.thumbnail || "/placeholder.svg"} alt={course.title} className="h-full w-full object-cover" />
+                </div>
+              )}
 
               <h2 className="font-display text-xl font-semibold mb-3">About This Course</h2>
               <p className="text-muted-foreground leading-relaxed mb-6">{course.description}</p>
@@ -315,7 +310,7 @@ const CourseDetailPage = () => {
               <button onClick={() => setShowVideoModal(false)}><X className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" /></button>
             </div>
             <div className="aspect-video rounded-xl overflow-hidden bg-secondary">
-              <iframe src={getYouTubeEmbedUrl(howToPayVideoUrl)} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="How to Pay Tutorial" />
+              <SmartVideoPlayer url={howToPayVideoUrl} title="How to Pay Tutorial" />
             </div>
           </div>
         </div>
