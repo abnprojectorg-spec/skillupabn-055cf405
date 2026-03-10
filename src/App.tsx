@@ -20,6 +20,7 @@ import FilesPage from "./pages/FilesPage";
 import FileDetailPage from "./pages/FileDetailPage";
 import FileDownloadPage from "./pages/FileDownloadPage";
 import NewsPage from "./pages/NewsPage";
+import PlaylistDetailPage from "./pages/PlaylistDetailPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import TermsPage from "./pages/TermsPage";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/login" element={<LoginPage />} />
             <Route path="/marketplace" element={<MarketplacePage />} />
             <Route path="/course/:id" element={<CourseDetailPage />} />
+            <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
             <Route path="/dashboard" element={<StudentDashboard />} />
             <Route path="/learn/:id" element={<CourseLearningPage />} />
             <Route path="/ebooks" element={<EbooksPage />} />

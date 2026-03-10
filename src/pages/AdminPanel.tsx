@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import Navbar from "@/components/Navbar";
 import {
   useCourses, useUsers, usePaymentRequests, useCourseProject, useCommunityLinks,
@@ -20,7 +21,8 @@ import {
   addDigitalFile, updateDigitalFile, deleteDigitalFile,
   approveFilePayment, rejectFilePayment, deleteFilePaymentRequest,
   checkIsAdmin, updateUser, deleteUser, removeUserCourseAccess, enrollUser,
-  updateCompletionStatus, deleteCompletionRequest, saveAdminTelegram,
+  updateCompletionStatus, deleteCompletionRequest, saveAdminTelegram, saveAdminSettings,
+  usePlaylistPaymentRequests,
 } from "@/hooks/useFirestore";
 import type { FirestoreCourse, FirestoreEbook, FirestoreDigitalFile, FirestoreUser, CourseCompletionRequest } from "@/hooks/useFirestore";
 import { CATEGORIES } from "@/data/mockData";
@@ -28,12 +30,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings,
+  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings, ListMusic,
 } from "lucide-react";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminChat from "@/components/AdminChat";
 import AdminNews from "@/components/AdminNews";
 import AdminCollaborations from "@/components/AdminCollaborations";
+import { AdminPlaylistsManager, AdminPlaylistPayments } from "@/components/AdminPlaylists";
 
 import { Newspaper, Handshake } from "lucide-react";
 
@@ -44,6 +47,8 @@ const ADMIN_TABS = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "completions", label: "Completions", icon: CheckCircle },
   { id: "courses", label: "Courses", icon: BookOpen },
+  { id: "playlists", label: "Playlists", icon: ListMusic },
+  { id: "playlist-payments", label: "Playlist Payments", icon: CreditCard },
   { id: "ebooks", label: "Ebooks", icon: Book },
   { id: "ebook-payments", label: "Ebook Payments", icon: CreditCard },
   { id: "files", label: "Files", icon: FolderOpen },
@@ -88,6 +93,7 @@ const AdminPanel = () => {
   const { requests: ebookRequests, loading: ebookPaymentsLoading } = useEbookPaymentRequests();
   const { files: digitalFiles, loading: filesLoading } = useDigitalFiles();
   const { requests: fileRequests, loading: filePaymentsLoading } = useFilePaymentRequests();
+  const { requests: playlistPayRequests } = usePlaylistPaymentRequests();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -113,7 +119,7 @@ const AdminPanel = () => {
   const emptyCourse = {
     title: "", instructor: "", category: CATEGORIES[0] as string, price: 0,
     description: "", shortDescription: "", thumbnail: "", videoUrl: "",
-    qrCodeUrl: "", howToPayVideoUrl: "",
+    qrCodeUrl: "", howToPayVideoUrl: "", isFree: false,
     rating: 0, students: 0, lessons: 0, duration: "",
   };
 
@@ -150,6 +156,7 @@ const AdminPanel = () => {
       videoUrl: course.videoUrl,
       qrCodeUrl: course.qrCodeUrl || "",
       howToPayVideoUrl: course.howToPayVideoUrl || "",
+      isFree: course.isFree || false,
       rating: course.rating,
       students: course.students,
       lessons: course.lessons,
@@ -404,6 +411,9 @@ const AdminPanel = () => {
               {tab.id === "file-payments" && filePendingCount > 0 && (
                 <Badge className="ml-auto bg-warning/20 text-warning text-xs px-1.5">{filePendingCount}</Badge>
               )}
+              {tab.id === "playlist-payments" && playlistPayRequests.filter((r) => r.status === "pending").length > 0 && (
+                <Badge className="ml-auto bg-warning/20 text-warning text-xs px-1.5">{playlistPayRequests.filter((r) => r.status === "pending").length}</Badge>
+              )}
             </button>
           ))}
         </aside>
@@ -563,6 +573,10 @@ const AdminPanel = () => {
                     <div><Label>How to Pay Video URL (YouTube Embed)</Label><Input value={courseForm.howToPayVideoUrl} onChange={(e) => setCourseForm({...courseForm, howToPayVideoUrl: e.target.value})} placeholder="https://youtube.com/embed/..." className="mt-1" /></div>
                     <div><Label>Lessons</Label><Input type="number" value={courseForm.lessons || ""} onChange={(e) => setCourseForm({...courseForm, lessons: Number(e.target.value)})} className="mt-1" /></div>
                     <div><Label>Rating</Label><Input type="number" step="0.1" value={courseForm.rating || ""} onChange={(e) => setCourseForm({...courseForm, rating: Number(e.target.value)})} className="mt-1" /></div>
+                    <div className="sm:col-span-2 flex items-center gap-2 pt-2">
+                      <Checkbox checked={courseForm.isFree} onCheckedChange={(checked) => setCourseForm({...courseForm, isFree: !!checked})} id="course-free" />
+                      <Label htmlFor="course-free" className="cursor-pointer">Free Course (no payment required)</Label>
+                    </div>
                   </div>
                   <div className="mt-4 flex gap-2">
                     <Button variant="hero" onClick={handleSaveCourse} className="hover:scale-105 transition-transform">
@@ -592,7 +606,7 @@ const AdminPanel = () => {
                         <tr key={c.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
                           <td className="p-3 font-medium">{c.title}</td>
                           <td className="p-3"><Badge variant="secondary">{c.category}</Badge></td>
-                          <td className="p-3">{c.price} ETB</td>
+                          <td className="p-3">{c.isFree ? <Badge className="bg-accent/10 text-accent border-accent/20">Free</Badge> : `${c.price} ETB`}</td>
                           <td className="p-3">
                             {c.qrCodeUrl ? (
                               <Badge className="bg-accent/10 text-accent border-accent/20">Set</Badge>
@@ -942,6 +956,12 @@ const AdminPanel = () => {
               )}
             </div>
           )}
+
+          {/* Playlists */}
+          {activeTab === "playlists" && <AdminPlaylistsManager toast={toast} />}
+
+          {/* Playlist Payments */}
+          {activeTab === "playlist-payments" && <AdminPlaylistPayments toast={toast} />}
 
           {/* Community Links Management */}
           {activeTab === "community" && <CommunityLinksManager toast={toast} />}
@@ -1468,15 +1488,17 @@ function CompletionsManager({ toast }: { toast: any }) {
 function AdminSettingsManager({ toast }: { toast: any }) {
   const { settings, loading } = useAdminSettings();
   const [telegram, setTelegram] = useState("");
+  const [howToPayVideo, setHowToPayVideo] = useState("");
 
   useEffect(() => {
     if (settings.adminTelegram) setTelegram(settings.adminTelegram);
-  }, [settings.adminTelegram]);
+    if (settings.howToPayVideoUrl) setHowToPayVideo(settings.howToPayVideoUrl);
+  }, [settings.adminTelegram, settings.howToPayVideoUrl]);
 
   const handleSave = async () => {
     try {
-      await saveAdminTelegram(telegram.trim());
-      toast({ title: "Telegram username saved!" });
+      await saveAdminSettings({ adminTelegram: telegram.trim(), howToPayVideoUrl: howToPayVideo.trim() });
+      toast({ title: "Settings saved!" });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
@@ -1487,26 +1509,36 @@ function AdminSettingsManager({ toast }: { toast: any }) {
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-6">Admin Settings</h1>
-      <div className="rounded-xl border border-border bg-card p-6 max-w-lg">
-        <div className="flex items-center gap-2 mb-4">
-          <MessageCircle className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold">Telegram Contact</h2>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Students will see a "Contact Admin" button linking to this Telegram username. They'll also use it to submit projects.
-        </p>
-        <div className="space-y-3">
+      <div className="space-y-6 max-w-lg">
+        <div className="rounded-xl border border-border bg-card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <MessageCircle className="h-5 w-5 text-primary" />
+            <h2 className="font-display text-lg font-semibold">Telegram Contact</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Students will see a "Contact Admin" button linking to this Telegram username.
+          </p>
           <div>
             <Label>Telegram Username</Label>
-            <Input
-              value={telegram}
-              onChange={(e) => setTelegram(e.target.value)}
-              placeholder="@yourusername"
-              className="mt-1"
-            />
+            <Input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@yourusername" className="mt-1" />
           </div>
-          <Button variant="hero" onClick={handleSave}>Save</Button>
         </div>
+
+        <div className="rounded-xl border border-border bg-card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <ListMusic className="h-5 w-5 text-primary" />
+            <h2 className="font-display text-lg font-semibold">How to Pay Video</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            This video will be shown to all users on paid course and playlist pages. Set it once here instead of per course.
+          </p>
+          <div>
+            <Label>YouTube Video URL</Label>
+            <Input value={howToPayVideo} onChange={(e) => setHowToPayVideo(e.target.value)} placeholder="https://youtube.com/watch?v=..." className="mt-1" />
+          </div>
+        </div>
+
+        <Button variant="hero" onClick={handleSave}>Save All Settings</Button>
       </div>
     </div>
   );
