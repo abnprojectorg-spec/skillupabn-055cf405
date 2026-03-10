@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import Navbar from "@/components/Navbar";
 import {
   useCourses, useUsers, usePaymentRequests, useCourseProject, useCommunityLinks,
@@ -20,7 +21,8 @@ import {
   addDigitalFile, updateDigitalFile, deleteDigitalFile,
   approveFilePayment, rejectFilePayment, deleteFilePaymentRequest,
   checkIsAdmin, updateUser, deleteUser, removeUserCourseAccess, enrollUser,
-  updateCompletionStatus, deleteCompletionRequest, saveAdminTelegram,
+  updateCompletionStatus, deleteCompletionRequest, saveAdminTelegram, saveAdminSettings,
+  usePlaylistPaymentRequests,
 } from "@/hooks/useFirestore";
 import type { FirestoreCourse, FirestoreEbook, FirestoreDigitalFile, FirestoreUser, CourseCompletionRequest } from "@/hooks/useFirestore";
 import { CATEGORIES } from "@/data/mockData";
@@ -28,12 +30,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings,
+  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings, ListMusic,
 } from "lucide-react";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminChat from "@/components/AdminChat";
 import AdminNews from "@/components/AdminNews";
 import AdminCollaborations from "@/components/AdminCollaborations";
+import { AdminPlaylistsManager, AdminPlaylistPayments } from "@/components/AdminPlaylists";
 
 import { Newspaper, Handshake } from "lucide-react";
 
@@ -44,6 +47,8 @@ const ADMIN_TABS = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "completions", label: "Completions", icon: CheckCircle },
   { id: "courses", label: "Courses", icon: BookOpen },
+  { id: "playlists", label: "Playlists", icon: ListMusic },
+  { id: "playlist-payments", label: "Playlist Payments", icon: CreditCard },
   { id: "ebooks", label: "Ebooks", icon: Book },
   { id: "ebook-payments", label: "Ebook Payments", icon: CreditCard },
   { id: "files", label: "Files", icon: FolderOpen },
