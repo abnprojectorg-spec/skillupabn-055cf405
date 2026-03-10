@@ -156,6 +156,7 @@ const AdminPanel = () => {
       videoUrl: course.videoUrl,
       qrCodeUrl: course.qrCodeUrl || "",
       howToPayVideoUrl: course.howToPayVideoUrl || "",
+      isFree: course.isFree || false,
       rating: course.rating,
       students: course.students,
       lessons: course.lessons,
