@@ -5,7 +5,7 @@ import { useCourse, useCourseProject, useUserCompletionRequest, useAdminSettings
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Play, CheckCircle, Award, MessageCircle, Send, ExternalLink } from "lucide-react";
-import SmartVideoPlayer from "@/components/SmartVideoPlayer";
+import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
 import { useState } from "react";
 
 const CourseLearningPage = () => {
