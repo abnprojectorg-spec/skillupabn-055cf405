@@ -13,7 +13,7 @@ import {
   Star, Users, Clock, BookOpen, ArrowLeft, CheckCircle, Loader2,
   Download, Play, X, HelpCircle,
 } from "lucide-react";
-import SmartVideoPlayer from "@/components/SmartVideoPlayer";
+import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
 
