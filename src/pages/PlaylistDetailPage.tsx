@@ -311,7 +311,7 @@ const PlaylistDetailPage = () => {
               <button onClick={() => setShowVideoModal(false)}><X className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" /></button>
             </div>
             <div className="aspect-video rounded-xl overflow-hidden bg-secondary">
-              <iframe src={getYouTubeEmbedUrl(settings.howToPayVideoUrl)} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="How to Pay Tutorial" />
+              <EmbedVideoPlayer embedCode={settings.howToPayVideoUrl} sourceType="youtube" title="How to Pay Tutorial" />
             </div>
           </div>
         </div>
