@@ -5,7 +5,7 @@ import { useCourse, useCourseProject, useUserCompletionRequest, useAdminSettings
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Play, CheckCircle, Award, MessageCircle, Send, ExternalLink } from "lucide-react";
-import SmartVideoPlayer from "@/components/SmartVideoPlayer";
+import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
 import { useState } from "react";
 
 const CourseLearningPage = () => {
@@ -103,7 +103,7 @@ const CourseLearningPage = () => {
           {/* Video Player */}
           {course.videoUrl ? (
             <div className="aspect-video rounded-xl overflow-hidden bg-card border border-border shadow-lg mb-8 sm:mb-12">
-              <SmartVideoPlayer url={course.videoUrl} title={course.title} />
+              <EmbedVideoPlayer embedCode={course.videoUrl} sourceType={course.videoSourceType || "youtube"} title={course.title} />
             </div>
           ) : (
             <div className="aspect-video rounded-xl bg-card border border-border flex items-center justify-center mb-8 sm:mb-12">

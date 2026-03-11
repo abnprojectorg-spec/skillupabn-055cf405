@@ -16,20 +16,9 @@ import {
   ArrowLeft, CheckCircle, Loader2, Download, Play, X, HelpCircle,
   BookOpen, ListMusic,
 } from "lucide-react";
+import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
-
-const getYouTubeEmbedUrl = (url: string): string => {
-  if (!url) return "";
-  const iframeSrcMatch = url.match(/src=["']([^"']+)["']/);
-  if (iframeSrcMatch) return iframeSrcMatch[1];
-  if (url.includes("/embed/")) return url;
-  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
-  const longMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
-  if (longMatch) return `https://www.youtube.com/embed/${longMatch[1]}`;
-  return url;
-};
 
 const PlaylistDetailPage = () => {
   const { id } = useParams();
@@ -322,7 +311,7 @@ const PlaylistDetailPage = () => {
               <button onClick={() => setShowVideoModal(false)}><X className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" /></button>
             </div>
             <div className="aspect-video rounded-xl overflow-hidden bg-secondary">
-              <iframe src={getYouTubeEmbedUrl(settings.howToPayVideoUrl)} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="How to Pay Tutorial" />
+              <EmbedVideoPlayer embedCode={settings.howToPayVideoUrl} sourceType="youtube" title="How to Pay Tutorial" />
             </div>
           </div>
         </div>
