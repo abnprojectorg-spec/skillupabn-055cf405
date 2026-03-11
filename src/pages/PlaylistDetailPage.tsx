@@ -15,10 +15,10 @@ import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, CheckCircle, Loader2, Download, Play, X, HelpCircle,
   BookOpen, ListMusic,
+} from "lucide-react";
 import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
-};
 
 const PlaylistDetailPage = () => {
   const { id } = useParams();
