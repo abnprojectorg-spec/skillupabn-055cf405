@@ -154,7 +154,7 @@ const CourseDetailPage = () => {
 
               {course.videoUrl ? (
                 <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8 shadow-lg">
-                  <SmartVideoPlayer url={course.videoUrl} title={`${course.title} Preview`} />
+                  <EmbedVideoPlayer embedCode={course.videoUrl} sourceType={course.videoSourceType || "youtube"} title={`${course.title} Preview`} />
                 </div>
               ) : (
                 <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8">
