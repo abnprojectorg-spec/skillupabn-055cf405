@@ -158,8 +158,18 @@ const FileDetailPage = () => {
             <div className="lg:col-span-1">
               <div className="sticky top-24 rounded-2xl border border-border bg-card p-6">
                 <div className="text-center mb-6">
-                  <p className="font-display text-3xl font-bold text-gradient-glow">{file.price} ETB</p>
-                  <p className="text-sm text-muted-foreground mt-1">One-time purchase</p>
+                  {appliedReferral ? (
+                    <>
+                      <p className="text-lg text-muted-foreground line-through">{file.price} ETB</p>
+                      <p className="font-display text-3xl font-bold text-accent">{appliedReferral.discountPrice} ETB</p>
+                      <p className="text-xs text-accent mt-1">🎉 Referral Discount Applied</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-display text-3xl font-bold text-gradient-glow">{file.price} ETB</p>
+                      <p className="text-sm text-muted-foreground mt-1">One-time purchase</p>
+                    </>
+                  )}
                 </div>
 
                 {purchased ? (
