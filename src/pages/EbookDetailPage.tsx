@@ -26,6 +26,7 @@ const EbookDetailPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [txError, setTxError] = useState("");
+  const [appliedReferral, setAppliedReferral] = useState<ReferralCode | null>(null);
   const { toast } = useToast();
   const { payments } = useUserEbookPayments(user?.uid);
 
