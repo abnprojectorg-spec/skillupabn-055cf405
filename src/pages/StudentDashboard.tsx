@@ -11,9 +11,8 @@ import { useCourses, useEnrollments, useCommunityLinks, useEbooks, useDigitalFil
 import { useNewsPosts, toggleLike, addComment, type NewsComment } from "@/hooks/useNews";
 import { COMMUNITY_LINKS } from "@/data/mockData";
 import {
-  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send, BookMarked, Download,
+  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send, BookMarked, Download, Mail,
 } from "lucide-react";
-import ContactAdminButton from "@/components/ContactAdminButton";
 import NotificationBell from "@/components/NotificationBell";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
