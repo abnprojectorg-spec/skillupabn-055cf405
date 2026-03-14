@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCourse, isEnrolled, enrollUser, submitPaymentRequest, useUserPayments, useAdminSettings } from "@/hooks/useFirestore";
+import type { ReferralCode } from "@/hooks/useFirestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -14,6 +15,7 @@ import {
   Download, Play, X, HelpCircle,
 } from "lucide-react";
 import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
+import ReferralCodeInput from "@/components/ReferralCodeInput";
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
 
