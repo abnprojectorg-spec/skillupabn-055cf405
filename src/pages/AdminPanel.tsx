@@ -39,7 +39,7 @@ import AdminCollaborations from "@/components/AdminCollaborations";
 import { AdminPlaylistsManager, AdminPlaylistPayments } from "@/components/AdminPlaylists";
 import AdminReferralCodes from "@/components/AdminReferralCodes";
 
-import { Newspaper, Handshake } from "lucide-react";
+import { Newspaper, Handshake, Tag } from "lucide-react";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
