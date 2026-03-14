@@ -185,6 +185,12 @@ const CourseDetailPage = () => {
                 <div className="text-center mb-6">
                   {course.isFree ? (
                     <p className="font-display text-3xl font-bold text-accent">FREE</p>
+                  ) : appliedReferral ? (
+                    <>
+                      <p className="text-lg text-muted-foreground line-through">{course.price} ETB</p>
+                      <p className="font-display text-3xl font-bold text-accent">{appliedReferral.discountPrice} ETB</p>
+                      <p className="text-xs text-accent mt-1">🎉 Referral Discount Applied</p>
+                    </>
                   ) : (
                     <>
                       <p className="font-display text-3xl font-bold text-gradient-glow">{course.price} ETB</p>
