@@ -983,6 +983,9 @@ const AdminPanel = () => {
 
           {activeTab === "collaborations" && <AdminCollaborations />}
 
+          {/* Referral Codes */}
+          {activeTab === "referral-codes" && <AdminReferralCodes toast={toast} />}
+
           {/* Projects Management */}
           {activeTab === "projects" && <ProjectsManager courses={courses} toast={toast} />}
 
