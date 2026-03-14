@@ -293,7 +293,7 @@ const StudentDashboard = () => {
           )}
 
           {activeTab === "profile" && (
-            <div>
+            <div className="space-y-6">
               <h1 className="font-display text-2xl font-bold mb-6">Profile</h1>
               <div className="rounded-2xl border border-border bg-card p-8 max-w-lg">
                 <div className="flex items-center gap-4 mb-6">
@@ -313,6 +313,38 @@ const StudentDashboard = () => {
                   <div className="flex justify-between py-2 border-b border-border">
                     <span className="text-muted-foreground">Certificates</span>
                     <Badge variant="secondary">{enrolledCourses.length}</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Admin Card */}
+              <div className="rounded-2xl border border-border bg-card p-8 max-w-lg shadow-sm">
+                <h2 className="font-display text-lg font-semibold mb-2">Contact Admin</h2>
+                <p className="text-sm text-muted-foreground mb-5">
+                  If you need help with payments, courses, ebooks, or files, contact the admin.
+                </p>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                      <Mail className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Email</p>
+                      <a href="mailto:abenezarofficial@gmail.com" className="text-sm font-medium hover:text-primary transition-colors">
+                        abenezarofficial@gmail.com
+                      </a>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                      <Send className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Telegram</p>
+                      <a href="https://t.me/abenezar_official" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:text-primary transition-colors">
+                        @abenezar_official
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
