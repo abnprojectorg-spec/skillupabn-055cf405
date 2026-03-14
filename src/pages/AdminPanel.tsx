@@ -57,6 +57,7 @@ const ADMIN_TABS = [
   { id: "projects", label: "Projects", icon: Award },
   { id: "community", label: "Community Links", icon: Link2 },
   { id: "collaborations", label: "Collaborations", icon: Handshake },
+  { id: "referral-codes", label: "Referral Codes", icon: Tag },
   { id: "users", label: "Users", icon: Users },
   { id: "settings", label: "Settings", icon: Settings },
 ];
