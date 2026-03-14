@@ -242,11 +242,22 @@ const CourseDetailPage = () => {
                   <div className="mt-4 rounded-xl border border-border bg-secondary/30 p-4">
                     <p className="text-xs font-medium text-center mb-3">Scan QR to pay via Telebirr</p>
                     <div className="flex justify-center mb-3">
-                      <img src={course.qrCodeUrl} alt="Telebirr QR Code" className="w-48 h-48 rounded-lg border border-border object-contain bg-foreground/5" />
+                      <img src={appliedReferral?.referralQrCodeUrl || course.qrCodeUrl} alt="Telebirr QR Code" className="w-48 h-48 rounded-lg border border-border object-contain bg-foreground/5" />
                     </div>
                     <Button variant="outline" size="sm" className="w-full hover:border-accent/50 transition-colors" onClick={handleDownloadQR}>
                       <Download className="h-4 w-4 mr-1" /> Download QR Code
                     </Button>
+                  </div>
+                )}
+
+                {!enrolled && !course.isFree && id && (
+                  <div className="mt-4">
+                    <ReferralCodeInput
+                      productType="course"
+                      productId={id}
+                      originalPrice={course.price}
+                      onReferralApplied={setAppliedReferral}
+                    />
                   </div>
                 )}
 
