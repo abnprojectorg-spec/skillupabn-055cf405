@@ -6,11 +6,13 @@ import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useEbook, hasEbookAccess, submitEbookPaymentRequest, useUserEbookPayments } from "@/hooks/useFirestore";
+import type { ReferralCode } from "@/hooks/useFirestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, CheckCircle, Loader2, Download, X, BookOpen, User, FileText,
 } from "lucide-react";
+import ReferralCodeInput from "@/components/ReferralCodeInput";
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
 
