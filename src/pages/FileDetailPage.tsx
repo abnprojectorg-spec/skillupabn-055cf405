@@ -6,11 +6,13 @@ import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useDigitalFile, hasFileAccess, submitFilePaymentRequest, useUserFilePayments } from "@/hooks/useFirestore";
+import type { ReferralCode } from "@/hooks/useFirestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, CheckCircle, Loader2, Download, X, FolderOpen, User, HardDrive, FileCode,
 } from "lucide-react";
+import ReferralCodeInput from "@/components/ReferralCodeInput";
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
 
@@ -24,6 +26,7 @@ const FileDetailPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [txError, setTxError] = useState("");
+  const [appliedReferral, setAppliedReferral] = useState<ReferralCode | null>(null);
   const { toast } = useToast();
   const { payments } = useUserFilePayments(user?.uid);
 
@@ -155,8 +158,18 @@ const FileDetailPage = () => {
             <div className="lg:col-span-1">
               <div className="sticky top-24 rounded-2xl border border-border bg-card p-6">
                 <div className="text-center mb-6">
-                  <p className="font-display text-3xl font-bold text-gradient-glow">{file.price} ETB</p>
-                  <p className="text-sm text-muted-foreground mt-1">One-time purchase</p>
+                  {appliedReferral ? (
+                    <>
+                      <p className="text-lg text-muted-foreground line-through">{file.price} ETB</p>
+                      <p className="font-display text-3xl font-bold text-accent">{appliedReferral.discountPrice} ETB</p>
+                      <p className="text-xs text-accent mt-1">🎉 Referral Discount Applied</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-display text-3xl font-bold text-gradient-glow">{file.price} ETB</p>
+                      <p className="text-sm text-muted-foreground mt-1">One-time purchase</p>
+                    </>
+                  )}
                 </div>
 
                 {purchased ? (
@@ -188,11 +201,22 @@ const FileDetailPage = () => {
                   <div className="mt-4 rounded-xl border border-border bg-secondary/30 p-4">
                     <p className="text-xs font-medium text-center mb-3">Scan QR to pay via Telebirr</p>
                     <div className="flex justify-center mb-3">
-                      <img src={file.qrCodeUrl} alt="Telebirr QR Code" className="w-48 h-48 rounded-lg border border-border object-contain bg-foreground/5" />
+                      <img src={appliedReferral?.referralQrCodeUrl || file.qrCodeUrl} alt="Telebirr QR Code" className="w-48 h-48 rounded-lg border border-border object-contain bg-foreground/5" />
                     </div>
                     <Button variant="outline" size="sm" className="w-full hover:border-accent/50 transition-colors" onClick={handleDownloadQR}>
                       <Download className="h-4 w-4 mr-1" /> Download QR Code
                     </Button>
+                  </div>
+                )}
+
+                {!purchased && id && (
+                  <div className="mt-4">
+                    <ReferralCodeInput
+                      productType="file"
+                      productId={id}
+                      originalPrice={file.price}
+                      onReferralApplied={setAppliedReferral}
+                    />
                   </div>
                 )}
 
@@ -231,9 +255,10 @@ const FileDetailPage = () => {
               <div className="space-y-5">
                 {file.qrCodeUrl && (
                   <div className="text-center">
-                    <p className="text-sm font-medium mb-1">Step 1: Scan QR & Pay {file.price} ETB</p>
+                    <p className="text-sm font-medium mb-1">Step 1: Scan QR & Pay {appliedReferral ? appliedReferral.discountPrice : file.price} ETB</p>
+                    {appliedReferral && <p className="text-xs text-accent mb-1">Referral discount applied!</p>}
                     <p className="text-xs text-muted-foreground mb-3">Use Telebirr to scan and complete payment</p>
-                    <img src={file.qrCodeUrl} alt="QR Code" className="w-40 h-40 mx-auto rounded-lg border border-border object-contain" />
+                    <img src={appliedReferral?.referralQrCodeUrl || file.qrCodeUrl} alt="QR Code" className="w-40 h-40 mx-auto rounded-lg border border-border object-contain" />
                     <Button variant="ghost" size="sm" className="mt-2" onClick={handleDownloadQR}>
                       <Download className="h-3 w-3 mr-1" /> Download QR
                     </Button>

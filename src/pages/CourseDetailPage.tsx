@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCourse, isEnrolled, enrollUser, submitPaymentRequest, useUserPayments, useAdminSettings } from "@/hooks/useFirestore";
+import type { ReferralCode } from "@/hooks/useFirestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -14,6 +15,7 @@ import {
   Download, Play, X, HelpCircle,
 } from "lucide-react";
 import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
+import ReferralCodeInput from "@/components/ReferralCodeInput";
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
 
@@ -30,6 +32,7 @@ const CourseDetailPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [txError, setTxError] = useState("");
   const [enrollingFree, setEnrollingFree] = useState(false);
+  const [appliedReferral, setAppliedReferral] = useState<ReferralCode | null>(null);
   const { toast } = useToast();
   const { payments } = useUserPayments(user?.uid);
 
@@ -182,6 +185,12 @@ const CourseDetailPage = () => {
                 <div className="text-center mb-6">
                   {course.isFree ? (
                     <p className="font-display text-3xl font-bold text-accent">FREE</p>
+                  ) : appliedReferral ? (
+                    <>
+                      <p className="text-lg text-muted-foreground line-through">{course.price} ETB</p>
+                      <p className="font-display text-3xl font-bold text-accent">{appliedReferral.discountPrice} ETB</p>
+                      <p className="text-xs text-accent mt-1">🎉 Referral Discount Applied</p>
+                    </>
                   ) : (
                     <>
                       <p className="font-display text-3xl font-bold text-gradient-glow">{course.price} ETB</p>
@@ -233,11 +242,22 @@ const CourseDetailPage = () => {
                   <div className="mt-4 rounded-xl border border-border bg-secondary/30 p-4">
                     <p className="text-xs font-medium text-center mb-3">Scan QR to pay via Telebirr</p>
                     <div className="flex justify-center mb-3">
-                      <img src={course.qrCodeUrl} alt="Telebirr QR Code" className="w-48 h-48 rounded-lg border border-border object-contain bg-foreground/5" />
+                      <img src={appliedReferral?.referralQrCodeUrl || course.qrCodeUrl} alt="Telebirr QR Code" className="w-48 h-48 rounded-lg border border-border object-contain bg-foreground/5" />
                     </div>
                     <Button variant="outline" size="sm" className="w-full hover:border-accent/50 transition-colors" onClick={handleDownloadQR}>
                       <Download className="h-4 w-4 mr-1" /> Download QR Code
                     </Button>
+                  </div>
+                )}
+
+                {!enrolled && !course.isFree && id && (
+                  <div className="mt-4">
+                    <ReferralCodeInput
+                      productType="course"
+                      productId={id}
+                      originalPrice={course.price}
+                      onReferralApplied={setAppliedReferral}
+                    />
                   </div>
                 )}
 
@@ -274,9 +294,10 @@ const CourseDetailPage = () => {
               <div className="space-y-5">
                 {course.qrCodeUrl && (
                   <div className="text-center">
-                    <p className="text-sm font-medium mb-1">Step 1: Scan QR & Pay {course.price} ETB</p>
+                    <p className="text-sm font-medium mb-1">Step 1: Scan QR & Pay {appliedReferral ? appliedReferral.discountPrice : course.price} ETB</p>
+                    {appliedReferral && <p className="text-xs text-accent mb-1">Referral discount applied!</p>}
                     <p className="text-xs text-muted-foreground mb-3">Use Telebirr to scan and complete payment</p>
-                    <img src={course.qrCodeUrl} alt="QR Code" className="w-40 h-40 mx-auto rounded-lg border border-border object-contain" />
+                    <img src={appliedReferral?.referralQrCodeUrl || course.qrCodeUrl} alt="QR Code" className="w-40 h-40 mx-auto rounded-lg border border-border object-contain" />
                     <Button variant="ghost" size="sm" className="mt-2" onClick={handleDownloadQR}><Download className="h-3 w-3 mr-1" /> Download QR</Button>
                   </div>
                 )}

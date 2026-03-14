@@ -37,8 +37,9 @@ import AdminChat from "@/components/AdminChat";
 import AdminNews from "@/components/AdminNews";
 import AdminCollaborations from "@/components/AdminCollaborations";
 import { AdminPlaylistsManager, AdminPlaylistPayments } from "@/components/AdminPlaylists";
+import AdminReferralCodes from "@/components/AdminReferralCodes";
 
-import { Newspaper, Handshake } from "lucide-react";
+import { Newspaper, Handshake, Tag } from "lucide-react";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -56,6 +57,7 @@ const ADMIN_TABS = [
   { id: "projects", label: "Projects", icon: Award },
   { id: "community", label: "Community Links", icon: Link2 },
   { id: "collaborations", label: "Collaborations", icon: Handshake },
+  { id: "referral-codes", label: "Referral Codes", icon: Tag },
   { id: "users", label: "Users", icon: Users },
   { id: "settings", label: "Settings", icon: Settings },
 ];
@@ -980,6 +982,9 @@ const AdminPanel = () => {
           {activeTab === "community" && <CommunityLinksManager toast={toast} />}
 
           {activeTab === "collaborations" && <AdminCollaborations />}
+
+          {/* Referral Codes */}
+          {activeTab === "referral-codes" && <AdminReferralCodes toast={toast} />}
 
           {/* Projects Management */}
           {activeTab === "projects" && <ProjectsManager courses={courses} toast={toast} />}
