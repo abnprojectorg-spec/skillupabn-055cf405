@@ -294,9 +294,10 @@ const CourseDetailPage = () => {
               <div className="space-y-5">
                 {course.qrCodeUrl && (
                   <div className="text-center">
-                    <p className="text-sm font-medium mb-1">Step 1: Scan QR & Pay {course.price} ETB</p>
+                    <p className="text-sm font-medium mb-1">Step 1: Scan QR & Pay {appliedReferral ? appliedReferral.discountPrice : course.price} ETB</p>
+                    {appliedReferral && <p className="text-xs text-accent mb-1">Referral discount applied!</p>}
                     <p className="text-xs text-muted-foreground mb-3">Use Telebirr to scan and complete payment</p>
-                    <img src={course.qrCodeUrl} alt="QR Code" className="w-40 h-40 mx-auto rounded-lg border border-border object-contain" />
+                    <img src={appliedReferral?.referralQrCodeUrl || course.qrCodeUrl} alt="QR Code" className="w-40 h-40 mx-auto rounded-lg border border-border object-contain" />
                     <Button variant="ghost" size="sm" className="mt-2" onClick={handleDownloadQR}><Download className="h-3 w-3 mr-1" /> Download QR</Button>
                   </div>
                 )}
