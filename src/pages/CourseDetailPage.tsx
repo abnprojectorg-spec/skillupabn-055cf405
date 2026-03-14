@@ -32,6 +32,7 @@ const CourseDetailPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [txError, setTxError] = useState("");
   const [enrollingFree, setEnrollingFree] = useState(false);
+  const [appliedReferral, setAppliedReferral] = useState<ReferralCode | null>(null);
   const { toast } = useToast();
   const { payments } = useUserPayments(user?.uid);
 
