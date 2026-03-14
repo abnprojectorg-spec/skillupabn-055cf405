@@ -37,6 +37,7 @@ import AdminChat from "@/components/AdminChat";
 import AdminNews from "@/components/AdminNews";
 import AdminCollaborations from "@/components/AdminCollaborations";
 import { AdminPlaylistsManager, AdminPlaylistPayments } from "@/components/AdminPlaylists";
+import AdminReferralCodes from "@/components/AdminReferralCodes";
 
 import { Newspaper, Handshake } from "lucide-react";
 
