@@ -1051,6 +1051,68 @@ export async function deleteCollaboration(id: string) {
   return deleteDoc(doc(db, "collaborations", id));
 }
 
+// ─── Referral Codes ──────────────────────────────────────────
+
+export interface ReferralCode {
+  id: string;
+  code: string;
+  productType: "course" | "ebook" | "file";
+  productId: string;
+  productTitle: string;
+  discountPrice: number;
+  referralQrCodeUrl: string;
+  active: boolean;
+  createdAt?: unknown;
+}
+
+export function useReferralCodes() {
+  const [codes, setCodes] = useState<ReferralCode[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      query(collection(db, "referralCodes"), orderBy("createdAt", "desc")),
+      (snap) => {
+        setCodes(snap.docs.map((d) => ({ id: d.id, ...d.data() } as ReferralCode)));
+        setLoading(false);
+      },
+      () => setLoading(false)
+    );
+    return unsub;
+  }, []);
+
+  return { codes, loading };
+}
+
+export async function validateReferralCode(
+  code: string,
+  productType: "course" | "ebook" | "file",
+  productId: string
+): Promise<ReferralCode | null> {
+  const q = query(
+    collection(db, "referralCodes"),
+    where("code", "==", code.toUpperCase().trim()),
+    where("productType", "==", productType),
+    where("productId", "==", productId),
+    where("active", "==", true)
+  );
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  return { id: snap.docs[0].id, ...snap.docs[0].data() } as ReferralCode;
+}
+
+export async function addReferralCode(data: Omit<ReferralCode, "id">) {
+  return addDoc(collection(db, "referralCodes"), { ...data, createdAt: serverTimestamp() });
+}
+
+export async function updateReferralCode(id: string, data: Partial<ReferralCode>) {
+  return updateDoc(doc(db, "referralCodes", id), data);
+}
+
+export async function deleteReferralCode(id: string) {
+  return deleteDoc(doc(db, "referralCodes", id));
+}
+
 // ─── Notifications ───────────────────────────────────────────
 
 export interface FirestoreNotification {
