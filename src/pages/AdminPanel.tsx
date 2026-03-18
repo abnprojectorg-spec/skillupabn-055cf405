@@ -572,17 +572,18 @@ const AdminPanel = () => {
                     <div><Label>Duration</Label><Input value={courseForm.duration} onChange={(e) => setCourseForm({...courseForm, duration: e.target.value})} placeholder="32 hours" className="mt-1" /></div>
                     <div className="sm:col-span-2"><Label>Description</Label><Textarea value={courseForm.description} onChange={(e) => setCourseForm({...courseForm, description: e.target.value})} placeholder="Full description..." className="mt-1" /></div>
                     <div><Label>Thumbnail URL</Label><Input value={courseForm.thumbnail} onChange={(e) => setCourseForm({...courseForm, thumbnail: e.target.value})} placeholder="https://..." className="mt-1" /></div>
-                    <div>
-                      <Label>Preview Video Source</Label>
-                      <select value={courseForm.videoSourceType} onChange={(e) => setCourseForm({...courseForm, videoSourceType: e.target.value as "youtube" | "custom"})} className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground">
-                        <option value="youtube">YouTube Embed</option>
-                        <option value="custom">Custom Embed (iframe)</option>
-                      </select>
-                    </div>
                     <div className="sm:col-span-2">
-                      <Label>{courseForm.videoSourceType === "youtube" ? "YouTube Embed Code" : "Custom Embed Code (iframe)"}</Label>
-                      <Textarea value={courseForm.videoUrl} onChange={(e) => setCourseForm({...courseForm, videoUrl: e.target.value})} placeholder={courseForm.videoSourceType === "youtube" ? 'Paste YouTube embed code or URL, e.g. <iframe src="https://youtube.com/embed/...">' : 'Paste iframe embed code from embedcodegenerator.com or similar tools'} className="mt-1 font-mono text-xs" rows={3} />
-                      <p className="text-xs text-muted-foreground mt-1">{courseForm.videoSourceType === "youtube" ? "Accepts YouTube embed iframes or direct YouTube links" : "Accepts any iframe embed code — only the iframe src will be used for security"}</p>
+                      <Label>Google Drive Video Share/Embed Link</Label>
+                      <Textarea
+                        value={courseForm.videoUrl}
+                        onChange={(e) => setCourseForm({ ...courseForm, videoUrl: e.target.value, videoSourceType: "custom" })}
+                        placeholder="Paste the Google Drive /preview link, e.g. https://drive.google.com/file/d/FILE_ID/preview"
+                        className="mt-1 font-mono text-xs"
+                        rows={3}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Paste the Google Drive share or /preview link. The system will render one responsive player and use the same link for fullscreen playback.
+                      </p>
                     </div>
                     <div><Label>Telebirr QR Code URL</Label><Input value={courseForm.qrCodeUrl} onChange={(e) => setCourseForm({...courseForm, qrCodeUrl: e.target.value})} placeholder="https://...qr-code.png" className="mt-1" /></div>
                     <div><Label>How to Pay Video URL (YouTube Embed)</Label><Input value={courseForm.howToPayVideoUrl} onChange={(e) => setCourseForm({...courseForm, howToPayVideoUrl: e.target.value})} placeholder="https://youtube.com/embed/..." className="mt-1" /></div>
