@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
 import ReferralCodeInput from "@/components/ReferralCodeInput";
+import CourseVideoEmbed from "@/components/CourseVideoEmbed";
 
 const TRANSACTION_ID_REGEX = /^[A-Za-z0-9]+$/;
 
@@ -156,9 +157,11 @@ const CourseDetailPage = () => {
               </div>
 
               {course.videoUrl ? (
-                <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8 shadow-lg">
-                  <EmbedVideoPlayer embedCode={course.videoUrl} sourceType={course.videoSourceType || "youtube"} title={`${course.title} Preview`} />
-                </div>
+                <CourseVideoEmbed
+                  videoUrl={course.videoUrl}
+                  title={`${course.title} Preview`}
+                  className="mb-8"
+                />
               ) : (
                 <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8">
                   <img src={course.thumbnail || "/placeholder.svg"} alt={course.title} className="h-full w-full object-cover" />
