@@ -157,7 +157,7 @@ const AdminPanel = () => {
       shortDescription: course.shortDescription,
       thumbnail: course.thumbnail,
       videoUrl: course.videoUrl,
-      videoSourceType: course.videoSourceType || "youtube",
+      videoSourceType: "custom",
       qrCodeUrl: course.qrCodeUrl || "",
       howToPayVideoUrl: course.howToPayVideoUrl || "",
       isFree: course.isFree || false,
