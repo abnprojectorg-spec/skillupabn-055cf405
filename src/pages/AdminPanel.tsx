@@ -30,7 +30,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings, ListMusic,
+  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings, ListMusic, MonitorPlay,
 } from "lucide-react";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminChat from "@/components/AdminChat";
@@ -38,6 +38,7 @@ import AdminNews from "@/components/AdminNews";
 import AdminCollaborations from "@/components/AdminCollaborations";
 import { AdminPlaylistsManager, AdminPlaylistPayments } from "@/components/AdminPlaylists";
 import AdminReferralCodes from "@/components/AdminReferralCodes";
+import AdminCoursePreview from "@/components/AdminCoursePreview";
 
 import { Newspaper, Handshake, Tag } from "lucide-react";
 
@@ -48,6 +49,7 @@ const ADMIN_TABS = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "completions", label: "Completions", icon: CheckCircle },
   { id: "courses", label: "Courses", icon: BookOpen },
+  { id: "course-preview", label: "Course Preview", icon: MonitorPlay },
   { id: "playlists", label: "Playlists", icon: ListMusic },
   { id: "playlist-payments", label: "Playlist Payments", icon: CreditCard },
   { id: "ebooks", label: "Ebooks", icon: Book },
@@ -972,6 +974,9 @@ const AdminPanel = () => {
               )}
             </div>
           )}
+
+          {/* Course Preview */}
+          {activeTab === "course-preview" && <AdminCoursePreview />}
 
           {/* Playlists */}
           {activeTab === "playlists" && <AdminPlaylistsManager toast={toast} />}
