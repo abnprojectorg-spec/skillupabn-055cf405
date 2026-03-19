@@ -155,17 +155,23 @@ const CourseDetailPage = () => {
                 <span className="flex items-center gap-1"><BookOpen className="h-4 w-4" /> {course.lessons} lessons</span>
               </div>
 
-              {course.videoUrl ? (
-                <CourseVideoEmbed
-                  videoUrl={course.videoUrl}
-                  title={`${course.title} Preview`}
-                  className="mb-8"
-                />
-              ) : (
-                <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8">
-                  <img src={course.thumbnail || "/placeholder.svg"} alt={course.title} className="h-full w-full object-cover" />
-                </div>
-              )}
+              {/* Course Thumbnail with Preview Overlay */}
+              <div className="aspect-video overflow-hidden rounded-xl bg-card border border-border mb-8 relative group">
+                <img src={course.thumbnail || "/placeholder.svg"} alt={course.title} className="h-full w-full object-cover" />
+                {course.previewLink ? (
+                  <a
+                    href={course.previewLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute inset-0 flex items-center justify-center bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <div className="flex items-center gap-2 rounded-full gradient-primary px-6 py-3 text-primary-foreground font-semibold shadow-lg">
+                      <Play className="h-5 w-5 fill-current" />
+                      Preview Course
+                    </div>
+                  </a>
+                ) : null}
+              </div>
 
               <h2 className="font-display text-xl font-semibold mb-3">About This Course</h2>
               <p className="text-muted-foreground leading-relaxed mb-6">{course.description}</p>
