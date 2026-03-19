@@ -49,6 +49,7 @@ const ADMIN_TABS = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "completions", label: "Completions", icon: CheckCircle },
   { id: "courses", label: "Courses", icon: BookOpen },
+  { id: "course-preview", label: "Course Preview", icon: MonitorPlay },
   { id: "playlists", label: "Playlists", icon: ListMusic },
   { id: "playlist-payments", label: "Playlist Payments", icon: CreditCard },
   { id: "ebooks", label: "Ebooks", icon: Book },
