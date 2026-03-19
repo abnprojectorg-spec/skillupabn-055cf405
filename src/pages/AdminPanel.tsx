@@ -975,6 +975,9 @@ const AdminPanel = () => {
             </div>
           )}
 
+          {/* Course Preview */}
+          {activeTab === "course-preview" && <AdminCoursePreview />}
+
           {/* Playlists */}
           {activeTab === "playlists" && <AdminPlaylistsManager toast={toast} />}
 
