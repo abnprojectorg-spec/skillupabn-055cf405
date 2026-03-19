@@ -124,6 +124,7 @@ const AdminPanel = () => {
     title: "", instructor: "", category: CATEGORIES[0] as string, price: 0,
     description: "", shortDescription: "", thumbnail: "", videoUrl: "",
     videoSourceType: "custom" as "youtube" | "custom",
+    previewLink: "",
     qrCodeUrl: "", howToPayVideoUrl: "", isFree: false,
     rating: 0, students: 0, lessons: 0, duration: "",
   };
