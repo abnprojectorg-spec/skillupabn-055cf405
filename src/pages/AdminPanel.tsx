@@ -124,6 +124,7 @@ const AdminPanel = () => {
     title: "", instructor: "", category: CATEGORIES[0] as string, price: 0,
     description: "", shortDescription: "", thumbnail: "", videoUrl: "",
     videoSourceType: "custom" as "youtube" | "custom",
+    previewLink: "",
     qrCodeUrl: "", howToPayVideoUrl: "", isFree: false,
     rating: 0, students: 0, lessons: 0, duration: "",
   };
@@ -160,6 +161,7 @@ const AdminPanel = () => {
       thumbnail: course.thumbnail,
       videoUrl: course.videoUrl,
       videoSourceType: "custom",
+      previewLink: course.previewLink || "",
       qrCodeUrl: course.qrCodeUrl || "",
       howToPayVideoUrl: course.howToPayVideoUrl || "",
       isFree: course.isFree || false,
@@ -575,16 +577,16 @@ const AdminPanel = () => {
                     <div className="sm:col-span-2"><Label>Description</Label><Textarea value={courseForm.description} onChange={(e) => setCourseForm({...courseForm, description: e.target.value})} placeholder="Full description..." className="mt-1" /></div>
                     <div><Label>Thumbnail URL</Label><Input value={courseForm.thumbnail} onChange={(e) => setCourseForm({...courseForm, thumbnail: e.target.value})} placeholder="https://..." className="mt-1" /></div>
                     <div className="sm:col-span-2">
-                      <Label>Google Drive Video Share/Embed Link</Label>
-                      <Textarea
-                        value={courseForm.videoUrl}
-                        onChange={(e) => setCourseForm({ ...courseForm, videoUrl: e.target.value, videoSourceType: "custom" })}
-                        placeholder="Paste the Google Drive /preview link, e.g. https://drive.google.com/file/d/FILE_ID/preview"
-                        className="mt-1 font-mono text-xs"
-                        rows={3}
+                      <Label>Course Preview Link</Label>
+                      <Input
+                        value={courseForm.previewLink}
+                        onChange={(e) => setCourseForm({ ...courseForm, previewLink: e.target.value })}
+                        placeholder="https://player.skillup.app/preview/123"
+                        className="mt-1"
+                        type="url"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Paste the Google Drive share or /preview link. The system will render one responsive player and use the same link for fullscreen playback.
+                        Paste the preview link generated from the external course previewer website. Users will be redirected here to watch.
                       </p>
                     </div>
                     <div><Label>Telebirr QR Code URL</Label><Input value={courseForm.qrCodeUrl} onChange={(e) => setCourseForm({...courseForm, qrCodeUrl: e.target.value})} placeholder="https://...qr-code.png" className="mt-1" /></div>

@@ -5,7 +5,6 @@ import { useCourse, useCourseProject, useUserCompletionRequest, useAdminSettings
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Play, CheckCircle, Award, MessageCircle, Send, ExternalLink } from "lucide-react";
-import CourseVideoEmbed from "@/components/CourseVideoEmbed";
 import { useState } from "react";
 
 const CourseLearningPage = () => {
@@ -100,21 +99,29 @@ const CourseLearningPage = () => {
             {course.title}
           </h1>
 
-          {/* Video Player */}
-          {course.videoUrl ? (
-            <CourseVideoEmbed
-              videoUrl={course.videoUrl}
-              title={course.title}
-              className="mb-8 sm:mb-12"
-            />
-          ) : (
-            <div className="aspect-video rounded-xl bg-card border border-border flex items-center justify-center mb-8 sm:mb-12">
-              <div className="text-center text-muted-foreground">
-                <Play className="h-16 w-16 mx-auto mb-3 opacity-20" />
-                <p className="text-sm">No video available for this course</p>
-              </div>
+          {/* Course Thumbnail & Start Learning */}
+          <div className="mb-8 sm:mb-12">
+            <div className="aspect-video rounded-xl bg-card border border-border overflow-hidden mb-4">
+              <img
+                src={course.thumbnail || "/placeholder.svg"}
+                alt={course.title}
+                className="h-full w-full object-cover"
+              />
             </div>
-          )}
+
+            {course.previewLink ? (
+              <Button asChild variant="hero" size="lg" className="w-full sm:w-auto">
+                <a href={course.previewLink} target="_blank" rel="noopener noreferrer">
+                  <Play className="h-5 w-5 fill-current" />
+                  ▶ Start Learning
+                </a>
+              </Button>
+            ) : (
+              <div className="rounded-lg border border-border bg-card/60 p-4 text-center">
+                <p className="text-sm text-muted-foreground">Course not available yet</p>
+              </div>
+            )}
+          </div>
 
           {/* Finish Course Button */}
           {user && (
