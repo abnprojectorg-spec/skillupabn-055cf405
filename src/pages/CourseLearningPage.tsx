@@ -4,8 +4,16 @@ import Navbar from "@/components/Navbar";
 import { useCourse, useCourseProject, useUserCompletionRequest, useAdminSettings, submitCompletionRequest } from "@/hooks/useFirestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Play, CheckCircle, Award, MessageCircle, Send, ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Loader2, Play, CheckCircle, Award, MessageCircle, Send, ExternalLink, Maximize } from "lucide-react";
+import { useState, useMemo } from "react";
+import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
+
+const extractIframeSrc = (raw: string): string | null => {
+  if (!raw) return null;
+  if (/^https?:\/\//.test(raw.trim()) && !raw.includes("<")) return raw.trim();
+  const match = raw.match(/<iframe[^>]+src=["']([^"']+)["']/i);
+  return match ? match[1] : null;
+};
 
 const CourseLearningPage = () => {
   const { id } = useParams();
@@ -16,6 +24,12 @@ const CourseLearningPage = () => {
   const { settings } = useAdminSettings();
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const embedSrc = useMemo(() => {
+    if (course?.embedCode) return extractIframeSrc(course.embedCode);
+    return null;
+  }, [course?.embedCode]);
 
   const handleFinishCourse = async () => {
     if (!user || !course) return;
@@ -64,6 +78,34 @@ const CourseLearningPage = () => {
     );
   }
 
+  // Fullscreen embed view
+  if (isFullscreen && embedSrc) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background flex flex-col">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card/80 backdrop-blur-sm">
+          <button
+            onClick={() => setIsFullscreen(false)}
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Course
+          </button>
+          <span className="text-sm font-medium truncate max-w-[60%]">{course.title}</span>
+        </div>
+        <div className="flex-1">
+          <iframe
+            src={embedSrc}
+            className="w-full h-full border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allowFullScreen
+            title={course.title}
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -99,23 +141,46 @@ const CourseLearningPage = () => {
             {course.title}
           </h1>
 
-          {/* Course Thumbnail & Start Learning */}
+          {/* Embedded Player or Fallback */}
           <div className="mb-8 sm:mb-12">
-            <div className="aspect-video rounded-xl bg-card border border-border overflow-hidden mb-4">
-              <img
-                src={course.thumbnail || "/placeholder.svg"}
-                alt={course.title}
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-            {course.previewLink ? (
-              <Button asChild variant="hero" size="lg" className="w-full sm:w-auto">
-                <a href={course.previewLink} target="_blank" rel="noopener noreferrer">
-                  <Play className="h-5 w-5 fill-current" />
-                  ▶ Start Learning
-                </a>
-              </Button>
+            {embedSrc ? (
+              <>
+                <div className="w-full overflow-hidden rounded-xl border border-border bg-card shadow-lg" style={{ aspectRatio: "16 / 9" }}>
+                  <iframe
+                    src={embedSrc}
+                    className="w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    allowFullScreen
+                    title={course.title}
+                    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+                  />
+                </div>
+                <Button
+                  variant="hero"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => setIsFullscreen(true)}
+                >
+                  <Maximize className="h-4 w-4 mr-1" />
+                  Fullscreen Player
+                </Button>
+              </>
+            ) : course.previewLink ? (
+              <>
+                <div className="aspect-video rounded-xl bg-card border border-border overflow-hidden mb-4">
+                  <img
+                    src={course.thumbnail || "/placeholder.svg"}
+                    alt={course.title}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <Button asChild variant="hero" size="lg" className="w-full sm:w-auto">
+                  <a href={course.previewLink} target="_blank" rel="noopener noreferrer">
+                    <Play className="h-5 w-5 fill-current" />
+                    ▶ Start Learning
+                  </a>
+                </Button>
+              </>
             ) : (
               <div className="rounded-lg border border-border bg-card/60 p-4 text-center">
                 <p className="text-sm text-muted-foreground">Course not available yet</p>
