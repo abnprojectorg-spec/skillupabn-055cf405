@@ -124,7 +124,7 @@ const AdminPanel = () => {
     title: "", instructor: "", category: CATEGORIES[0] as string, price: 0,
     description: "", shortDescription: "", thumbnail: "", videoUrl: "",
     videoSourceType: "custom" as "youtube" | "custom",
-    previewLink: "",
+    previewLink: "", embedCode: "",
     qrCodeUrl: "", howToPayVideoUrl: "", isFree: false,
     rating: 0, students: 0, lessons: 0, duration: "",
   };
@@ -162,6 +162,7 @@ const AdminPanel = () => {
       videoUrl: course.videoUrl,
       videoSourceType: "custom",
       previewLink: course.previewLink || "",
+      embedCode: course.embedCode || "",
       qrCodeUrl: course.qrCodeUrl || "",
       howToPayVideoUrl: course.howToPayVideoUrl || "",
       isFree: course.isFree || false,
@@ -586,7 +587,20 @@ const AdminPanel = () => {
                         type="url"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Paste the preview link generated from the external course previewer website. Users will be redirected here to watch.
+                        Optional fallback link. Users will be redirected here if no embed code is set.
+                      </p>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Label>Course Embed Code</Label>
+                      <Textarea
+                        value={courseForm.embedCode}
+                        onChange={(e) => setCourseForm({ ...courseForm, embedCode: e.target.value })}
+                        placeholder='<iframe src="https://player.skillup.app/embed/123" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>'
+                        className="mt-1 font-mono text-xs"
+                        rows={4}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Paste the full HTML iframe embed code from the Player Site. This will be rendered directly on the learning page.
                       </p>
                     </div>
                     <div><Label>Telebirr QR Code URL</Label><Input value={courseForm.qrCodeUrl} onChange={(e) => setCourseForm({...courseForm, qrCodeUrl: e.target.value})} placeholder="https://...qr-code.png" className="mt-1" /></div>

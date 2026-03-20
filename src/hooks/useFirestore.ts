@@ -31,6 +31,7 @@ export interface FirestoreCourse {
   videoUrl: string;
   videoSourceType: "youtube" | "custom";
   previewLink: string;
+  embedCode: string;
   qrCodeUrl: string;
   howToPayVideoUrl: string;
   isFree: boolean;
