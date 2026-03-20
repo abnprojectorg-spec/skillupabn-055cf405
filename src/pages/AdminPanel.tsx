@@ -162,6 +162,7 @@ const AdminPanel = () => {
       videoUrl: course.videoUrl,
       videoSourceType: "custom",
       previewLink: course.previewLink || "",
+      embedCode: course.embedCode || "",
       qrCodeUrl: course.qrCodeUrl || "",
       howToPayVideoUrl: course.howToPayVideoUrl || "",
       isFree: course.isFree || false,
