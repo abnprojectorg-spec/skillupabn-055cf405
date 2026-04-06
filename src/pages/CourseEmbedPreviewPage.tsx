@@ -3,7 +3,7 @@ import { useCourses } from "@/hooks/useFirestore";
 import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Loader } from "@/components/ui/loader";
+import { Loader2 } from "lucide-react";
 
 const CourseEmbedPreviewPage = () => {
   const { id } = useParams<{ id: string }>();
