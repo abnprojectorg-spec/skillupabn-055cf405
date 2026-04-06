@@ -10,7 +10,7 @@ const CourseEmbedPreviewPage = () => {
   const { courses, loading } = useCourses();
   const course = courses.find((c) => c.id === id);
 
-  if (loading) return <Loader className="mt-32" />;
+  if (loading) return <Loader2 className="mt-32 mx-auto h-8 w-8 animate-spin text-primary" />;
   if (!course) return <div className="mt-32 text-center">Course not found.</div>;
   if (!course.embedCode) return <div className="mt-32 text-center">No embed code set for this course.</div>;
 
