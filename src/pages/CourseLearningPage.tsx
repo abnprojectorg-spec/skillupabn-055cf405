@@ -4,9 +4,8 @@ import Navbar from "@/components/Navbar";
 import { useCourse, useCourseProject, useUserCompletionRequest, useAdminSettings, submitCompletionRequest } from "@/hooks/useFirestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Play, CheckCircle, Award, MessageCircle, Send, ExternalLink, Maximize } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle, Award, MessageCircle, Send, ExternalLink } from "lucide-react";
 import { useState, useMemo } from "react";
-import EmbedVideoPlayer from "@/components/EmbedVideoPlayer";
 
 const extractIframeSrc = (raw: string): string | null => {
   if (!raw) return null;
@@ -20,11 +19,10 @@ const CourseLearningPage = () => {
   const { user, profile } = useAuth();
   const { course, loading } = useCourse(id);
   const { project } = useCourseProject(id);
-  const { request: completionRequest, loading: completionLoading } = useUserCompletionRequest(user?.uid, id);
+  const { request: completionRequest } = useUserCompletionRequest(user?.uid, id);
   const { settings } = useAdminSettings();
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const embedSrc = useMemo(() => {
     if (course?.embedCode) return extractIframeSrc(course.embedCode);
@@ -78,21 +76,37 @@ const CourseLearningPage = () => {
     );
   }
 
-  // Fullscreen embed view
-  if (isFullscreen && embedSrc) {
+  // If embed code exists, render as full-page embedded experience
+  if (embedSrc) {
     return (
-      <div className="fixed inset-0 z-50 bg-background flex flex-col">
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card/80 backdrop-blur-sm">
-          <button
-            onClick={() => setIsFullscreen(false)}
+      <div className="fixed inset-0 z-40 bg-background flex flex-col">
+        {/* Slim top bar */}
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b border-border bg-card/80 backdrop-blur-sm shrink-0">
+          <Link
+            to={`/course/${id}`}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Course
-          </button>
-          <span className="text-sm font-medium truncate max-w-[60%]">{course.title}</span>
+            <span className="hidden sm:inline">Back to Course</span>
+          </Link>
+          <span className="text-sm font-medium truncate max-w-[50%]">{course.title}</span>
+          <div className="flex items-center gap-2">
+            {adminTelegramUrl && (
+              <a
+                href={adminTelegramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Ask Admin</span>
+              </a>
+            )}
+          </div>
         </div>
-        <div className="flex-1">
+
+        {/* Full-page iframe */}
+        <div className="flex-1 min-h-0">
           <iframe
             src={embedSrc}
             className="w-full h-full border-0"
@@ -106,12 +120,11 @@ const CourseLearningPage = () => {
     );
   }
 
+  // Fallback: no embed code — show course info with previewLink or unavailable message
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-
       <div className="pt-16">
-        {/* Top bar */}
         <div className="border-b border-border bg-card/60 backdrop-blur-sm">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <Link
@@ -136,59 +149,20 @@ const CourseLearningPage = () => {
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-          {/* Course Title */}
           <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight mb-6 sm:mb-8">
             {course.title}
           </h1>
 
-          {/* Embedded Player or Fallback */}
           <div className="mb-8 sm:mb-12">
-            {embedSrc ? (
-              <>
-                <div className="w-full overflow-hidden rounded-xl border border-border bg-card shadow-lg" style={{ aspectRatio: "16 / 9" }}>
-                  <iframe
-                    src={embedSrc}
-                    className="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                    allowFullScreen
-                    title={course.title}
-                    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
-                  />
-                </div>
-                <Button
-                  variant="hero"
-                  size="sm"
-                  className="mt-3"
-                  onClick={() => setIsFullscreen(true)}
-                >
-                  <Maximize className="h-4 w-4 mr-1" />
-                  Fullscreen Player
-                </Button>
-              </>
-            ) : course.previewLink ? (
-              <>
-                <div className="aspect-video rounded-xl bg-card border border-border overflow-hidden mb-4">
-                  <img
-                    src={course.thumbnail || "/placeholder.svg"}
-                    alt={course.title}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <Button asChild variant="hero" size="lg" className="w-full sm:w-auto">
-                  <a href={course.previewLink} target="_blank" rel="noopener noreferrer">
-                    <Play className="h-5 w-5 fill-current" />
-                    ▶ Start Learning
-                  </a>
-                </Button>
-              </>
-            ) : (
-              <div className="rounded-lg border border-border bg-card/60 p-4 text-center">
-                <p className="text-sm text-muted-foreground">Course not available yet</p>
-              </div>
-            )}
+            <div className="rounded-lg border border-border bg-card/60 p-8 text-center">
+              <p className="text-muted-foreground mb-4">Course content is not available yet.</p>
+              <Link to="/dashboard">
+                <Button variant="outline">Back to Dashboard</Button>
+              </Link>
+            </div>
           </div>
 
-          {/* Finish Course Button */}
+          {/* Finish Course */}
           {user && (
             <div className="rounded-xl border border-border bg-card p-6 mb-8 sm:mb-12">
               {!completionRequest ? (
@@ -205,8 +179,7 @@ const CourseLearningPage = () => {
                 </div>
               ) : (
                 <div className="text-center">
-                  <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium mb-3
-                    bg-accent/10 text-accent border border-accent/20">
+                  <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium mb-3 bg-accent/10 text-accent border border-accent/20">
                     <CheckCircle className="h-4 w-4" />
                     {completionRequest.status === "pending" && "Completion request sent — awaiting project assignment"}
                     {completionRequest.status === "project_assigned" && "Project assigned — complete it and send to admin"}
@@ -215,9 +188,7 @@ const CourseLearningPage = () => {
                   {completionRequest.status === "project_assigned" && adminTelegramUrl && (
                     <p className="text-sm text-muted-foreground mt-2">
                       After completing the project, send it to the admin on{" "}
-                      <a href={adminTelegramUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                        Telegram
-                      </a>{" "}
+                      <a href={adminTelegramUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Telegram</a>{" "}
                       with your <strong>full name</strong>.
                     </p>
                   )}
@@ -246,11 +217,9 @@ const CourseLearningPage = () => {
             </div>
           )}
 
-          {/* Course Notes / Description */}
+          {/* Course Notes */}
           <div className="space-y-6">
-            <h2 className="font-display text-xl sm:text-2xl font-bold">
-              Course Notes
-            </h2>
+            <h2 className="font-display text-xl sm:text-2xl font-bold">Course Notes</h2>
             <div className="prose prose-invert max-w-none text-muted-foreground leading-relaxed text-[15px] sm:text-base whitespace-pre-wrap">
               {course.description || "No notes available for this course."}
             </div>
@@ -261,9 +230,7 @@ const CourseLearningPage = () => {
             <div className="mt-12 rounded-xl border border-border bg-card/60 p-6 text-center">
               <MessageCircle className="h-8 w-8 mx-auto mb-3 text-primary" />
               <h3 className="font-display font-semibold mb-1">Have a question?</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Reach out to the admin directly on Telegram for any help.
-              </p>
+              <p className="text-sm text-muted-foreground mb-4">Reach out to the admin directly on Telegram for any help.</p>
               <a href={adminTelegramUrl} target="_blank" rel="noopener noreferrer">
                 <Button variant="heroOutline" size="sm">
                   <ExternalLink className="h-4 w-4 mr-2" />
