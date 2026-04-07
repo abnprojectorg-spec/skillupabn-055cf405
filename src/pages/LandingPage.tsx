@@ -7,7 +7,6 @@ import Footer from "@/components/Footer";
 import TechParticlesBackground from "@/components/TechParticlesBackground";
 import CollaborationsSection from "@/components/CollaborationsSection";
 import { useCourses } from "@/hooks/useFirestore";
-import { useAdminSettings } from "@/hooks/useFirestore";
 import CourseCard from "@/components/CourseCard";
 import { CATEGORIES } from "@/data/mockData";
 import {
@@ -36,7 +35,6 @@ const fadeUp = {
 
 const LandingPage = () => {
   const { courses, loading } = useCourses();
-  const { settings } = useAdminSettings();
   const featuredCourses = courses.slice(0, 4);
 
   return (
@@ -44,16 +42,8 @@ const LandingPage = () => {
       <Navbar />
 
       {/* Hero */}
-      {settings.showHero !== false && (
       <section className="relative overflow-hidden pt-32 pb-20 lg:pt-44 lg:pb-32">
-        {settings.backgroundType === "image" && settings.backgroundImageUrl ? (
-          <div className="absolute inset-0 z-0">
-            <img src={settings.backgroundImageUrl} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-background/80" />
-          </div>
-        ) : (
-          <TechParticlesBackground />
-        )}
+        <TechParticlesBackground />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -62,25 +52,25 @@ const LandingPage = () => {
             className="max-w-3xl"
           >
             <Badge className="mb-6 gradient-primary border-0 text-primary-foreground px-4 py-1.5 text-sm">
-              {settings.heroBadgeText}
+              🚀 The Future of Learning
             </Badge>
             <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl lg:text-7xl">
-              {settings.heroTitle}{" "}
-              <span className="text-gradient-glow">{settings.heroHighlight}</span>
+              Learn Real Skills.{" "}
+              <span className="text-gradient-glow">Build Real Income.</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">
-              {settings.heroSubtitle}
+              Master in-demand skills from expert instructors. Join a growing community of learners transforming their careers.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link to="/signup">
                 <Button variant="hero" size="lg" className="text-base px-8 py-6 shadow-glow">
-                  {settings.heroCtaPrimaryText}
+                  Get Started Free
                   <ChevronRight className="h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/marketplace">
                 <Button variant="heroOutline" size="lg" className="text-base px-8 py-6">
-                  {settings.heroCtaSecondaryText}
+                  Browse Courses
                 </Button>
               </Link>
             </div>
@@ -92,10 +82,8 @@ const LandingPage = () => {
           </motion.div>
         </div>
       </section>
-      )}
 
       {/* Stats bar */}
-      {settings.showStats !== false && (
       <section className="border-y border-border bg-card/50 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4 text-center">
@@ -113,10 +101,8 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-      )}
 
       {/* How it works */}
-      {settings.showHowItWorks !== false && (
       <section className="py-24 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -149,10 +135,8 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-      )}
 
       {/* Categories */}
-      {settings.showCategories !== false && (
       <section className="py-24 bg-card/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -181,10 +165,8 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-      )}
 
       {/* Featured Courses */}
-      {settings.showFeatured !== false && (
       <section className="py-24 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-12">
@@ -219,10 +201,8 @@ const LandingPage = () => {
           )}
         </div>
       </section>
-      )}
 
       {/* Features */}
-      {settings.showFeatures !== false && (
       <section className="py-24 bg-card/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -252,22 +232,13 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-      )}
 
       {/* Collaborations */}
-      {settings.showCollaborations !== false && <CollaborationsSection />}
+      <CollaborationsSection />
 
       {/* CTA */}
-      {settings.showCta !== false && (
       <section className="relative py-24 overflow-hidden">
-        {settings.backgroundType === "image" && settings.backgroundImageUrl ? (
-          <div className="absolute inset-0 z-0">
-            <img src={settings.backgroundImageUrl} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-background/80" />
-          </div>
-        ) : (
-          <TechParticlesBackground />
-        )}
+        <TechParticlesBackground />
         <div className="relative mx-auto max-w-3xl px-4 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -291,7 +262,6 @@ const LandingPage = () => {
           </motion.div>
         </div>
       </section>
-      )}
 
       <Footer />
     </div>

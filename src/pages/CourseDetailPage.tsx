@@ -208,11 +208,19 @@ const CourseDetailPage = () => {
                 </div>
 
                 {enrolled ? (
+                  course.embedCode ? (
+                    <Link to={`/embed-preview/${id}`}>
+                      <Button variant="hero" size="lg" className="w-full mb-3 shadow-glow">
+                        <CheckCircle className="h-4 w-4 mr-1" /> Start Learning
+                      </Button>
+                    </Link>
+                  ) : (
                     <Link to={`/learn/${id}`}>
                       <Button variant="hero" size="lg" className="w-full mb-3 shadow-glow">
                         <CheckCircle className="h-4 w-4 mr-1" /> Start Learning
                       </Button>
                     </Link>
+                  )
                 ) : course.isFree ? (
                   <Button
                     variant="hero" size="lg"
