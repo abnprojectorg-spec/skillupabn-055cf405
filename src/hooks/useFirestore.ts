@@ -98,7 +98,7 @@ export function useCourses() {
     const unsub = onSnapshot(collection(db, "courses"), (snap) => {
       setCourses(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreCourse)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Courses error:", error); setLoading(false); });
     return unsub;
   }, []);
 
@@ -153,7 +153,7 @@ export function useUsers() {
     const unsub = onSnapshot(collection(db, "users"), (snap) => {
       setUsers(snap.docs.map((d) => d.data() as FirestoreUser));
       setLoading(false);
-    });
+    }, (error) => { console.error("Users error:", error); setLoading(false); });
     return unsub;
   }, []);
 
@@ -366,7 +366,7 @@ export function useCommunityLinks() {
     const unsub = onSnapshot(collection(db, "community_links"), (snap) => {
       setLinks(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CommunityLink)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Community links error:", error); setLoading(false); });
     return unsub;
   }, []);
 
@@ -837,16 +837,49 @@ export async function deleteCompletionRequest(requestId: string) {
 export interface AdminSettings {
   adminTelegram: string;
   howToPayVideoUrl: string;
+  heroTitle: string;
+  heroHighlight: string;
+  heroSubtitle: string;
+  heroBadgeText: string;
+  heroCtaPrimaryText: string;
+  heroCtaSecondaryText: string;
+  backgroundType: "particles" | "image";
+  backgroundImageUrl: string;
+  showHero: boolean;
+  showStats: boolean;
+  showHowItWorks: boolean;
+  showCategories: boolean;
+  showFeatured: boolean;
+  showFeatures: boolean;
+  showCollaborations: boolean;
+  showCta: boolean;
+  footerCopyright: string;
+  footerDescription: string;
+  footerContactEmail: string;
 }
 
+const defaultAdminSettings: AdminSettings = {
+  adminTelegram: "", howToPayVideoUrl: "",
+  heroTitle: "Learn Real Skills.", heroHighlight: "Build Real Income.",
+  heroSubtitle: "Master in-demand skills from expert instructors. Join a growing community of learners transforming their careers.",
+  heroBadgeText: "🚀 The Future of Learning",
+  heroCtaPrimaryText: "Get Started Free", heroCtaSecondaryText: "Browse Courses",
+  backgroundType: "particles", backgroundImageUrl: "",
+  showHero: true, showStats: true, showHowItWorks: true, showCategories: true,
+  showFeatured: true, showFeatures: true, showCollaborations: true, showCta: true,
+  footerCopyright: "© 2026 ABN by Abenezar Mitiku. All rights reserved.",
+  footerDescription: "Learn real skills. Build real income. The premier learning platform for practical, career-building education.",
+  footerContactEmail: "abenezarofficial@gmail.com",
+};
+
 export function useAdminSettings() {
-  const [settings, setSettings] = useState<AdminSettings>({ adminTelegram: "", howToPayVideoUrl: "" });
+  const [settings, setSettings] = useState<AdminSettings>(defaultAdminSettings);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "settings", "admin"), (snap) => {
       if (snap.exists()) {
-        setSettings(snap.data() as AdminSettings);
+        setSettings({ ...defaultAdminSettings, ...snap.data() } as AdminSettings);
       }
       setLoading(false);
     }, (error) => { console.error("Admin settings error:", error); setLoading(false); });
@@ -898,7 +931,7 @@ export function usePlaylists() {
     const unsub = onSnapshot(collection(db, "playlists"), (snap) => {
       setPlaylists(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestorePlaylist)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Playlists error:", error); setLoading(false); });
     return unsub;
   }, []);
 
