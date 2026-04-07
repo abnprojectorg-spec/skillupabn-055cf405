@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { GraduationCap } from "lucide-react";
+import { useAdminSettings } from "@/hooks/useFirestore";
 
 const Footer = () => {
+  const { settings } = useAdminSettings();
+
   return (
     <footer className="border-t border-border bg-card/50">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -13,7 +16,7 @@ const Footer = () => {
               </div>
               <span className="font-display text-lg font-bold">SkillUp</span>
             </div>
-            <p className="text-sm text-muted-foreground">Learn real skills. Build real income. The premier learning platform for practical, career-building education.</p>
+            <p className="text-sm text-muted-foreground">{settings.footerDescription}</p>
           </div>
           <div>
             <h4 className="font-display font-semibold mb-3">Platform</h4>
@@ -43,7 +46,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-8 border-t border-border pt-8 text-center text-sm text-muted-foreground">
-          © 2026 ABN by Abenezar Mitiku. All rights reserved.
+          {settings.footerCopyright}
         </div>
       </div>
     </footer>

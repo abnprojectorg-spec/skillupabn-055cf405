@@ -39,11 +39,13 @@ import AdminCollaborations from "@/components/AdminCollaborations";
 import { AdminPlaylistsManager, AdminPlaylistPayments } from "@/components/AdminPlaylists";
 import AdminReferralCodes from "@/components/AdminReferralCodes";
 import AdminCoursePreview from "@/components/AdminCoursePreview";
+import AdminHomepageSettings from "@/components/AdminHomepageSettings";
 
 import { Newspaper, Handshake, Tag } from "lucide-react";
 
 const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "homepage", label: "Homepage", icon: LayoutDashboard },
   { id: "messages", label: "Messages", icon: MessageCircle },
   { id: "news", label: "News", icon: Newspaper },
   { id: "payments", label: "Payments", icon: CreditCard },
@@ -1004,6 +1006,8 @@ const AdminPanel = () => {
           {activeTab === "community" && <CommunityLinksManager toast={toast} />}
 
           {activeTab === "collaborations" && <AdminCollaborations />}
+
+          {activeTab === "homepage" && <AdminHomepageSettings toast={toast} />}
 
           {/* Referral Codes */}
           {activeTab === "referral-codes" && <AdminReferralCodes toast={toast} />}
