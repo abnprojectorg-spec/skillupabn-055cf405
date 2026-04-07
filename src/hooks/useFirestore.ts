@@ -98,7 +98,7 @@ export function useCourses() {
     const unsub = onSnapshot(collection(db, "courses"), (snap) => {
       setCourses(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreCourse)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Courses error:", error); setLoading(false); });
     return unsub;
   }, []);
 
@@ -153,7 +153,7 @@ export function useUsers() {
     const unsub = onSnapshot(collection(db, "users"), (snap) => {
       setUsers(snap.docs.map((d) => d.data() as FirestoreUser));
       setLoading(false);
-    });
+    }, (error) => { console.error("Users error:", error); setLoading(false); });
     return unsub;
   }, []);
 
@@ -366,7 +366,7 @@ export function useCommunityLinks() {
     const unsub = onSnapshot(collection(db, "community_links"), (snap) => {
       setLinks(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CommunityLink)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Community links error:", error); setLoading(false); });
     return unsub;
   }, []);
 
@@ -898,7 +898,7 @@ export function usePlaylists() {
     const unsub = onSnapshot(collection(db, "playlists"), (snap) => {
       setPlaylists(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestorePlaylist)));
       setLoading(false);
-    });
+    }, (error) => { console.error("Playlists error:", error); setLoading(false); });
     return unsub;
   }, []);
 
