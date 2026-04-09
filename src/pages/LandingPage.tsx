@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import TechParticlesBackground from "@/components/TechParticlesBackground";
 import CollaborationsSection from "@/components/CollaborationsSection";
 import { useCourses } from "@/hooks/useFirestore";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import CourseCard from "@/components/CourseCard";
 import { CATEGORIES } from "@/data/mockData";
 import {
@@ -35,7 +36,214 @@ const fadeUp = {
 
 const LandingPage = () => {
   const { courses, loading } = useCourses();
+  const { settings: siteSettings } = useSiteSettings();
   const featuredCourses = courses.slice(0, 4);
+
+  const { hero, sections } = siteSettings.homepage;
+  const sortedSections = [...sections].sort((a, b) => a.order - b.order);
+  const isVisible = (id: string) => sortedSections.find((s) => s.id === id)?.visible ?? true;
+  const getSectionTitle = (id: string) => sortedSections.find((s) => s.id === id)?.title;
+  const getSectionSubtitle = (id: string) => sortedSections.find((s) => s.id === id)?.subtitle;
+
+  const renderHeroBackground = () => {
+    if (hero.backgroundType === "image" && hero.backgroundUrl) {
+      return (
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${hero.backgroundUrl})` }}
+        >
+          <div className="absolute inset-0 bg-background/80" />
+        </div>
+      );
+    }
+    if (hero.backgroundType === "gradient" && hero.backgroundUrl) {
+      return <div className="absolute inset-0" style={{ background: hero.backgroundUrl }} />;
+    }
+    if (hero.backgroundType === "video" && hero.backgroundUrl) {
+      return (
+        <div className="absolute inset-0 overflow-hidden">
+          <video autoPlay muted loop playsInline className="w-full h-full object-cover">
+            <source src={hero.backgroundUrl} />
+          </video>
+          <div className="absolute inset-0 bg-background/80" />
+        </div>
+      );
+    }
+    return <TechParticlesBackground />;
+  };
+
+  // Render sections in CMS order
+  const renderSection = (sectionId: string) => {
+    switch (sectionId) {
+      case "stats":
+        return (
+          <section key="stats" className="border-y border-border bg-card/50 backdrop-blur-sm">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+              <div className="grid grid-cols-2 gap-6 md:grid-cols-4 text-center">
+                {[
+                  { value: `${courses.length || "—"}`, label: "Courses Available" },
+                  { value: "10", label: "Categories" },
+                  { value: "24/7", label: "Access Anytime" },
+                  { value: "100%", label: "Completion Certs" },
+                ].map((s) => (
+                  <div key={s.label}>
+                    <p className="font-display text-3xl font-bold text-gradient">{s.value}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+
+      case "how-it-works":
+        return (
+          <section key="how-it-works" className="py-24 bg-background">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-16">
+                <Badge variant="secondary" className="mb-4">How It Works</Badge>
+                <h2 className="font-display text-3xl font-bold sm:text-4xl">{getSectionTitle("how-it-works")}</h2>
+                <p className="mt-4 text-muted-foreground max-w-lg mx-auto">{getSectionSubtitle("how-it-works") || "Three simple steps to unlock your potential"}</p>
+              </div>
+              <div className="grid gap-8 md:grid-cols-3">
+                {[
+                  { icon: <Search className="h-7 w-7" />, title: "Browse & Choose", desc: "Explore courses across 10 categories and find what fits your career goals." },
+                  { icon: <CreditCard className="h-7 w-7" />, title: "Secure Payment", desc: "Quick and secure payment via Telebirr. Instant access after confirmation." },
+                  { icon: <GraduationCap className="h-7 w-7" />, title: "Learn & Certify", desc: "Learn at your own pace and earn a recognized certificate of completion." },
+                ].map((step, i) => (
+                  <motion.div key={step.title} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+                    className="relative text-center p-8 rounded-2xl border border-border bg-card hover:border-accent/30 hover:shadow-glow transition-all duration-500 group"
+                  >
+                    <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl gradient-primary text-primary-foreground group-hover:shadow-glow transition-shadow duration-500">
+                      {step.icon}
+                    </div>
+                    <h3 className="font-display text-lg font-semibold mb-2">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground">{step.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+
+      case "categories":
+        return (
+          <section key="categories" className="py-24 bg-card/30">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-16">
+                <Badge variant="secondary" className="mb-4">Categories</Badge>
+                <h2 className="font-display text-3xl font-bold sm:text-4xl">{getSectionTitle("categories")}</h2>
+              </div>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+                {CATEGORIES.map((cat, i) => (
+                  <motion.div key={cat} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+                    <Link to={`/marketplace?category=${encodeURIComponent(cat)}`}
+                      className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-5 text-center transition-all duration-300 hover:shadow-glow hover:border-accent/40 hover:-translate-y-1 group"
+                    >
+                      <div className="text-accent group-hover:text-warning transition-colors duration-300">{CATEGORY_ICONS[cat]}</div>
+                      <span className="text-xs font-medium">{cat}</span>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+
+      case "featured":
+        return (
+          <section key="featured" className="py-24 bg-background">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between mb-12">
+                <div>
+                  <Badge variant="secondary" className="mb-4">Featured</Badge>
+                  <h2 className="font-display text-3xl font-bold sm:text-4xl">{getSectionTitle("featured")}</h2>
+                  <p className="mt-3 text-muted-foreground">{getSectionSubtitle("featured") || "Top picks from our growing catalog"}</p>
+                </div>
+                <Link to="/marketplace">
+                  <Button variant="outline" className="group">
+                    View All <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </div>
+              {loading ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  {[1,2,3,4].map((i) => <div key={i} className="rounded-xl border border-border bg-card h-80 animate-pulse" />)}
+                </div>
+              ) : featuredCourses.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  {featuredCourses.map((course) => <CourseCard key={course.id} course={course} />)}
+                </div>
+              ) : (
+                <div className="text-center py-16 text-muted-foreground">
+                  <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                  <p>Courses are being added. Check back soon!</p>
+                </div>
+              )}
+            </div>
+          </section>
+        );
+
+      case "why-skillup":
+        return (
+          <section key="why-skillup" className="py-24 bg-card/30">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-16">
+                <Badge variant="secondary" className="mb-4">Why SkillUp</Badge>
+                <h2 className="font-display text-3xl font-bold sm:text-4xl">{getSectionTitle("why-skillup")}</h2>
+              </div>
+              <div className="grid gap-6 md:grid-cols-3">
+                {[
+                  { icon: <Award className="h-8 w-8" />, title: "Recognized Certificates", desc: "Earn certificates that validate your skills to employers and clients." },
+                  { icon: <Users className="h-8 w-8" />, title: "Community Access", desc: "Join Telegram groups for each category. Learn and grow with peers." },
+                  { icon: <Zap className="h-8 w-8" />, title: "Instant Access", desc: "Pay via Telebirr and start learning immediately. No waiting." },
+                ].map((f, i) => (
+                  <motion.div key={f.title} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+                    className="p-8 rounded-2xl border border-border bg-card hover:border-accent/30 transition-all duration-500 group"
+                  >
+                    <div className="text-accent mb-4 group-hover:text-warning transition-colors duration-300">{f.icon}</div>
+                    <h3 className="font-display text-lg font-semibold mb-2">{f.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+
+      case "collaborations":
+        return <CollaborationsSection key="collaborations" />;
+
+      case "cta":
+        return (
+          <section key="cta" className="relative py-24 overflow-hidden">
+            <TechParticlesBackground />
+            <div className="relative mx-auto max-w-3xl px-4 text-center">
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+                <h2 className="font-display text-3xl font-bold sm:text-5xl">
+                  {getSectionTitle("cta")?.includes("Transform") ? (
+                    <>Ready to <span className="text-gradient-glow">Transform</span> Your Career?</>
+                  ) : (
+                    getSectionTitle("cta")
+                  )}
+                </h2>
+                <p className="mt-6 text-muted-foreground text-lg">{getSectionSubtitle("cta") || "Join our growing community of learners building real skills for real income."}</p>
+                <div className="mt-10 flex justify-center gap-4">
+                  <Link to="/signup">
+                    <Button variant="hero" size="lg" className="text-base px-8 py-6 shadow-glow">
+                      Join Now — It's Free
+                    </Button>
+                  </Link>
+                </div>
+              </motion.div>
+            </div>
+          </section>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,7 +251,7 @@ const LandingPage = () => {
 
       {/* Hero */}
       <section className="relative overflow-hidden pt-32 pb-20 lg:pt-44 lg:pb-32">
-        <TechParticlesBackground />
+        {renderHeroBackground()}
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -55,16 +263,19 @@ const LandingPage = () => {
               🚀 The Future of Learning
             </Badge>
             <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl lg:text-7xl">
-              Learn Real Skills.{" "}
-              <span className="text-gradient-glow">Build Real Income.</span>
+              {hero.title.includes("Real Skills") ? (
+                <>Learn Real Skills.{" "}<span className="text-gradient-glow">Build Real Income.</span></>
+              ) : (
+                hero.title
+              )}
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">
-              Master in-demand skills from expert instructors. Join a growing community of learners transforming their careers.
+              {hero.subtitle}
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link to="/signup">
                 <Button variant="hero" size="lg" className="text-base px-8 py-6 shadow-glow">
-                  Get Started Free
+                  {hero.ctaText}
                   <ChevronRight className="h-5 w-5" />
                 </Button>
               </Link>
@@ -83,185 +294,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Stats bar */}
-      <section className="border-y border-border bg-card/50 backdrop-blur-sm">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4 text-center">
-            {[
-              { value: `${courses.length || "—"}`, label: "Courses Available" },
-              { value: "10", label: "Categories" },
-              { value: "24/7", label: "Access Anytime" },
-              { value: "100%", label: "Completion Certs" },
-            ].map((s) => (
-              <div key={s.label}>
-                <p className="font-display text-3xl font-bold text-gradient">{s.value}</p>
-                <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-24 bg-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge variant="secondary" className="mb-4">How It Works</Badge>
-            <h2 className="font-display text-3xl font-bold sm:text-4xl">Start Learning in Minutes</h2>
-            <p className="mt-4 text-muted-foreground max-w-lg mx-auto">Three simple steps to unlock your potential</p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            {[
-              { icon: <Search className="h-7 w-7" />, title: "Browse & Choose", desc: "Explore courses across 10 categories and find what fits your career goals." },
-              { icon: <CreditCard className="h-7 w-7" />, title: "Secure Payment", desc: "Quick and secure payment via Telebirr. Instant access after confirmation." },
-              { icon: <GraduationCap className="h-7 w-7" />, title: "Learn & Certify", desc: "Learn at your own pace and earn a recognized certificate of completion." },
-            ].map((step, i) => (
-              <motion.div
-                key={step.title}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                className="relative text-center p-8 rounded-2xl border border-border bg-card hover:border-accent/30 hover:shadow-glow transition-all duration-500 group"
-              >
-                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl gradient-primary text-primary-foreground group-hover:shadow-glow transition-shadow duration-500">
-                  {step.icon}
-                </div>
-                <h3 className="font-display text-lg font-semibold mb-2">{step.title}</h3>
-                <p className="text-sm text-muted-foreground">{step.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section className="py-24 bg-card/30">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge variant="secondary" className="mb-4">Categories</Badge>
-            <h2 className="font-display text-3xl font-bold sm:text-4xl">Explore 10 Skill Paths</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
-            {CATEGORIES.map((cat, i) => (
-              <motion.div
-                key={cat}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-              >
-                <Link
-                  to={`/marketplace?category=${encodeURIComponent(cat)}`}
-                  className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-5 text-center transition-all duration-300 hover:shadow-glow hover:border-accent/40 hover:-translate-y-1 group"
-                >
-                  <div className="text-accent group-hover:text-warning transition-colors duration-300">{CATEGORY_ICONS[cat]}</div>
-                  <span className="text-xs font-medium">{cat}</span>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Courses */}
-      <section className="py-24 bg-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <Badge variant="secondary" className="mb-4">Featured</Badge>
-              <h2 className="font-display text-3xl font-bold sm:text-4xl">Popular Courses</h2>
-              <p className="mt-3 text-muted-foreground">Top picks from our growing catalog</p>
-            </div>
-            <Link to="/marketplace">
-              <Button variant="outline" className="group">
-                View All <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-          </div>
-          {loading ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {[1,2,3,4].map((i) => (
-                <div key={i} className="rounded-xl border border-border bg-card h-80 animate-pulse" />
-              ))}
-            </div>
-          ) : featuredCourses.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {featuredCourses.map((course) => (
-                <CourseCard key={course.id} course={course} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 text-muted-foreground">
-              <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-30" />
-              <p>Courses are being added. Check back soon!</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="py-24 bg-card/30">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge variant="secondary" className="mb-4">Why SkillUp</Badge>
-            <h2 className="font-display text-3xl font-bold sm:text-4xl">Built for Real Learning</h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              { icon: <Award className="h-8 w-8" />, title: "Recognized Certificates", desc: "Earn certificates that validate your skills to employers and clients." },
-              { icon: <Users className="h-8 w-8" />, title: "Community Access", desc: "Join Telegram groups for each category. Learn and grow with peers." },
-              { icon: <Zap className="h-8 w-8" />, title: "Instant Access", desc: "Pay via Telebirr and start learning immediately. No waiting." },
-            ].map((f, i) => (
-              <motion.div
-                key={f.title}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                className="p-8 rounded-2xl border border-border bg-card hover:border-accent/30 transition-all duration-500 group"
-              >
-                <div className="text-accent mb-4 group-hover:text-warning transition-colors duration-300">{f.icon}</div>
-                <h3 className="font-display text-lg font-semibold mb-2">{f.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Collaborations */}
-      <CollaborationsSection />
-
-      {/* CTA */}
-      <section className="relative py-24 overflow-hidden">
-        <TechParticlesBackground />
-        <div className="relative mx-auto max-w-3xl px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="font-display text-3xl font-bold sm:text-5xl">
-              Ready to <span className="text-gradient-glow">Transform</span> Your Career?
-            </h2>
-            <p className="mt-6 text-muted-foreground text-lg">
-              Join our growing community of learners building real skills for real income.
-            </p>
-            <div className="mt-10 flex justify-center gap-4">
-              <Link to="/signup">
-                <Button variant="hero" size="lg" className="text-base px-8 py-6 shadow-glow">
-                  Join Now — It's Free
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Dynamic Sections */}
+      {sortedSections.filter((s) => s.visible).map((s) => renderSection(s.id))}
 
       <Footer />
     </div>

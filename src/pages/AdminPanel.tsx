@@ -38,7 +38,7 @@ import AdminNews from "@/components/AdminNews";
 import AdminCollaborations from "@/components/AdminCollaborations";
 import { AdminPlaylistsManager, AdminPlaylistPayments } from "@/components/AdminPlaylists";
 import AdminReferralCodes from "@/components/AdminReferralCodes";
-import AdminCoursePreview from "@/components/AdminCoursePreview";
+import AdminWebsiteControl from "@/components/AdminWebsiteControl";
 
 import { Newspaper, Handshake, Tag } from "lucide-react";
 
@@ -49,7 +49,7 @@ const ADMIN_TABS = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "completions", label: "Completions", icon: CheckCircle },
   { id: "courses", label: "Courses", icon: BookOpen },
-  { id: "course-preview", label: "Course Preview", icon: MonitorPlay },
+  { id: "website-control", label: "Website Control", icon: MonitorPlay },
   { id: "playlists", label: "Playlists", icon: ListMusic },
   { id: "playlist-payments", label: "Playlist Payments", icon: CreditCard },
   { id: "ebooks", label: "Ebooks", icon: Book },
@@ -991,8 +991,8 @@ const AdminPanel = () => {
             </div>
           )}
 
-          {/* Course Preview */}
-          {activeTab === "course-preview" && <AdminCoursePreview />}
+          {/* Website Control */}
+          {activeTab === "website-control" && <AdminWebsiteControl toast={toast} />}
 
           {/* Playlists */}
           {activeTab === "playlists" && <AdminPlaylistsManager toast={toast} />}

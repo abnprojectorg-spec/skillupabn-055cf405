@@ -13,7 +13,6 @@ import StudentDashboard from "./pages/StudentDashboard";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminPanel from "./pages/AdminPanel";
 import CourseLearningPage from "./pages/CourseLearningPage";
-import CourseEmbedPreviewPage from "./pages/CourseEmbedPreviewPage";
 import EbooksPage from "./pages/EbooksPage";
 import EbookDetailPage from "./pages/EbookDetailPage";
 import EbookReaderPage from "./pages/EbookReaderPage";
@@ -47,7 +46,6 @@ const App = () => (
             <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
             <Route path="/dashboard" element={<StudentDashboard />} />
             <Route path="/learn/:id" element={<CourseLearningPage />} />
-            <Route path="/embed-preview/:id" element={<CourseEmbedPreviewPage />} />
             <Route path="/ebooks" element={<EbooksPage />} />
             <Route path="/ebook/:id" element={<EbookDetailPage />} />
             <Route path="/read-ebook/:id" element={<EbookReaderPage />} />
