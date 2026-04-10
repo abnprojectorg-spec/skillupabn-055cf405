@@ -74,11 +74,16 @@ const LoginPage = () => {
             <p className="text-center text-sm text-muted-foreground pt-2">
               Don't have an account? <Link to="/signup" className="text-primary font-medium hover:underline">Sign up</Link>
             </p>
-            <div className="flex justify-center pt-2">
-              <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-1.5" onClick={() => navigate("/admin-login")}>
-                <Shield className="h-4 w-4" />
-                Admin Login
-              </Button>
+            {/* Small admin icon at the bottom */}
+            <div className="flex justify-center pt-1">
+              <button
+                type="button"
+                onClick={() => navigate("/admin-login")}
+                className="text-muted-foreground/40 hover:text-muted-foreground transition-colors p-1"
+                title="Admin access"
+              >
+                <Shield className="h-3.5 w-3.5" />
+              </button>
             </div>
           </form>
         </div>
