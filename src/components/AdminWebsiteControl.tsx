@@ -137,6 +137,15 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
               <Badge variant="secondary">Hero</Badge> Hero Section
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
+              {/* Logo controls */}
+              <div>
+                <Label>Logo Text (Site Name)</Label>
+                <Input value={hero.logoText || "SkillUp"} onChange={(e) => setHero({ ...hero, logoText: e.target.value })} className="mt-1" placeholder="SkillUp" />
+              </div>
+              <div>
+                <Label>Logo Image URL (optional)</Label>
+                <Input value={hero.logoUrl || ""} onChange={(e) => setHero({ ...hero, logoUrl: e.target.value })} className="mt-1" placeholder="https://... leave empty for text logo" />
+              </div>
               <div className="sm:col-span-2">
                 <Label>Title</Label>
                 <Input value={hero.title} onChange={(e) => setHero({ ...hero, title: e.target.value })} className="mt-1" />
@@ -157,20 +166,37 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
                   className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
                 >
                   <option value="particles">Animated Particles</option>
-                  <option value="image">Static Image</option>
-                  <option value="gradient">Gradient</option>
+                  <option value="image">Static Image URL</option>
+                  <option value="gradient">CSS Gradient</option>
                   <option value="video">Video URL</option>
+                  <option value="css">Custom CSS Motion</option>
+                  <option value="embed">Embed HTML Code</option>
                 </select>
               </div>
               {hero.backgroundType !== "particles" && (
                 <div className="sm:col-span-2">
-                  <Label>Background URL / Value</Label>
-                  <Input
-                    value={hero.backgroundUrl}
-                    onChange={(e) => setHero({ ...hero, backgroundUrl: e.target.value })}
-                    placeholder={hero.backgroundType === "gradient" ? "e.g. linear-gradient(135deg, #020617, #0f172a)" : "https://..."}
-                    className="mt-1"
-                  />
+                  <Label>
+                    {hero.backgroundType === "gradient" ? "Gradient CSS" :
+                     hero.backgroundType === "css" ? "CSS Code (use .hero-css-bg class)" :
+                     hero.backgroundType === "embed" ? "Embed HTML (iframe)" :
+                     hero.backgroundType === "video" ? "Video URL" : "Image URL"}
+                  </Label>
+                  {hero.backgroundType === "css" || hero.backgroundType === "embed" ? (
+                    <Textarea
+                      value={hero.backgroundUrl}
+                      onChange={(e) => setHero({ ...hero, backgroundUrl: e.target.value })}
+                      className="mt-1 font-mono text-xs"
+                      rows={4}
+                      placeholder={hero.backgroundType === "css" ? ".hero-css-bg { background: ...; animation: ...; }" : "<iframe src='...'></iframe>"}
+                    />
+                  ) : (
+                    <Input
+                      value={hero.backgroundUrl}
+                      onChange={(e) => setHero({ ...hero, backgroundUrl: e.target.value })}
+                      placeholder={hero.backgroundType === "gradient" ? "e.g. linear-gradient(135deg, #020617, #0f172a)" : "https://..."}
+                      className="mt-1"
+                    />
+                  )}
                 </div>
               )}
             </div>
