@@ -1228,7 +1228,7 @@ function CommunityLinksManager({ toast }: { toast: any }) {
 function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser[]; courses: FirestoreCourse[]; loading: boolean; toast: any }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [editingUser, setEditingUser] = useState<FirestoreUser | null>(null);
-  const [editForm, setEditForm] = useState({ full_name: "", email: "" });
+  const [editForm, setEditForm] = useState({ full_name: "", email: "", phone: "", dob: "", gender: "", address: "" });
   const [selectedUser, setSelectedUser] = useState<FirestoreUser | null>(null);
   const [addCourseId, setAddCourseId] = useState("");
 
@@ -1239,15 +1239,32 @@ function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser
 
   const startEdit = (user: FirestoreUser) => {
     setEditingUser(user);
-    setEditForm({ full_name: user.full_name, email: user.email });
+    setEditForm({
+      full_name: user.full_name, email: user.email,
+      phone: user.phone || "", dob: user.dob || "",
+      gender: user.gender || "", address: user.address || "",
+    });
   };
 
   const handleSaveEdit = async () => {
     if (!editingUser || !editForm.full_name.trim()) return;
     try {
-      await updateUser(editingUser.user_id, { full_name: editForm.full_name.trim(), email: editForm.email.trim() });
+      await updateUser(editingUser.user_id, {
+        full_name: editForm.full_name.trim(), email: editForm.email.trim(),
+        phone: editForm.phone.trim(), dob: editForm.dob.trim(),
+        gender: editForm.gender.trim(), address: editForm.address.trim(),
+      });
       toast({ title: "User updated!" });
       setEditingUser(null);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleVerification = async (userId: string, status: FirestoreUser["verification_status"]) => {
+    try {
+      await updateUser(userId, { verification_status: status, verification_requested: false });
+      toast({ title: `User ${status === "verified_person" ? "verified (Blue badge)" : status === "verified_business" ? "verified (Gold badge)" : "unverified"}` });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
@@ -1288,6 +1305,13 @@ function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser
     return courses.find((c) => c.id === courseId)?.title || courseId;
   };
 
+  const getBadgeIcon = (status?: string) => {
+    if (status === "verified_business") return <span className="text-yellow-400" title="Verified Business">🏅</span>;
+    if (status === "verified_person") return <span className="text-blue-400" title="Verified">✓</span>;
+    if (status === "pending") return <span className="text-warning" title="Pending Verification">⏳</span>;
+    return <span className="text-muted-foreground/40" title="Unverified">○</span>;
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -1300,18 +1324,13 @@ function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser
       {/* Search */}
       <div className="relative max-w-md mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search by name or email..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9"
-        />
+        <Input placeholder="Search by name or email..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
       </div>
 
       {/* Edit User Modal */}
       {editingUser && (
         <div className="fixed inset-0 z-50 bg-background/80 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-xl p-6 w-full max-w-md">
+          <div className="bg-card border border-border rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display text-lg font-semibold">Edit User</h2>
               <Button size="icon" variant="ghost" onClick={() => setEditingUser(null)}><X className="h-4 w-4" /></Button>
@@ -1325,6 +1344,49 @@ function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser
                 <Label>Email</Label>
                 <Input value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="mt-1" />
               </div>
+              <div>
+                <Label>Phone</Label>
+                <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} className="mt-1" placeholder="+251..." />
+              </div>
+              <div>
+                <Label>Date of Birth</Label>
+                <Input type="date" value={editForm.dob} onChange={(e) => setEditForm({ ...editForm, dob: e.target.value })} className="mt-1" />
+              </div>
+              <div>
+                <Label>Gender</Label>
+                <select value={editForm.gender} onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="">Not set</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <Label>Address</Label>
+                <Input value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} className="mt-1" placeholder="City, Country" />
+              </div>
+
+              {/* Verification Controls */}
+              <div className="border-t border-border pt-4">
+                <Label className="mb-2 block">Verification Status</Label>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant={editingUser.verification_status === "unverified" || !editingUser.verification_status ? "default" : "outline"}
+                    onClick={() => handleVerification(editingUser.user_id, "unverified")}>
+                    ○ Unverified
+                  </Button>
+                  <Button size="sm" variant={editingUser.verification_status === "verified_person" ? "default" : "outline"}
+                    className={editingUser.verification_status === "verified_person" ? "bg-blue-600 hover:bg-blue-700" : ""}
+                    onClick={() => handleVerification(editingUser.user_id, "verified_person")}>
+                    ✓ Blue Badge
+                  </Button>
+                  <Button size="sm" variant={editingUser.verification_status === "verified_business" ? "default" : "outline"}
+                    className={editingUser.verification_status === "verified_business" ? "bg-yellow-600 hover:bg-yellow-700" : ""}
+                    onClick={() => handleVerification(editingUser.user_id, "verified_business")}>
+                    🏅 Gold Badge
+                  </Button>
+                </div>
+              </div>
+
               <div className="flex gap-2">
                 <Button variant="hero" onClick={handleSaveEdit}>Save Changes</Button>
                 <Button variant="outline" onClick={() => setEditingUser(null)}>Cancel</Button>
@@ -1339,11 +1401,17 @@ function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser
         <div className="rounded-xl border border-border bg-card p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display text-lg font-semibold flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" /> {selectedUser.full_name}
+              <Users className="h-5 w-5 text-primary" /> {selectedUser.full_name} {getBadgeIcon(selectedUser.verification_status)}
             </h2>
             <Button size="sm" variant="ghost" onClick={() => setSelectedUser(null)}><X className="h-4 w-4" /></Button>
           </div>
-          <p className="text-sm text-muted-foreground mb-4">{selectedUser.email}</p>
+          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground mb-4">
+            <p>📧 {selectedUser.email}</p>
+            {selectedUser.phone && <p>📱 {selectedUser.phone}</p>}
+            {selectedUser.dob && <p>🎂 {selectedUser.dob}</p>}
+            {selectedUser.gender && <p>👤 {selectedUser.gender}</p>}
+            {selectedUser.address && <p>📍 {selectedUser.address}</p>}
+          </div>
 
           {/* Enrolled Courses */}
           <h3 className="text-sm font-semibold mb-2">Enrolled Courses ({selectedUser.courses_unlocked?.length || 0})</h3>
@@ -1393,6 +1461,7 @@ function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser
               <tr>
                 <th className="text-left p-3 font-medium">Name</th>
                 <th className="text-left p-3 font-medium">Email</th>
+                <th className="text-left p-3 font-medium">Status</th>
                 <th className="text-left p-3 font-medium">Courses</th>
                 <th className="text-right p-3 font-medium">Actions</th>
               </tr>
@@ -1400,8 +1469,14 @@ function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser
             <tbody>
               {filteredUsers.map((u) => (
                 <tr key={u.user_id} className="border-t border-border hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => setSelectedUser(u)}>
-                  <td className="p-3 font-medium">{u.full_name}</td>
+                  <td className="p-3 font-medium flex items-center gap-1.5">{u.full_name} {getBadgeIcon(u.verification_status)}</td>
                   <td className="p-3 text-muted-foreground">{u.email}</td>
+                  <td className="p-3">
+                    <Badge variant={u.verification_status === "verified_person" || u.verification_status === "verified_business" ? "default" : "secondary"}
+                      className={u.verification_status === "verified_business" ? "bg-yellow-600/20 text-yellow-400 border-yellow-600/30" : u.verification_status === "verified_person" ? "bg-blue-600/20 text-blue-400 border-blue-600/30" : ""}>
+                      {u.verification_status === "verified_business" ? "Business" : u.verification_status === "verified_person" ? "Verified" : u.verification_status === "pending" ? "Pending" : "Unverified"}
+                    </Badge>
+                  </td>
                   <td className="p-3">
                     <Badge variant="secondary">{u.courses_unlocked?.length || 0} courses</Badge>
                   </td>
@@ -1418,7 +1493,7 @@ function UsersManager({ users, courses, loading, toast }: { users: FirestoreUser
                 </tr>
               ))}
               {filteredUsers.length === 0 && (
-                <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">
+                <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">
                   {searchQuery ? "No users match your search." : "No users yet."}
                 </td></tr>
               )}

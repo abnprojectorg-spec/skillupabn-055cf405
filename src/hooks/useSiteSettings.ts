@@ -9,7 +9,9 @@ export interface HeroContent {
   subtitle: string;
   ctaText: string;
   backgroundUrl: string;
-  backgroundType: "particles" | "image" | "gradient" | "video";
+  backgroundType: "particles" | "image" | "gradient" | "video" | "css" | "embed";
+  logoUrl: string;
+  logoText: string;
 }
 
 export interface SectionConfig {
@@ -69,6 +71,8 @@ export const DEFAULT_HERO: HeroContent = {
   ctaText: "Get Started Free",
   backgroundUrl: "",
   backgroundType: "particles",
+  logoUrl: "",
+  logoText: "SkillUp",
 };
 
 export const DEFAULT_SECTIONS: SectionConfig[] = [

@@ -51,6 +51,8 @@ export interface FirestoreEnrollment {
   progress: number;
 }
 
+export type VerificationStatus = "unverified" | "pending" | "verified_person" | "verified_business";
+
 export interface FirestoreUser {
   user_id: string;
   full_name: string;
@@ -58,6 +60,13 @@ export interface FirestoreUser {
   courses_unlocked: string[];
   signup_date: unknown;
   profile_image: string | null;
+  // Verification fields
+  phone?: string;
+  dob?: string;
+  gender?: string;
+  address?: string;
+  verification_status?: VerificationStatus;
+  verification_requested?: boolean;
 }
 
 export interface PaymentRequest {
