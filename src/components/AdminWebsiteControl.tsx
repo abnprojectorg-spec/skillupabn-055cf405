@@ -395,10 +395,10 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
           <div className="rounded-xl border border-border bg-card p-6">
             <h2 className="font-display text-lg font-semibold mb-4">Homepage Templates</h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Switch between templates. Only one can be active at a time.
+              Switch between templates. Click "Publish Live" to apply site-wide.
             </p>
             <div className="space-y-3">
-              {templates.map((tmpl, i) => (
+              {templates.map((tmpl) => (
                 <div
                   key={tmpl.id}
                   className={`flex items-center justify-between p-4 rounded-lg border ${
@@ -408,21 +408,77 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
                   <div className="flex items-center gap-3">
                     <div className={`h-3 w-3 rounded-full ${tmpl.active ? "bg-accent" : "bg-muted-foreground/30"}`} />
                     <span className="font-medium">{tmpl.name}</span>
-                    {tmpl.active && <Badge className="bg-accent/10 text-accent border-accent/20 text-xs">Active</Badge>}
+                    {tmpl.active && <Badge className="bg-accent/10 text-accent border-accent/20 text-xs">Live</Badge>}
                   </div>
-                  <Button
-                    variant={tmpl.active ? "outline" : "default"}
-                    size="sm"
-                    onClick={() => {
-                      setTemplates(templates.map((t) => ({ ...t, active: t.id === tmpl.id })));
-                    }}
-                    disabled={tmpl.active}
-                  >
-                    {tmpl.active ? "Current" : "Activate"}
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setTemplates(templates.filter((t) => t.id !== tmpl.id));
+                      }}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant={tmpl.active ? "outline" : "hero"}
+                      size="sm"
+                      onClick={() => {
+                        setTemplates(templates.map((t) => ({ ...t, active: t.id === tmpl.id })));
+                      }}
+                      disabled={tmpl.active}
+                    >
+                      {tmpl.active ? "Current" : "Publish Live"}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
+            <div className="mt-4 flex gap-2">
+              <Input
+                placeholder="New template name..."
+                id="new-template-name"
+                className="flex-1"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const input = document.getElementById("new-template-name") as HTMLInputElement;
+                  const name = input?.value?.trim();
+                  if (!name) return;
+                  setTemplates([...templates, { id: name.toLowerCase().replace(/\s+/g, "-"), name, active: false }]);
+                  input.value = "";
+                }}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" /> Add Template
+              </Button>
+            </div>
+          </div>
+
+          {/* Preview Code */}
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="font-display text-lg font-semibold mb-4">Preview Code</h2>
+            <p className="text-sm text-muted-foreground mb-3">
+              Current site configuration as JSON. Copy this to back up or transfer settings.
+            </p>
+            <Textarea
+              readOnly
+              value={JSON.stringify({ homepage: { hero, sections }, design, footer, templates }, null, 2)}
+              className="font-mono text-xs h-48"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => {
+                navigator.clipboard.writeText(JSON.stringify({ homepage: { hero, sections }, design, footer, templates }, null, 2));
+                toast({ title: "Copied!", description: "Configuration JSON copied to clipboard." });
+              }}
+            >
+              Copy to Clipboard
+            </Button>
           </div>
         </div>
       )}
