@@ -48,10 +48,7 @@ const LandingPage = () => {
   const renderHeroBackground = () => {
     if (hero.backgroundType === "image" && hero.backgroundUrl) {
       return (
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${hero.backgroundUrl})` }}
-        >
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${hero.backgroundUrl})` }}>
           <div className="absolute inset-0 bg-background/80" />
         </div>
       );
@@ -66,6 +63,25 @@ const LandingPage = () => {
             <source src={hero.backgroundUrl} />
           </video>
           <div className="absolute inset-0 bg-background/80" />
+        </div>
+      );
+    }
+    if (hero.backgroundType === "css" && hero.backgroundUrl) {
+      return (
+        <>
+          <style dangerouslySetInnerHTML={{ __html: hero.backgroundUrl }} />
+          <div className="absolute inset-0 hero-css-bg" />
+        </>
+      );
+    }
+    if (hero.backgroundType === "embed" && hero.backgroundUrl) {
+      return (
+        <div className="absolute inset-0 overflow-hidden">
+          <div
+            className="w-full h-full [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:border-0 [&>iframe]:object-cover"
+            dangerouslySetInnerHTML={{ __html: hero.backgroundUrl }}
+          />
+          <div className="absolute inset-0 bg-background/70" />
         </div>
       );
     }
