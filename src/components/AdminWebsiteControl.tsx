@@ -6,6 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
+import {
   useSiteSettings,
   saveSiteHomepage,
   saveSiteDesign,
@@ -23,8 +26,15 @@ import {
   type TemplateConfig,
 } from "@/hooks/useSiteSettings";
 import {
+  useTemplates,
+  saveTemplate,
+  deleteTemplate,
+  publishTemplate,
+  type Template,
+} from "@/hooks/useTemplates";
+import {
   Loader2, Save, Layout, Paintbrush, FileText, Globe, GripVertical,
-  Eye, EyeOff, Plus, Trash2, ChevronDown, ChevronUp,
+  Eye, EyeOff, Plus, Trash2, ChevronDown, ChevronUp, Copy, Pencil, Rocket, X,
 } from "lucide-react";
 
 type SubTab = "homepage" | "design" | "templates" | "footer";
