@@ -411,93 +411,271 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
       {/* Templates */}
       {subTab === "templates" && (
         <div className="space-y-6">
-          <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="font-display text-lg font-semibold mb-4">Homepage Templates</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              Switch between templates. Click "Publish Live" to apply site-wide.
-            </p>
+          {/* Add Template Button */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-display text-lg font-semibold">Templates</h2>
+              <p className="text-sm text-muted-foreground">Manage, preview, and publish HTML templates.</p>
+            </div>
+            <Button variant="hero" size="sm" onClick={() => {
+              setEditingTemplate(null);
+              setTemplateForm({ name: "", htmlCode: "", startDate: "", endDate: "", active: false });
+              setTemplateError("");
+              setTemplateModalOpen(true);
+            }}>
+              <Plus className="h-4 w-4 mr-1" /> Add Template
+            </Button>
+          </div>
+
+          {/* Template List */}
+          {templatesLoading ? (
+            <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
+          ) : firestoreTemplates.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
+              <p>No templates yet. Click "Add Template" to create one.</p>
+            </div>
+          ) : (
             <div className="space-y-3">
-              {templates.map((tmpl) => (
+              {firestoreTemplates.map((tmpl) => (
                 <div
                   key={tmpl.id}
-                  className={`flex items-center justify-between p-4 rounded-lg border ${
-                    tmpl.active ? "border-accent/50 bg-accent/5" : "border-border bg-secondary/20"
+                  className={`p-4 rounded-xl border transition-all ${
+                    tmpl.active ? "border-accent/50 bg-accent/5 shadow-sm" : "border-border bg-card"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`h-3 w-3 rounded-full ${tmpl.active ? "bg-accent" : "bg-muted-foreground/30"}`} />
-                    <span className="font-medium">{tmpl.name}</span>
-                    {tmpl.active && <Badge className="bg-accent/10 text-accent border-accent/20 text-xs">Live</Badge>}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setTemplates(templates.filter((t) => t.id !== tmpl.id));
-                      }}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant={tmpl.active ? "outline" : "hero"}
-                      size="sm"
-                      onClick={() => {
-                        setTemplates(templates.map((t) => ({ ...t, active: t.id === tmpl.id })));
-                      }}
-                      disabled={tmpl.active}
-                    >
-                      {tmpl.active ? "Current" : "Publish Live"}
-                    </Button>
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`h-3 w-3 rounded-full shrink-0 ${tmpl.active ? "bg-accent animate-pulse" : "bg-muted-foreground/30"}`} />
+                      <div className="min-w-0">
+                        <span className="font-semibold block truncate">{tmpl.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ID: {tmpl.id}
+                          {tmpl.startDate && ` · From: ${new Date(tmpl.startDate).toLocaleDateString()}`}
+                          {tmpl.endDate && ` · To: ${new Date(tmpl.endDate).toLocaleDateString()}`}
+                        </span>
+                      </div>
+                      {tmpl.active && <Badge className="bg-accent/10 text-accent border-accent/20 text-xs shrink-0">Live</Badge>}
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+                      <Button variant="outline" size="sm" onClick={() => setPreviewTemplate(tmpl)} title="Preview">
+                        <Eye className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => {
+                        setEditingTemplate(tmpl);
+                        setTemplateForm({
+                          name: tmpl.name,
+                          htmlCode: tmpl.htmlCode,
+                          startDate: tmpl.startDate || "",
+                          endDate: tmpl.endDate || "",
+                          active: tmpl.active,
+                        });
+                        setTemplateError("");
+                        setTemplateModalOpen(true);
+                      }} title="Edit">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={async () => {
+                        const dupName = `${tmpl.name} (Copy)`;
+                        const dupId = `${tmpl.id}-copy-${Date.now()}`;
+                        await saveTemplate({ id: dupId, name: dupName, htmlCode: tmpl.htmlCode, active: false, startDate: tmpl.startDate, endDate: tmpl.endDate });
+                        toast({ title: "Duplicated!", description: `Template "${dupName}" created.` });
+                      }} title="Duplicate">
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeleteConfirm(tmpl.id)} title="Delete">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant={tmpl.active ? "outline" : "hero"}
+                        size="sm"
+                        disabled={tmpl.active}
+                        onClick={async () => {
+                          await publishTemplate(tmpl.id, firestoreTemplates);
+                          toast({ title: "Published!", description: `"${tmpl.name}" is now live.` });
+                        }}
+                      >
+                        <Rocket className="h-3.5 w-3.5 mr-1" />
+                        {tmpl.active ? "Current" : "Publish Live"}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="mt-4 flex gap-2">
-              <Input
-                placeholder="New template name..."
-                id="new-template-name"
-                className="flex-1"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const input = document.getElementById("new-template-name") as HTMLInputElement;
-                  const name = input?.value?.trim();
-                  if (!name) return;
-                  setTemplates([...templates, { id: name.toLowerCase().replace(/\s+/g, "-"), name, active: false }]);
-                  input.value = "";
-                }}
-              >
-                <Plus className="h-3.5 w-3.5 mr-1" /> Add Template
-              </Button>
-            </div>
-          </div>
+          )}
 
-          {/* Preview Code */}
+          {/* Site Config Preview */}
           <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="font-display text-lg font-semibold mb-4">Preview Code</h2>
-            <p className="text-sm text-muted-foreground mb-3">
-              Current site configuration as JSON. Copy this to back up or transfer settings.
-            </p>
+            <h2 className="font-display text-lg font-semibold mb-4">Site Configuration</h2>
+            <p className="text-sm text-muted-foreground mb-3">Current site config as JSON for backup.</p>
             <Textarea
               readOnly
-              value={JSON.stringify({ homepage: { hero, sections }, design, footer, templates }, null, 2)}
+              value={JSON.stringify({ homepage: { hero, sections }, design, footer }, null, 2)}
               className="font-mono text-xs h-48"
             />
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3"
-              onClick={() => {
-                navigator.clipboard.writeText(JSON.stringify({ homepage: { hero, sections }, design, footer, templates }, null, 2));
-                toast({ title: "Copied!", description: "Configuration JSON copied to clipboard." });
-              }}
-            >
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => {
+              navigator.clipboard.writeText(JSON.stringify({ homepage: { hero, sections }, design, footer }, null, 2));
+              toast({ title: "Copied!", description: "Configuration JSON copied to clipboard." });
+            }}>
               Copy to Clipboard
             </Button>
+          </div>
+
+          {/* Add/Edit Template Modal */}
+          <Dialog open={templateModalOpen} onOpenChange={setTemplateModalOpen}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingTemplate ? "Edit Template" : "Add New Template"}</DialogTitle>
+                <DialogDescription>
+                  {editingTemplate ? "Update the template details below." : "Create a new HTML template using placeholders like {{homepage.hero.title}}."}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div>
+                  <Label>Template Name *</Label>
+                  <Input
+                    value={templateForm.name}
+                    onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
+                    placeholder="e.g. Holiday Theme"
+                    className="mt-1"
+                  />
+                  {templateForm.name && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ID: {templateForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label>Template HTML Code *</Label>
+                  <Textarea
+                    value={templateForm.htmlCode}
+                    onChange={(e) => setTemplateForm({ ...templateForm, htmlCode: e.target.value })}
+                    placeholder={`<div class="hero">\n  <h1>{{homepage.hero.title}}</h1>\n  <p>{{homepage.hero.subtitle}}</p>\n  <a href="#">{{homepage.hero.ctaText}}</a>\n</div>\n\n{{#sections.featured}}\n  <section>...</section>\n{{/sections.featured}}`}
+                    className="mt-1 font-mono text-xs min-h-[200px]"
+                    rows={10}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Use placeholders: {"{{homepage.hero.title}}"}, {"{{homepage.hero.subtitle}}"}, {"{{#sections.featured}}...{{/sections.featured}}"}
+                  </p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label>Start Date (optional)</Label>
+                    <Input
+                      type="date"
+                      value={templateForm.startDate}
+                      onChange={(e) => setTemplateForm({ ...templateForm, startDate: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>End Date (optional)</Label>
+                    <Input
+                      type="date"
+                      value={templateForm.endDate}
+                      onChange={(e) => setTemplateForm({ ...templateForm, endDate: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={templateForm.active}
+                    onCheckedChange={(checked) => setTemplateForm({ ...templateForm, active: checked })}
+                  />
+                  <Label>Active</Label>
+                </div>
+                {templateError && (
+                  <div className="text-sm text-destructive bg-destructive/10 rounded-lg p-3">{templateError}</div>
+                )}
+              </div>
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setTemplateModalOpen(false)}>Cancel</Button>
+                <Button variant="hero" disabled={templateSaving} onClick={async () => {
+                  setTemplateError("");
+                  // Validate
+                  if (!templateForm.name.trim()) { setTemplateError("Template name is required."); return; }
+                  if (!templateForm.htmlCode.trim()) { setTemplateError("HTML code is required."); return; }
+                  if (!templateForm.htmlCode.includes("{{homepage.hero.title}}")) {
+                    setTemplateError("Template must include at least {{homepage.hero.title}} placeholder."); return;
+                  }
+                  // Check for hardcoded visible text (basic: should have at least 3 placeholders)
+                  const placeholderCount = (templateForm.htmlCode.match(/\{\{[^}]+\}\}/g) || []).length;
+                  if (placeholderCount < 1) {
+                    setTemplateError("Template must use {{...}} placeholders instead of hardcoded text."); return;
+                  }
+                  if (templateForm.startDate && templateForm.endDate && new Date(templateForm.startDate) > new Date(templateForm.endDate)) {
+                    setTemplateError("Start date must be before end date."); return;
+                  }
+
+                  setTemplateSaving(true);
+                  try {
+                    const id = editingTemplate
+                      ? editingTemplate.id
+                      : templateForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+                    await saveTemplate({
+                      id,
+                      name: templateForm.name.trim(),
+                      htmlCode: templateForm.htmlCode,
+                      active: templateForm.active,
+                      startDate: templateForm.startDate || undefined,
+                      endDate: templateForm.endDate || undefined,
+                      createdAt: editingTemplate?.createdAt,
+                    });
+                    toast({ title: editingTemplate ? "Updated!" : "Created!", description: `Template "${templateForm.name}" saved.` });
+                    setTemplateModalOpen(false);
+                  } catch (err: any) {
+                    setTemplateError(err.message);
+                  }
+                  setTemplateSaving(false);
+                }}>
+                  {templateSaving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+                  {editingTemplate ? "Update Template" : "Save Template"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Delete Confirmation */}
+          <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Template</DialogTitle>
+                <DialogDescription>Are you sure? This cannot be undone.</DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+                <Button variant="destructive" onClick={async () => {
+                  if (deleteConfirm) {
+                    await deleteTemplate(deleteConfirm);
+                    toast({ title: "Deleted", description: "Template removed." });
+                  }
+                  setDeleteConfirm(null);
+                }}>Delete</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Preview Modal */}
+          <Dialog open={!!previewTemplate} onOpenChange={() => setPreviewTemplate(null)}>
+            <DialogContent className="max-w-4xl max-h-[90vh]">
+              <DialogHeader>
+                <DialogTitle>Preview: {previewTemplate?.name}</DialogTitle>
+                <DialogDescription>Rendered preview of the template with current site data.</DialogDescription>
+              </DialogHeader>
+              <div className="border border-border rounded-lg overflow-hidden bg-background">
+                <iframe
+                  srcDoc={previewTemplate ? renderTemplatePreview(previewTemplate.htmlCode, { hero, sections }) : ""}
+                  className="w-full h-[500px] border-0"
+                  title="Template Preview"
+                  sandbox="allow-scripts"
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
           </div>
         </div>
       )}
