@@ -81,6 +81,23 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
   }
+
+  /* Heading style variants via data attribute */
+  [data-heading-style="bold"] h1, [data-heading-style="bold"] h2, [data-heading-style="bold"] h3 { font-weight: 700; }
+  [data-heading-style="light"] h1, [data-heading-style="light"] h2, [data-heading-style="light"] h3 { font-weight: 300; }
+  [data-heading-style="italic"] h1, [data-heading-style="italic"] h2, [data-heading-style="italic"] h3 { font-style: italic; }
+  [data-heading-style="uppercase"] h1, [data-heading-style="uppercase"] h2, [data-heading-style="uppercase"] h3 { text-transform: uppercase; letter-spacing: 0.05em; }
+  [data-heading-style="normal"] h1, [data-heading-style="normal"] h2, [data-heading-style="normal"] h3 { font-weight: 400; }
+
+  /* Button style variants */
+  [data-button-style="square"] .btn-themed, [data-button-style="square"] button { border-radius: 0 !important; }
+  [data-button-style="pill"] .btn-themed, [data-button-style="pill"] button { border-radius: 9999px !important; }
+
+  /* Hover effect variants */
+  [data-hover-effect="scale"] .hover-themed:hover { transform: scale(1.05); transition: transform 0.2s; }
+  [data-hover-effect="glow"] .hover-themed:hover { box-shadow: 0 0 20px hsl(var(--accent) / 0.3); transition: box-shadow 0.3s; }
+  [data-hover-effect="lift"] .hover-themed:hover { transform: translateY(-4px); box-shadow: 0 8px 25px hsl(0 0% 0% / 0.2); transition: all 0.3s; }
+  [data-hover-effect="slide-up"] .hover-themed:hover { transform: translateY(-2px); opacity: 0.9; transition: all 0.2s; }
 }
 
 @layer utilities {

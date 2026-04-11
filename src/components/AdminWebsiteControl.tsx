@@ -303,43 +303,113 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
       {/* Design & Style */}
       {subTab === "design" && (
         <div className="space-y-6">
+          {/* Theme Colors */}
           <div className="rounded-xl border border-border bg-card p-6">
             <h2 className="font-display text-lg font-semibold mb-4">Theme Colors (HSL)</h2>
+            <p className="text-xs text-muted-foreground mb-4">Changes apply globally to all pages in real-time.</p>
             <div className="grid gap-4 sm:grid-cols-3">
-              <div>
-                <Label>Primary Color</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="h-8 w-8 rounded-md border border-border" style={{ background: `hsl(${design.primaryColor})` }} />
-                  <Input value={design.primaryColor} onChange={(e) => setDesign({ ...design, primaryColor: e.target.value })} className="flex-1" />
+              {[
+                { label: "Primary Color", key: "primaryColor" as const },
+                { label: "Secondary Color", key: "secondaryColor" as const },
+                { label: "Accent Color", key: "accentColor" as const },
+              ].map(({ label, key }) => (
+                <div key={key}>
+                  <Label>{label}</Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="h-8 w-8 rounded-md border border-border shrink-0" style={{ background: `hsl(${design[key]})` }} />
+                    <Input value={design[key]} onChange={(e) => setDesign({ ...design, [key]: e.target.value })} className="flex-1" />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <Label>Secondary Color</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="h-8 w-8 rounded-md border border-border" style={{ background: `hsl(${design.secondaryColor})` }} />
-                  <Input value={design.secondaryColor} onChange={(e) => setDesign({ ...design, secondaryColor: e.target.value })} className="flex-1" />
-                </div>
-              </div>
-              <div>
-                <Label>Accent Color</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="h-8 w-8 rounded-md border border-border" style={{ background: `hsl(${design.accentColor})` }} />
-                  <Input value={design.accentColor} onChange={(e) => setDesign({ ...design, accentColor: e.target.value })} className="flex-1" />
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
+          {/* Typography */}
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="font-display text-lg font-semibold mb-4">Typography</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label>Body Font</Label>
+                <select value={design.fontFamily} onChange={(e) => setDesign({ ...design, fontFamily: e.target.value as any })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="inter">Inter</option>
+                  <option value="space-grotesk">Space Grotesk</option>
+                  <option value="poppins">Poppins</option>
+                  <option value="raleway">Raleway</option>
+                  <option value="playfair">Playfair Display</option>
+                  <option value="roboto">Roboto</option>
+                  <option value="dm-sans">DM Sans</option>
+                </select>
+              </div>
+              <div>
+                <Label>Heading Font</Label>
+                <select value={design.headingFont} onChange={(e) => setDesign({ ...design, headingFont: e.target.value as any })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="space-grotesk">Space Grotesk</option>
+                  <option value="inter">Inter</option>
+                  <option value="poppins">Poppins</option>
+                  <option value="raleway">Raleway</option>
+                  <option value="playfair">Playfair Display</option>
+                  <option value="roboto">Roboto</option>
+                  <option value="dm-sans">DM Sans</option>
+                </select>
+              </div>
+              <div>
+                <Label>Font Scale</Label>
+                <select value={design.fontScale} onChange={(e) => setDesign({ ...design, fontScale: e.target.value as any })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="small">Small (14px)</option>
+                  <option value="normal">Normal (16px)</option>
+                  <option value="large">Large (18px)</option>
+                </select>
+              </div>
+              <div>
+                <Label>Heading Style</Label>
+                <select value={design.headingStyle} onChange={(e) => setDesign({ ...design, headingStyle: e.target.value as any })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="bold">Bold</option>
+                  <option value="light">Light</option>
+                  <option value="italic">Italic</option>
+                  <option value="uppercase">Uppercase</option>
+                  <option value="normal">Normal</option>
+                </select>
+              </div>
+            </div>
+            {/* Preview */}
+            <div className="mt-4 p-4 rounded-lg border border-border bg-secondary/20">
+              <p className="text-xs text-muted-foreground mb-2">Preview:</p>
+              <h3 className="text-xl" style={{
+                fontFamily: design.headingFont === "inter" ? "'Inter', sans-serif" :
+                  design.headingFont === "poppins" ? "'Poppins', sans-serif" :
+                  design.headingFont === "raleway" ? "'Raleway', sans-serif" :
+                  design.headingFont === "playfair" ? "'Playfair Display', serif" :
+                  design.headingFont === "roboto" ? "'Roboto', sans-serif" :
+                  design.headingFont === "dm-sans" ? "'DM Sans', sans-serif" :
+                  "'Space Grotesk', sans-serif",
+                fontWeight: design.headingStyle === "bold" ? 700 : design.headingStyle === "light" ? 300 : 400,
+                fontStyle: design.headingStyle === "italic" ? "italic" : "normal",
+                textTransform: design.headingStyle === "uppercase" ? "uppercase" : "none",
+                letterSpacing: design.headingStyle === "uppercase" ? "0.05em" : "normal",
+              }}>
+                Heading Preview
+              </h3>
+              <p className="text-sm mt-1" style={{
+                fontFamily: design.fontFamily === "space-grotesk" ? "'Space Grotesk', sans-serif" :
+                  design.fontFamily === "poppins" ? "'Poppins', sans-serif" :
+                  design.fontFamily === "raleway" ? "'Raleway', sans-serif" :
+                  design.fontFamily === "playfair" ? "'Playfair Display', serif" :
+                  design.fontFamily === "roboto" ? "'Roboto', sans-serif" :
+                  design.fontFamily === "dm-sans" ? "'DM Sans', sans-serif" :
+                  "'Inter', sans-serif",
+              }}>
+                This is how body text will look across all pages.
+              </p>
+            </div>
+          </div>
+
+          {/* Button & Hover Styles */}
           <div className="rounded-xl border border-border bg-card p-6">
             <h2 className="font-display text-lg font-semibold mb-4">Button & Hover Styles</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label>Button Style</Label>
-                <select
-                  value={design.buttonStyle}
-                  onChange={(e) => setDesign({ ...design, buttonStyle: e.target.value as any })}
-                  className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                >
+                <select value={design.buttonStyle} onChange={(e) => setDesign({ ...design, buttonStyle: e.target.value as any })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
                   <option value="rounded">Rounded</option>
                   <option value="square">Square</option>
                   <option value="pill">Pill</option>
@@ -347,74 +417,68 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
               </div>
               <div>
                 <Label>Hover Effect</Label>
-                <select
-                  value={design.hoverEffect}
-                  onChange={(e) => setDesign({ ...design, hoverEffect: e.target.value as any })}
-                  className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                >
+                <select value={design.hoverEffect} onChange={(e) => setDesign({ ...design, hoverEffect: e.target.value as any })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
                   <option value="scale">Scale Up</option>
                   <option value="glow">Glow</option>
                   <option value="lift">Lift</option>
-                  <option value="none">None</option>
+                  <option value="slide-up">Slide Up</option>
                 </select>
               </div>
             </div>
-          </div>
-
-          <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="font-display text-lg font-semibold mb-4">Typography</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <Label>Font Scale</Label>
-                <select
-                  value={design.fontScale}
-                  onChange={(e) => setDesign({ ...design, fontScale: e.target.value as any })}
-                  className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+            {/* Button preview */}
+            <div className="mt-4 flex gap-3 flex-wrap">
+              {["rounded", "square", "pill"].map((style) => (
+                <button
+                  key={style}
+                  className="px-4 py-2 text-sm font-medium text-primary-foreground transition-all"
+                  style={{
+                    background: `hsl(${design.primaryColor})`,
+                    borderRadius: style === "pill" ? "9999px" : style === "square" ? "0" : "0.5rem",
+                  }}
                 >
-                  <option value="small">Small</option>
-                  <option value="normal">Normal</option>
-                  <option value="large">Large</option>
-                </select>
-              </div>
-              <div>
-                <Label>Heading Style</Label>
-                <select
-                  value={design.headingStyle}
-                  onChange={(e) => setDesign({ ...design, headingStyle: e.target.value as any })}
-                  className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                >
-                  <option value="bold">Bold</option>
-                  <option value="light">Light</option>
-                  <option value="italic">Italic</option>
-                </select>
-              </div>
+                  {style.charAt(0).toUpperCase() + style.slice(1)}
+                </button>
+              ))}
             </div>
           </div>
 
+          {/* Background */}
           <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="font-display text-lg font-semibold mb-4">Background</h2>
+            <h2 className="font-display text-lg font-semibold mb-4">Global Background</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label>Background Type</Label>
-                <select
-                  value={design.backgroundType}
-                  onChange={(e) => setDesign({ ...design, backgroundType: e.target.value as any })}
-                  className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                >
+                <select value={design.backgroundType} onChange={(e) => setDesign({ ...design, backgroundType: e.target.value as any })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
                   <option value="static">Static (Default)</option>
-                  <option value="gradient">Gradient</option>
-                  <option value="video">Video Background</option>
+                  <option value="gradient">CSS Gradient</option>
+                  <option value="image">Image URL</option>
+                  <option value="video">Video URL</option>
+                  <option value="css">Custom CSS</option>
                 </select>
               </div>
               {design.backgroundType !== "static" && (
                 <div>
-                  <Label>{design.backgroundType === "gradient" ? "Gradient CSS" : "Video URL"}</Label>
-                  <Input
-                    value={design.backgroundValue}
-                    onChange={(e) => setDesign({ ...design, backgroundValue: e.target.value })}
-                    placeholder={design.backgroundType === "gradient" ? "linear-gradient(...)" : "https://..."}
-                    className="mt-1"
-                  />
+                  <Label>
+                    {design.backgroundType === "gradient" ? "Gradient CSS" :
+                     design.backgroundType === "image" ? "Image URL" :
+                     design.backgroundType === "video" ? "Video URL" : "Custom CSS Code"}
+                  </Label>
+                  {design.backgroundType === "css" ? (
+                    <Textarea
+                      value={design.backgroundValue}
+                      onChange={(e) => setDesign({ ...design, backgroundValue: e.target.value })}
+                      className="mt-1 font-mono text-xs"
+                      rows={3}
+                      placeholder="body { background: ...; }"
+                    />
+                  ) : (
+                    <Input
+                      value={design.backgroundValue}
+                      onChange={(e) => setDesign({ ...design, backgroundValue: e.target.value })}
+                      placeholder={design.backgroundType === "gradient" ? "linear-gradient(...)" : "https://..."}
+                      className="mt-1"
+                    />
+                  )}
                 </div>
               )}
             </div>
