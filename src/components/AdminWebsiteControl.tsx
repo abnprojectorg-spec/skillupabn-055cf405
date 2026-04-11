@@ -676,9 +676,8 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
           </Dialog>
         </div>
       )}
-          </div>
-        </div>
-      )}
+
+
 
       {/* Footer */}
       {subTab === "footer" && (
