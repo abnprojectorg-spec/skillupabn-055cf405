@@ -104,6 +104,8 @@ export const DEFAULT_DESIGN: DesignSettings = {
   backgroundValue: "",
   fontScale: "normal",
   headingStyle: "bold",
+  fontFamily: "inter",
+  headingFont: "space-grotesk",
 };
 
 export const DEFAULT_FOOTER: FooterContent = {
