@@ -46,6 +46,20 @@ const SUB_TABS: { id: SubTab; label: string; icon: React.ReactNode }[] = [
   { id: "footer", label: "Footer", icon: <Globe className="h-4 w-4" /> },
 ];
 
+function renderTemplatePreview(htmlCode: string, data: { hero: HeroContent; sections: SectionConfig[] }): string {
+  let html = htmlCode;
+  html = html.replace(/\{\{homepage\.hero\.title\}\}/g, data.hero.title);
+  html = html.replace(/\{\{homepage\.hero\.subtitle\}\}/g, data.hero.subtitle);
+  html = html.replace(/\{\{homepage\.hero\.ctaText\}\}/g, data.hero.ctaText);
+  html = html.replace(/\{\{homepage\.hero\.logoText\}\}/g, data.hero.logoText || "SkillUp");
+  data.sections.forEach((s) => {
+    const blockRegex = new RegExp(`\\{\\{#sections\\.${s.id}\\}\\}([\\s\\S]*?)\\{\\{/sections\\.${s.id}\\}\\}`, "g");
+    html = html.replace(blockRegex, s.visible ? "$1" : "");
+    html = html.replace(new RegExp(`\\{\\{sections\\.${s.id}\\.title\\}\\}`, "g"), s.title);
+  });
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:system-ui,sans-serif;background:#0a0a0a;color:#fff;}</style></head><body>${html}</body></html>`;
+}
+
 export default function AdminWebsiteControl({ toast }: { toast: any }) {
   const { settings, loading } = useSiteSettings();
   const { templates: firestoreTemplates, loading: templatesLoading } = useTemplates();
