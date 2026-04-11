@@ -48,6 +48,7 @@ const SUB_TABS: { id: SubTab; label: string; icon: React.ReactNode }[] = [
 
 export default function AdminWebsiteControl({ toast }: { toast: any }) {
   const { settings, loading } = useSiteSettings();
+  const { templates: firestoreTemplates, loading: templatesLoading } = useTemplates();
   const [subTab, setSubTab] = useState<SubTab>("homepage");
   const [saving, setSaving] = useState(false);
 
@@ -58,6 +59,14 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
   const [footer, setFooter] = useState<FooterContent>(DEFAULT_FOOTER);
   const [templates, setTemplates] = useState<TemplateConfig[]>(DEFAULT_TEMPLATES);
 
+  // Template modal state
+  const [templateModalOpen, setTemplateModalOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+  const [templateForm, setTemplateForm] = useState({ name: "", htmlCode: "", startDate: "", endDate: "", active: false });
+  const [templateError, setTemplateError] = useState("");
+  const [templateSaving, setTemplateSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   useEffect(() => {
     if (!loading) {
       setHero(settings.homepage.hero);
