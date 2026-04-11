@@ -27,16 +27,25 @@ export interface HomepageContent {
   sections: SectionConfig[];
 }
 
+export type FontFamily = "inter" | "space-grotesk" | "poppins" | "raleway" | "playfair" | "roboto" | "dm-sans";
+export type HeadingStyle = "bold" | "light" | "italic" | "uppercase" | "normal";
+export type ButtonStyle = "rounded" | "square" | "pill";
+export type HoverEffect = "scale" | "glow" | "lift" | "slide-up";
+export type FontScale = "small" | "normal" | "large";
+export type BackgroundType = "static" | "gradient" | "video" | "image" | "css";
+
 export interface DesignSettings {
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;
-  buttonStyle: "rounded" | "square" | "pill";
-  hoverEffect: "scale" | "glow" | "lift" | "none";
-  backgroundType: "static" | "gradient" | "video";
+  buttonStyle: ButtonStyle;
+  hoverEffect: HoverEffect;
+  backgroundType: BackgroundType;
   backgroundValue: string;
-  fontScale: "small" | "normal" | "large";
-  headingStyle: "bold" | "light" | "italic";
+  fontScale: FontScale;
+  headingStyle: HeadingStyle;
+  fontFamily: FontFamily;
+  headingFont: FontFamily;
 }
 
 export interface FooterContent {
