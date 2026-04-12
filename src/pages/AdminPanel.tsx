@@ -702,6 +702,10 @@ const AdminPanel = () => {
                     <div><Label>Telebirr QR Code URL</Label><Input value={ebookForm.qrCodeUrl} onChange={(e) => setEbookForm({...ebookForm, qrCodeUrl: e.target.value})} placeholder="https://...qr-code.png" className="mt-1" /></div>
                     <div className="sm:col-span-2"><Label>Description</Label><Textarea value={ebookForm.description} onChange={(e) => setEbookForm({...ebookForm, description: e.target.value})} placeholder="Full description..." className="mt-1" /></div>
                     <div className="sm:col-span-2"><Label>What You'll Learn (one item per line)</Label><Textarea value={ebookForm.whatYouWillLearn} onChange={(e) => setEbookForm({...ebookForm, whatYouWillLearn: e.target.value})} placeholder="Core concepts of marketing&#10;How to build a brand&#10;..." rows={5} className="mt-1" /></div>
+                    <div className="sm:col-span-2 flex items-center gap-2 pt-2">
+                      <Checkbox checked={ebookForm.isFree} onCheckedChange={(checked) => setEbookForm({...ebookForm, isFree: !!checked})} id="ebook-free" />
+                      <Label htmlFor="ebook-free" className="cursor-pointer">Free Ebook (no payment required)</Label>
+                    </div>
                   </div>
                   <div className="mt-4 flex gap-2">
                     <Button variant="hero" onClick={handleSaveEbook} className="hover:scale-105 transition-transform">
