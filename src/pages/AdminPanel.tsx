@@ -213,7 +213,7 @@ const AdminPanel = () => {
   // ─── Ebook Handlers ────────────────────────────────────────
   const emptyEbook = {
     title: "", author: "", description: "", shortDescription: "",
-    price: 0, coverImage: "", pdfUrl: "", qrCodeUrl: "", pages: 0, whatYouWillLearn: "",
+    price: 0, isFree: false, coverImage: "", pdfUrl: "", qrCodeUrl: "", pages: 0, whatYouWillLearn: "",
   };
 
   const [ebookForm, setEbookForm] = useState(emptyEbook);
@@ -240,7 +240,7 @@ const AdminPanel = () => {
     setEditingEbook(ebook);
     setEbookForm({
       title: ebook.title, author: ebook.author, description: ebook.description,
-      shortDescription: ebook.shortDescription, price: ebook.price,
+      shortDescription: ebook.shortDescription, price: ebook.price, isFree: ebook.isFree || false,
       coverImage: ebook.coverImage, pdfUrl: ebook.pdfUrl, qrCodeUrl: ebook.qrCodeUrl || "",
       pages: ebook.pages, whatYouWillLearn: ebook.whatYouWillLearn || "",
     });
@@ -286,7 +286,7 @@ const AdminPanel = () => {
   // ─── File Handlers ─────────────────────────────────────────
   const emptyFile = {
     title: "", developer: "", category: "Software", description: "", shortDescription: "",
-    price: 0, coverImage: "", fileUrl: "", qrCodeUrl: "", fileType: "Application", fileSize: "", whatYouWillGet: "",
+    price: 0, isFree: false, coverImage: "", fileUrl: "", qrCodeUrl: "", fileType: "Application", fileSize: "", whatYouWillGet: "",
   };
 
   const [fileForm, setFileForm] = useState(emptyFile);
@@ -314,7 +314,7 @@ const AdminPanel = () => {
     setFileForm({
       title: file.title, developer: file.developer, category: file.category,
       description: file.description, shortDescription: file.shortDescription,
-      price: file.price, coverImage: file.coverImage, fileUrl: file.fileUrl,
+      price: file.price, isFree: file.isFree || false, coverImage: file.coverImage, fileUrl: file.fileUrl,
       qrCodeUrl: file.qrCodeUrl || "", fileType: file.fileType, fileSize: file.fileSize,
       whatYouWillGet: file.whatYouWillGet || "",
     });
