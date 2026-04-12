@@ -402,6 +402,7 @@ export interface FirestoreEbook {
   description: string;
   shortDescription: string;
   price: number;
+  isFree: boolean;
   coverImage: string;
   pdfUrl: string;
   qrCodeUrl: string;
@@ -567,6 +568,7 @@ export interface FirestoreDigitalFile {
   description: string;
   shortDescription: string;
   price: number;
+  isFree: boolean;
   coverImage: string;
   fileUrl: string;
   qrCodeUrl: string;
