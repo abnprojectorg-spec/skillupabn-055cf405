@@ -871,6 +871,10 @@ const AdminPanel = () => {
                     <div><Label>Telebirr QR Code URL</Label><Input value={fileForm.qrCodeUrl} onChange={(e) => setFileForm({...fileForm, qrCodeUrl: e.target.value})} placeholder="https://...qr-code.png" className="mt-1" /></div>
                     <div className="sm:col-span-2"><Label>Description</Label><Textarea value={fileForm.description} onChange={(e) => setFileForm({...fileForm, description: e.target.value})} placeholder="Full description..." className="mt-1" /></div>
                     <div className="sm:col-span-2"><Label>What You'll Get (one item per line)</Label><Textarea value={fileForm.whatYouWillGet} onChange={(e) => setFileForm({...fileForm, whatYouWillGet: e.target.value})} placeholder="Full source code&#10;Documentation&#10;Free updates..." rows={5} className="mt-1" /></div>
+                    <div className="sm:col-span-2 flex items-center gap-2 pt-2">
+                      <Checkbox checked={fileForm.isFree} onCheckedChange={(checked) => setFileForm({...fileForm, isFree: !!checked})} id="file-free" />
+                      <Label htmlFor="file-free" className="cursor-pointer">Free File (no payment required)</Label>
+                    </div>
                   </div>
                   <div className="mt-4 flex gap-2">
                     <Button variant="hero" onClick={handleSaveFile} className="hover:scale-105 transition-transform">
