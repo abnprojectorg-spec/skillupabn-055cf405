@@ -14,6 +14,8 @@ import {
   Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send, BookMarked, Download, Mail,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
+import UserVerificationForm from "@/components/UserVerificationForm";
+import VerificationBadge from "@/components/VerificationBadge";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
   { id: "courses", label: "My Courses", icon: BookOpen },
@@ -300,7 +302,10 @@ const StudentDashboard = () => {
                     {initials}
                   </div>
                   <div>
-                    <h2 className="font-display text-lg font-semibold">{displayName}</h2>
+                    <div className="flex items-center gap-2">
+                      <h2 className="font-display text-lg font-semibold">{displayName}</h2>
+                      <VerificationBadge status={(profile as any)?.verification_status} size="md" showLabel />
+                    </div>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                   </div>
                 </div>
@@ -315,6 +320,9 @@ const StudentDashboard = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Verification Form */}
+              <UserVerificationForm />
 
               {/* Contact Admin Card */}
               <div className="rounded-2xl border border-border bg-card p-8 max-w-lg shadow-sm">
