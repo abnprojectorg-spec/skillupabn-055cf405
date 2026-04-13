@@ -12,7 +12,32 @@ export interface HeroTemplateTheme {
   headingFont: string;
   buttonStyle: "rounded" | "square" | "pill";
   hoverEffect: "scale" | "glow" | "lift" | "slide-up";
+  backgroundType?: "none" | "video" | "css" | "image";
+  backgroundValue?: string;  // URL for video/image, CSS code for css
+  backgroundFallbackImage?: string;  // mobile fallback image
 }
+
+export type ThemePreset = "default" | "dark-pro" | "blue-tech" | "green-fresh" | "premium-gold";
+
+export interface ThemePresetConfig {
+  id: ThemePreset;
+  name: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  textColor: string;
+  buttonStyle: "rounded" | "square" | "pill";
+  mode: "light" | "dark";
+}
+
+export const THEME_PRESETS: ThemePresetConfig[] = [
+  { id: "default", name: "Default", primaryColor: "222 80% 45%", secondaryColor: "222 30% 14%", accentColor: "142 70% 45%", backgroundColor: "222 47% 4%", textColor: "0 0% 95%", buttonStyle: "rounded", mode: "dark" },
+  { id: "dark-pro", name: "Dark Pro", primaryColor: "0 0% 90%", secondaryColor: "0 0% 10%", accentColor: "0 0% 70%", backgroundColor: "0 0% 5%", textColor: "0 0% 95%", buttonStyle: "square", mode: "dark" },
+  { id: "blue-tech", name: "Blue Tech", primaryColor: "210 90% 55%", secondaryColor: "210 30% 12%", accentColor: "200 80% 50%", backgroundColor: "210 40% 6%", textColor: "0 0% 95%", buttonStyle: "rounded", mode: "dark" },
+  { id: "green-fresh", name: "Green Fresh", primaryColor: "142 70% 40%", secondaryColor: "142 20% 15%", accentColor: "142 60% 50%", backgroundColor: "142 30% 6%", textColor: "0 0% 95%", buttonStyle: "pill", mode: "dark" },
+  { id: "premium-gold", name: "Premium Gold", primaryColor: "45 90% 50%", secondaryColor: "45 20% 10%", accentColor: "45 80% 55%", backgroundColor: "30 20% 5%", textColor: "0 0% 95%", buttonStyle: "pill", mode: "dark" },
+];
 
 export interface HeroTemplateContent {
   headingTitle: string;

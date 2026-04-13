@@ -17,6 +17,13 @@ interface UserProfile {
   courses_unlocked: string[];
   signup_date: unknown;
   profile_image: string | null;
+  phone?: string;
+  dob?: string;
+  gender?: string;
+  address?: string;
+  telegram_username?: string;
+  verification_status?: "unverified" | "pending" | "verified_person" | "verified_business";
+  verification_requested?: boolean;
 }
 
 interface AuthContextType {
