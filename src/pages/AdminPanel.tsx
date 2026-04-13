@@ -99,6 +99,7 @@ const AdminPanel = () => {
   const { files: digitalFiles, loading: filesLoading } = useDigitalFiles();
   const { requests: fileRequests, loading: filePaymentsLoading } = useFilePaymentRequests();
   const { requests: playlistPayRequests } = usePlaylistPaymentRequests();
+  const { codes: referralCodes } = useReferralCodes();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
