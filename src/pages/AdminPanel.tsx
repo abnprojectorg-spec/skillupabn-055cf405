@@ -11,7 +11,7 @@ import {
   useCourses, useUsers, usePaymentRequests, useCourseProject, useCommunityLinks,
   useEbooks, useEbookPaymentRequests,
   useDigitalFiles, useFilePaymentRequests,
-  useCompletionRequests, useAdminSettings,
+  useCompletionRequests, useAdminSettings, useReferralCodes,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
   saveCourseProject, deleteCourseProject,
@@ -30,7 +30,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard, BookOpen, Users, Plus, Trash2, X, Loader2,
-  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings, ListMusic, MonitorPlay,
+  CreditCard, CheckCircle, XCircle, Edit, Shield, FileText, Award, Link2, Book, Search, UserX, BookMinus, BookPlus, FolderOpen, MessageCircle, Settings, ListMusic, MonitorPlay, BarChart3,
 } from "lucide-react";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminChat from "@/components/AdminChat";
@@ -39,6 +39,7 @@ import AdminCollaborations from "@/components/AdminCollaborations";
 import { AdminPlaylistsManager, AdminPlaylistPayments } from "@/components/AdminPlaylists";
 import AdminReferralCodes from "@/components/AdminReferralCodes";
 import AdminWebsiteControl from "@/components/AdminWebsiteControl";
+import AdminPaymentsAnalytics from "@/components/AdminPaymentsAnalytics";
 
 import { Newspaper, Handshake, Tag } from "lucide-react";
 
@@ -46,6 +47,8 @@ const ADMIN_TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "messages", label: "Messages", icon: MessageCircle },
   { id: "news", label: "News", icon: Newspaper },
+  { id: "payments-analytics", label: "Analytics", icon: BarChart3 },
+  { id: "payments", label: "Payments", icon: CreditCard },
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "completions", label: "Completions", icon: CheckCircle },
   { id: "courses", label: "Courses", icon: BookOpen },
@@ -98,6 +101,7 @@ const AdminPanel = () => {
   const { files: digitalFiles, loading: filesLoading } = useDigitalFiles();
   const { requests: fileRequests, loading: filePaymentsLoading } = useFilePaymentRequests();
   const { requests: playlistPayRequests } = usePlaylistPaymentRequests();
+  const { codes: referralCodes } = useReferralCodes();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -444,6 +448,20 @@ const AdminPanel = () => {
               coursePayments={requests}
               ebookPayments={ebookRequests}
               filePayments={fileRequests}
+            />
+          )}
+
+          {/* Payments Analytics */}
+          {activeTab === "payments-analytics" && (
+            <AdminPaymentsAnalytics
+              courses={courses}
+              ebooks={ebooks}
+              files={digitalFiles}
+              users={users}
+              coursePayments={requests}
+              ebookPayments={ebookRequests}
+              filePayments={fileRequests}
+              referralCodes={referralCodes}
             />
           )}
 

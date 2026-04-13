@@ -65,6 +65,7 @@ export interface FirestoreUser {
   dob?: string;
   gender?: string;
   address?: string;
+  telegram_username?: string;
   verification_status?: VerificationStatus;
   verification_requested?: boolean;
 }
