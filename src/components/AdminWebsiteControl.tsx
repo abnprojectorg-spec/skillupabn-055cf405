@@ -28,22 +28,25 @@ import {
   updateHeroTemplateContent,
   duplicateHeroTemplate,
   rollbackHeroTemplate,
+  THEME_PRESETS,
   type HeroTemplate,
   type HeroTemplateContent,
   type HeroTemplateTheme,
+  type ThemePreset,
 } from "@/hooks/useHeroTemplates";
 import {
   Loader2, Save, Layout, Paintbrush, FileText, Globe, GripVertical,
   Eye, EyeOff, Plus, Trash2, ChevronDown, ChevronUp, Copy, Pencil, Rocket, X,
-  RotateCcw, Palette, Type, MousePointer,
+  RotateCcw, Palette, Type, MousePointer, Sun, Moon, Video, Code,
 } from "lucide-react";
 
-type SubTab = "homepage" | "design" | "templates" | "footer";
+type SubTab = "homepage" | "design" | "templates" | "themes" | "footer";
 
 const SUB_TABS: { id: SubTab; label: string; icon: React.ReactNode }[] = [
   { id: "homepage", label: "Homepage", icon: <Layout className="h-4 w-4" /> },
   { id: "design", label: "Design", icon: <Paintbrush className="h-4 w-4" /> },
   { id: "templates", label: "Templates", icon: <FileText className="h-4 w-4" /> },
+  { id: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
   { id: "footer", label: "Footer", icon: <Globe className="h-4 w-4" /> },
 ];
 
