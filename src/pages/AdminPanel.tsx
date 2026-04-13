@@ -11,7 +11,7 @@ import {
   useCourses, useUsers, usePaymentRequests, useCourseProject, useCommunityLinks,
   useEbooks, useEbookPaymentRequests,
   useDigitalFiles, useFilePaymentRequests,
-  useCompletionRequests, useAdminSettings,
+  useCompletionRequests, useAdminSettings, useReferralCodes,
   addCourse, updateCourse, deleteCourse,
   approvePayment, rejectPayment, deletePaymentRequest,
   saveCourseProject, deleteCourseProject,
@@ -39,6 +39,7 @@ import AdminCollaborations from "@/components/AdminCollaborations";
 import { AdminPlaylistsManager, AdminPlaylistPayments } from "@/components/AdminPlaylists";
 import AdminReferralCodes from "@/components/AdminReferralCodes";
 import AdminWebsiteControl from "@/components/AdminWebsiteControl";
+import AdminPaymentsAnalytics from "@/components/AdminPaymentsAnalytics";
 
 import { Newspaper, Handshake, Tag } from "lucide-react";
 
