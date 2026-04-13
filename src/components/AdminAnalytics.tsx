@@ -24,35 +24,38 @@ export default function AdminAnalytics({
     const approvedEbookPayments = ebookPayments.filter((p) => p.status === "approved");
     const approvedFilePayments = filePayments.filter((p) => p.status === "approved");
 
-    // Per-course analytics
+    // Per-course analytics — use paidAmount if available (discount-aware)
     const courseAnalytics = courses.map((course) => {
       const payments = approvedCoursePayments.filter((p) => p.courseId === course.id);
       const enrolledUsers = users.filter((u) => u.courses_unlocked?.includes(course.id));
+      const revenue = payments.reduce((sum, p) => sum + ((p as any).paidAmount || course.price), 0);
       return {
         ...course,
         enrolledCount: enrolledUsers.length,
-        revenue: payments.length * course.price,
+        revenue,
         paymentCount: payments.length,
       };
     });
 
-    // Per-ebook analytics
+    // Per-ebook analytics — discount-aware
     const ebookAnalytics = ebooks.map((ebook) => {
       const payments = approvedEbookPayments.filter((p) => p.ebookId === ebook.id);
+      const revenue = payments.reduce((sum, p) => sum + ((p as any).paidAmount || ebook.price), 0);
       return {
         ...ebook,
         salesCount: payments.length,
-        revenue: payments.length * ebook.price,
+        revenue,
       };
     });
 
-    // Per-file analytics
+    // Per-file analytics — discount-aware
     const fileAnalytics = files.map((file) => {
       const payments = approvedFilePayments.filter((p) => p.fileId === file.id);
+      const revenue = payments.reduce((sum, p) => sum + ((p as any).paidAmount || file.price), 0);
       return {
         ...file,
         salesCount: payments.length,
-        revenue: payments.length * file.price,
+        revenue,
       };
     });
 
