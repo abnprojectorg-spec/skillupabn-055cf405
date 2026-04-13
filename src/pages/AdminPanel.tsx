@@ -451,6 +451,20 @@ const AdminPanel = () => {
             />
           )}
 
+          {/* Payments Analytics */}
+          {activeTab === "payments-analytics" && (
+            <AdminPaymentsAnalytics
+              courses={courses}
+              ebooks={ebooks}
+              files={digitalFiles}
+              users={users}
+              coursePayments={requests}
+              ebookPayments={ebookRequests}
+              filePayments={fileRequests}
+              referralCodes={referralCodes}
+            />
+          )}
+
           {/* Payments */}
           {activeTab === "payments" && (
             <div>
