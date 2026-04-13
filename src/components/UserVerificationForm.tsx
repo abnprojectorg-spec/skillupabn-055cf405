@@ -15,14 +15,14 @@ export default function UserVerificationForm() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     full_name: profile?.full_name || "",
-    phone: profile?.phone || "",
-    dob: profile?.dob || "",
-    gender: profile?.gender || "",
-    address: profile?.address || "",
+    phone: (profile as any)?.phone || "",
+    dob: (profile as any)?.dob || "",
+    gender: (profile as any)?.gender || "",
+    address: (profile as any)?.address || "",
     telegram_username: (profile as any)?.telegram_username || "",
   });
 
-  const status = profile?.verification_status || "unverified";
+  const status = (profile as any)?.verification_status || "unverified";
   const isPending = status === "pending";
   const isVerified = status === "verified_person" || status === "verified_business";
 
@@ -116,10 +116,10 @@ export default function UserVerificationForm() {
       )}
 
       {/* Gold Badge Info */}
-      <div className="mt-6 p-4 rounded-lg border border-yellow-500/20 bg-yellow-500/5">
+      <div className="mt-6 p-4 rounded-lg border border-border bg-secondary/30">
         <div className="flex items-center gap-2 mb-2">
-          <Building2 className="h-4 w-4 text-yellow-400" />
-          <span className="text-sm font-semibold text-yellow-400">Gold Badge (Company/Official)</span>
+          <Building2 className="h-4 w-4 text-accent" />
+          <span className="text-sm font-semibold">Gold Badge (Company/Official)</span>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
           For company owners and officials, contact the admin directly to get a Gold verification badge.
