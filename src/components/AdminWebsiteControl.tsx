@@ -478,6 +478,37 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
                       <div><Label>Button Style</Label><select value={editTheme.buttonStyle} onChange={(e) => setEditTheme({ ...editTheme, buttonStyle: e.target.value as any })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="rounded">Rounded</option><option value="square">Square</option><option value="pill">Pill</option></select></div>
                       <div><Label>Hover Effect</Label><select value={editTheme.hoverEffect} onChange={(e) => setEditTheme({ ...editTheme, hoverEffect: e.target.value as any })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="scale">Scale</option><option value="glow">Glow</option><option value="lift">Lift</option><option value="slide-up">Slide Up</option></select></div>
                     </div>
+
+                    {/* Template Background */}
+                    <div className="space-y-4 border-t border-border pt-4">
+                      <h3 className="font-semibold text-sm flex items-center gap-2"><Video className="h-4 w-4" /> Template Background</h3>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <Label>Background Type</Label>
+                          <select value={editTheme.backgroundType || "none"} onChange={(e) => setEditTheme({ ...editTheme, backgroundType: e.target.value as any })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                            <option value="none">None (Gradient)</option>
+                            <option value="video">Video URL (mp4)</option>
+                            <option value="css">Animated CSS</option>
+                            <option value="image">Static Image</option>
+                          </select>
+                        </div>
+                        {editTheme.backgroundType && editTheme.backgroundType !== "none" && (
+                          <div>
+                            <Label>{editTheme.backgroundType === "video" ? "Video URL" : editTheme.backgroundType === "css" ? "CSS Code" : "Image URL"}</Label>
+                            {editTheme.backgroundType === "css" ? (
+                              <Textarea value={editTheme.backgroundValue || ""} onChange={(e) => setEditTheme({ ...editTheme, backgroundValue: e.target.value })} className="mt-1 font-mono text-xs" rows={3} placeholder="@keyframes bg { ... }" />
+                            ) : (
+                              <Input value={editTheme.backgroundValue || ""} onChange={(e) => setEditTheme({ ...editTheme, backgroundValue: e.target.value })} className="mt-1" placeholder="https://..." />
+                            )}
+                          </div>
+                        )}
+                        <div>
+                          <Label>Mobile Fallback Image URL</Label>
+                          <Input value={editTheme.backgroundFallbackImage || ""} onChange={(e) => setEditTheme({ ...editTheme, backgroundFallbackImage: e.target.value })} className="mt-1" placeholder="https://fallback-image.jpg" />
+                          <p className="text-xs text-muted-foreground mt-1">Shown on mobile instead of video/CSS</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -541,6 +572,71 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
               )}
             </DialogContent>
           </Dialog>
+        </div>
+      )}
+
+      {/* ═══ THEMES TAB ═══ */}
+      {subTab === "themes" && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="font-display text-lg font-semibold">Theme Presets</h2>
+            <p className="text-sm text-muted-foreground">Select a predefined theme to apply site-wide. Changes take effect immediately.</p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {THEME_PRESETS.map((preset) => (
+              <div key={preset.id} className="rounded-xl border-2 border-border overflow-hidden hover:border-primary/30 transition-all">
+                <div className="h-24 relative" style={{ background: `linear-gradient(135deg, hsl(${preset.primaryColor}), hsl(${preset.secondaryColor}))` }}>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm font-bold" style={{ color: `hsl(${preset.textColor})` }}>{preset.name}</span>
+                  </div>
+                  <div className="absolute top-2 right-2">
+                    {preset.mode === "dark" ? <Moon className="h-3.5 w-3.5 text-white/60" /> : <Sun className="h-3.5 w-3.5 text-black/60" />}
+                  </div>
+                </div>
+                <div className="p-4 bg-card">
+                  <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
+                    <div className="flex gap-1">
+                      <div className="h-3 w-3 rounded-full border border-border" style={{ background: `hsl(${preset.primaryColor})` }} />
+                      <div className="h-3 w-3 rounded-full border border-border" style={{ background: `hsl(${preset.accentColor})` }} />
+                      <div className="h-3 w-3 rounded-full border border-border" style={{ background: `hsl(${preset.secondaryColor})` }} />
+                    </div>
+                    <span>{preset.buttonStyle}</span>
+                  </div>
+                  <Button
+                    variant="hero"
+                    size="sm"
+                    className="w-full text-xs"
+                    onClick={async () => {
+                      setSaving(true);
+                      try {
+                        await saveSiteDesign({
+                          ...design,
+                          primaryColor: preset.primaryColor,
+                          secondaryColor: preset.secondaryColor,
+                          accentColor: preset.accentColor,
+                          buttonStyle: preset.buttonStyle,
+                        });
+                        setDesign({
+                          ...design,
+                          primaryColor: preset.primaryColor,
+                          secondaryColor: preset.secondaryColor,
+                          accentColor: preset.accentColor,
+                          buttonStyle: preset.buttonStyle,
+                        });
+                        toast({ title: "🎨 Theme Applied!", description: `"${preset.name}" is now active site-wide.` });
+                      } catch (err: any) {
+                        toast({ title: "Error", description: err.message, variant: "destructive" });
+                      }
+                      setSaving(false);
+                    }}
+                  >
+                    <Palette className="h-3 w-3 mr-1" /> Apply Theme
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
