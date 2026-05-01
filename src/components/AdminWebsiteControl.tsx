@@ -648,6 +648,9 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
         </div>
       )}
 
+      {/* ═══ PROMO TAB ═══ */}
+      {subTab === "promo" && <PromoManager toast={toast} />}
+
       {/* Footer */}
       {subTab === "footer" && (
         <div className="space-y-6">
