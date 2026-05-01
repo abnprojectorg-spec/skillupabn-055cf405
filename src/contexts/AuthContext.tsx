@@ -7,9 +7,8 @@ import {
   signOut,
   type User,
 } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp, addDoc, collection } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db, googleProvider } from "@/lib/firebase";
-import { detectDevice } from "@/lib/deviceInfo";
 
 interface UserProfile {
   user_id: string;
@@ -65,38 +64,6 @@ async function fetchProfile(uid: string): Promise<UserProfile | null> {
   return snap.exists() ? (snap.data() as UserProfile) : null;
 }
 
-async function recordLoginDevice(uid: string) {
-  try {
-    const device = await detectDevice();
-    const payload = {
-      userId: uid,
-      device_type: device.type,
-      device_model: device.model,
-      os: device.os,
-      os_version: device.osVersion,
-      browser: device.browser,
-      user_agent: device.userAgent,
-      login_at: serverTimestamp(),
-    };
-    // Append history
-    await addDoc(collection(db, "login_devices"), payload);
-    // Latest snapshot on user profile
-    await setDoc(
-      doc(db, "users", uid),
-      {
-        last_device_type: device.type,
-        last_device_model: device.model,
-        last_login_os: device.os,
-        last_login_browser: device.browser,
-        last_login_at: serverTimestamp(),
-      },
-      { merge: true }
-    );
-  } catch (err) {
-    console.warn("Device tracking failed:", err);
-  }
-}
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -117,20 +84,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    recordLoginDevice(cred.user.uid);
+    await signInWithEmailAndPassword(auth, email, password);
   };
 
   const signup = async (email: string, password: string, fullName: string) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await createUserProfile(cred.user, fullName);
-    recordLoginDevice(cred.user.uid);
   };
 
   const loginWithGoogle = async () => {
     const cred = await signInWithPopup(auth, googleProvider);
     await createUserProfile(cred.user);
-    recordLoginDevice(cred.user.uid);
   };
 
   const logout = async () => {

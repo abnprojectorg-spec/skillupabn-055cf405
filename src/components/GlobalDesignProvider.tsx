@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSiteSettings, type DesignSettings, type FontFamily } from "@/hooks/useSiteSettings";
-import { useHeroTemplates, THEME_PRESETS } from "@/hooks/useHeroTemplates";
+import { useHeroTemplates } from "@/hooks/useHeroTemplates";
 
 const FONT_MAP: Record<string, { name: string; import: string }> = {
   "inter": { name: "'Inter', sans-serif", import: "Inter:wght@300;400;500;600;700;800;900" },
@@ -14,42 +14,15 @@ const FONT_MAP: Record<string, { name: string; import: string }> = {
 
 const FONT_SCALE_MAP = { small: "14px", normal: "16px", large: "18px" };
 
-interface FullDesign extends DesignSettings {
-  // resolved values, never undefined here
-}
-
-function applyDesign(design: FullDesign) {
+function applyDesign(design: DesignSettings) {
   const root = document.documentElement;
 
-  // Core color tokens
   root.style.setProperty("--primary", design.primaryColor);
   root.style.setProperty("--secondary", design.secondaryColor);
+  root.style.setProperty("--muted", design.secondaryColor);
   root.style.setProperty("--accent", design.accentColor);
   root.style.setProperty("--ring", design.primaryColor);
 
-  // Full-theme tokens (background / foreground / card / border) — applied site-wide
-  if (design.backgroundColor) {
-    root.style.setProperty("--background", design.backgroundColor);
-  }
-  if (design.textColor) {
-    root.style.setProperty("--foreground", design.textColor);
-    root.style.setProperty("--card-foreground", design.textColor);
-    root.style.setProperty("--popover-foreground", design.textColor);
-    root.style.setProperty("--secondary-foreground", design.textColor);
-  }
-  if (design.cardColor) {
-    root.style.setProperty("--card", design.cardColor);
-    root.style.setProperty("--popover", design.cardColor);
-  }
-  if (design.borderColor) {
-    root.style.setProperty("--border", design.borderColor);
-    root.style.setProperty("--input", design.borderColor);
-  }
-
-  // Muted should follow secondary for visual consistency
-  root.style.setProperty("--muted", design.secondaryColor);
-
-  // Typography
   const bodyFont = FONT_MAP[design.fontFamily] || FONT_MAP["inter"];
   const headFont = FONT_MAP[design.headingFont] || FONT_MAP["space-grotesk"];
   root.style.setProperty("--font-body", bodyFont.name);
@@ -68,56 +41,33 @@ function applyDesign(design: FullDesign) {
     }
   });
 
-  // Data attributes for global behavior
   root.dataset.headingStyle = design.headingStyle;
   root.dataset.buttonStyle = design.buttonStyle;
   root.dataset.hoverEffect = design.hoverEffect;
-  if (design.themeMode) {
-    root.dataset.themeMode = design.themeMode;
-    if (design.themeMode === "light") root.classList.add("theme-light");
-    else root.classList.remove("theme-light");
-  }
 }
 
 export default function GlobalDesignProvider({ children }: { children: React.ReactNode }) {
   const { settings, loading } = useSiteSettings();
-  const { getActiveTemplate, loading: heroLoading, state: heroState } = useHeroTemplates();
+  const { getActiveTemplate, loading: heroLoading } = useHeroTemplates();
 
   useEffect(() => {
     if (loading || heroLoading) return;
 
+    // Active hero template theme overrides site design
     const activeTemplate = getActiveTemplate();
-
-    // Resolve preset (single source of truth for full theme)
-    const preset = THEME_PRESETS.find((p) => p.id === settings.design.themePresetId);
-
-    // Hero template overrides primary/font; preset (if set) provides full theme palette
-    const merged: FullDesign = {
+    const mergedDesign: DesignSettings = {
       ...settings.design,
-      primaryColor: activeTemplate.theme.primaryColor || settings.design.primaryColor,
-      secondaryColor: activeTemplate.theme.secondaryColor || settings.design.secondaryColor,
-      accentColor: activeTemplate.theme.accentColor || settings.design.accentColor,
-      fontFamily: (activeTemplate.theme.fontFamily as FontFamily) || settings.design.fontFamily,
-      headingFont: (activeTemplate.theme.headingFont as FontFamily) || settings.design.headingFont,
-      buttonStyle: activeTemplate.theme.buttonStyle || settings.design.buttonStyle,
-      hoverEffect: activeTemplate.theme.hoverEffect || settings.design.hoverEffect,
-      // Preset wins for full-page palette unless DesignSettings provides explicit overrides
-      backgroundColor: settings.design.backgroundColor || preset?.backgroundColor,
-      textColor: settings.design.textColor || preset?.textColor,
-      cardColor: settings.design.cardColor,
-      borderColor: settings.design.borderColor,
-      themeMode: settings.design.themeMode || preset?.mode,
+      primaryColor: activeTemplate.theme.primaryColor,
+      secondaryColor: activeTemplate.theme.secondaryColor,
+      accentColor: activeTemplate.theme.accentColor,
+      fontFamily: activeTemplate.theme.fontFamily as FontFamily,
+      headingFont: activeTemplate.theme.headingFont as FontFamily,
+      buttonStyle: activeTemplate.theme.buttonStyle,
+      hoverEffect: activeTemplate.theme.hoverEffect,
     };
 
-    applyDesign(merged);
-  }, [
-    loading,
-    heroLoading,
-    settings.design,
-    heroState.activeTemplateId,
-    heroState.version,
-    getActiveTemplate,
-  ]);
+    applyDesign(mergedDesign);
+  }, [loading, heroLoading, settings.design, getActiveTemplate]);
 
   return <>{children}</>;
 }
