@@ -35,18 +35,27 @@ import {
   type ThemePreset,
 } from "@/hooks/useHeroTemplates";
 import {
+  usePromoAds,
+  createPromoAd,
+  updatePromoAd,
+  deletePromoAd,
+  type PromoAd,
+} from "@/hooks/usePromoAds";
+import {
   Loader2, Save, Layout, Paintbrush, FileText, Globe, GripVertical,
   Eye, EyeOff, Plus, Trash2, ChevronDown, ChevronUp, Copy, Pencil, Rocket, X,
-  RotateCcw, Palette, Type, MousePointer, Sun, Moon, Video, Code,
+  RotateCcw, Palette, Type, MousePointer, Sun, Moon, Video, Code, Megaphone,
+  ImageIcon, BarChart3,
 } from "lucide-react";
 
-type SubTab = "homepage" | "design" | "templates" | "themes" | "footer";
+type SubTab = "homepage" | "design" | "templates" | "themes" | "promo" | "footer";
 
 const SUB_TABS: { id: SubTab; label: string; icon: React.ReactNode }[] = [
   { id: "homepage", label: "Homepage", icon: <Layout className="h-4 w-4" /> },
   { id: "design", label: "Design", icon: <Paintbrush className="h-4 w-4" /> },
   { id: "templates", label: "Templates", icon: <FileText className="h-4 w-4" /> },
   { id: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
+  { id: "promo", label: "Promo", icon: <Megaphone className="h-4 w-4" /> },
   { id: "footer", label: "Footer", icon: <Globe className="h-4 w-4" /> },
 ];
 
