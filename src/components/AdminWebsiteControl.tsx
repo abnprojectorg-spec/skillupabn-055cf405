@@ -692,3 +692,210 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════
+// Promo Manager — sub-component
+// ═══════════════════════════════════════════════════════════
+
+const ASPECT_RATIOS = ["1:1", "4:5", "16:9", "9:16", "4:3", "3:4"];
+
+function emptyAd(order: number): Omit<PromoAd, "id" | "createdAt"> {
+  return {
+    title: "",
+    description: "",
+    mediaUrl: "",
+    mediaType: "image",
+    aspectRatio: "1:1",
+    ctaText: "",
+    ctaUrl: "",
+    active: true,
+    order,
+  };
+}
+
+function PromoManager({ toast }: { toast: any }) {
+  const { ads, loading } = usePromoAds();
+  const [editing, setEditing] = useState<PromoAd | null>(null);
+  const [form, setForm] = useState<Omit<PromoAd, "id" | "createdAt"> | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const openCreate = () => {
+    setEditing(null);
+    setForm(emptyAd(ads.length));
+  };
+
+  const openEdit = (ad: PromoAd) => {
+    setEditing(ad);
+    const { id, createdAt, ...rest } = ad;
+    setForm(rest);
+  };
+
+  const close = () => {
+    setEditing(null);
+    setForm(null);
+  };
+
+  const save = async () => {
+    if (!form) return;
+    if (!form.title.trim() || !form.mediaUrl.trim()) {
+      toast({ title: "Missing fields", description: "Title and media URL are required.", variant: "destructive" });
+      return;
+    }
+    setSaving(true);
+    try {
+      if (editing) {
+        await updatePromoAd(editing.id, form);
+        toast({ title: "Updated", description: "Promo ad saved." });
+      } else {
+        await createPromoAd(form);
+        toast({ title: "Created", description: "Promo ad added." });
+      }
+      close();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+    setSaving(false);
+  };
+
+  const remove = async (ad: PromoAd) => {
+    if (!confirm(`Delete "${ad.title}"?`)) return;
+    try {
+      await deletePromoAd(ad.id);
+      toast({ title: "Deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const toggleActive = async (ad: PromoAd) => {
+    await updatePromoAd(ad.id, { active: !ad.active });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h2 className="font-display text-lg font-semibold flex items-center gap-2"><Megaphone className="h-5 w-5" /> Promo Manager</h2>
+          <p className="text-sm text-muted-foreground">Ads shown in user dashboard home (auto-rotating carousel).</p>
+        </div>
+        <Button variant="hero" size="sm" onClick={openCreate}>
+          <Plus className="h-4 w-4 mr-1" /> Add Ad
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
+      ) : ads.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border p-10 text-center text-muted-foreground">
+          <Megaphone className="h-8 w-8 mx-auto mb-3 opacity-40" />
+          <p className="text-sm">No promo ads yet. Click "Add Ad" to create one.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {ads.map((ad) => {
+            const ctr = ad.impressions ? ((ad.clicks || 0) / ad.impressions) * 100 : 0;
+            return (
+              <div key={ad.id} className="rounded-xl border border-border bg-card overflow-hidden flex flex-col">
+                <div className="relative bg-muted" style={{ aspectRatio: ad.aspectRatio.replace(":", " / ") }}>
+                  {ad.mediaType === "video" ? (
+                    <video src={ad.mediaUrl} muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <img src={ad.mediaUrl} alt={ad.title} className="absolute inset-0 w-full h-full object-cover" />
+                  )}
+                  <div className="absolute top-2 left-2">
+                    <Badge variant={ad.active ? "default" : "secondary"} className="text-xs">{ad.active ? "Live" : "Hidden"}</Badge>
+                  </div>
+                </div>
+                <div className="p-4 flex-1 flex flex-col gap-3">
+                  <div>
+                    <h3 className="font-semibold text-sm line-clamp-1">{ad.title}</h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{ad.description}</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs border-t border-border pt-3">
+                    <div><p className="font-semibold">{ad.impressions || 0}</p><p className="text-muted-foreground">Views</p></div>
+                    <div><p className="font-semibold">{ad.clicks || 0}</p><p className="text-muted-foreground">Clicks</p></div>
+                    <div><p className="font-semibold">{ctr.toFixed(1)}%</p><p className="text-muted-foreground">CTR</p></div>
+                  </div>
+                  <div className="text-[10px] text-muted-foreground flex items-center gap-2 flex-wrap">
+                    <span>📱 {ad.impressions_mobile || 0}</span>
+                    <span>💻 {ad.impressions_desktop || 0}</span>
+                    <span>📐 {ad.impressions_tablet || 0}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-auto">
+                    <Button size="sm" variant="outline" className="flex-1" onClick={() => openEdit(ad)}><Pencil className="h-3.5 w-3.5 mr-1" /> Edit</Button>
+                    <Button size="sm" variant="outline" onClick={() => toggleActive(ad)} title={ad.active ? "Hide" : "Show"}>
+                      {ad.active ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => remove(ad)}>
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Editor dialog */}
+      <Dialog open={!!form} onOpenChange={(o) => !o && close()}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit Promo Ad" : "Create Promo Ad"}</DialogTitle>
+            <DialogDescription>Shown in user dashboard home carousel.</DialogDescription>
+          </DialogHeader>
+          {form && (
+            <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+              <div>
+                <Label>Title *</Label>
+                <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="mt-1" />
+              </div>
+              <div>
+                <Label>Description</Label>
+                <Textarea rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="mt-1" />
+              </div>
+              <div>
+                <Label>Media Type</Label>
+                <select value={form.mediaType} onChange={(e) => setForm({ ...form, mediaType: e.target.value as "image" | "video" })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="image">Image</option>
+                  <option value="video">Video</option>
+                </select>
+              </div>
+              <div>
+                <Label>{form.mediaType === "video" ? "Video URL *" : "Image URL *"}</Label>
+                <Input value={form.mediaUrl} onChange={(e) => setForm({ ...form, mediaUrl: e.target.value })} className="mt-1" placeholder="https://..." />
+              </div>
+              <div>
+                <Label>Aspect Ratio</Label>
+                <select value={form.aspectRatio} onChange={(e) => setForm({ ...form, aspectRatio: e.target.value })} className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                  {ASPECT_RATIOS.map((r) => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>CTA Button Text</Label>
+                  <Input value={form.ctaText || ""} onChange={(e) => setForm({ ...form, ctaText: e.target.value })} className="mt-1" placeholder="Learn More" />
+                </div>
+                <div>
+                  <Label>CTA URL</Label>
+                  <Input value={form.ctaUrl || ""} onChange={(e) => setForm({ ...form, ctaUrl: e.target.value })} className="mt-1" placeholder="https://..." />
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-2">
+                <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
+                <Label className="cursor-pointer">Active (visible to users)</Label>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={close} disabled={saving}>Cancel</Button>
+            <Button variant="hero" onClick={save} disabled={saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+              {editing ? "Save Changes" : "Create Ad"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
