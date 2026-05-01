@@ -117,17 +117,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    recordLoginDevice(cred.user.uid);
   };
 
   const signup = async (email: string, password: string, fullName: string) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await createUserProfile(cred.user, fullName);
+    recordLoginDevice(cred.user.uid);
   };
 
   const loginWithGoogle = async () => {
     const cred = await signInWithPopup(auth, googleProvider);
     await createUserProfile(cred.user);
+    recordLoginDevice(cred.user.uid);
   };
 
   const logout = async () => {
