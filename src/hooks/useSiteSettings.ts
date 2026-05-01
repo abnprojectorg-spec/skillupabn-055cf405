@@ -46,6 +46,14 @@ export interface DesignSettings {
   headingStyle: HeadingStyle;
   fontFamily: FontFamily;
   headingFont: FontFamily;
+  // Global theme preset (single source of truth for colors site-wide)
+  themePresetId?: string;
+  // Optional explicit overrides — apply across ALL pages
+  backgroundColor?: string; // HSL
+  textColor?: string;       // HSL
+  cardColor?: string;       // HSL
+  borderColor?: string;     // HSL
+  themeMode?: "light" | "dark";
 }
 
 export interface FooterContent {

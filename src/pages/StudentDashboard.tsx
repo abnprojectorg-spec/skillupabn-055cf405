@@ -16,6 +16,7 @@ import {
 import NotificationBell from "@/components/NotificationBell";
 import UserVerificationForm from "@/components/UserVerificationForm";
 import VerificationBadge from "@/components/VerificationBadge";
+import PromoCarousel from "@/components/PromoCarousel";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
   { id: "courses", label: "My Courses", icon: BookOpen },
@@ -125,6 +126,7 @@ const StudentDashboard = () => {
             <div>
               <h1 className="font-display text-2xl font-bold mb-1">Welcome back, {displayName.split(" ")[0]}!</h1>
               <p className="text-muted-foreground mb-8">Continue your learning journey</p>
+              <PromoCarousel />
               <div className="grid gap-4 sm:grid-cols-3 mb-8">
                 <div className="rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors">
                   <BookOpen className="h-5 w-5 text-primary mb-2" />
