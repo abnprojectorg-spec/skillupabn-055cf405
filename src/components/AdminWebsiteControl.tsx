@@ -610,20 +610,19 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
                     onClick={async () => {
                       setSaving(true);
                       try {
-                        await saveSiteDesign({
+                        const next = {
                           ...design,
+                          themePresetId: preset.id,
                           primaryColor: preset.primaryColor,
                           secondaryColor: preset.secondaryColor,
                           accentColor: preset.accentColor,
                           buttonStyle: preset.buttonStyle,
-                        });
-                        setDesign({
-                          ...design,
-                          primaryColor: preset.primaryColor,
-                          secondaryColor: preset.secondaryColor,
-                          accentColor: preset.accentColor,
-                          buttonStyle: preset.buttonStyle,
-                        });
+                          backgroundColor: preset.backgroundColor,
+                          textColor: preset.textColor,
+                          themeMode: preset.mode,
+                        };
+                        await saveSiteDesign(next);
+                        setDesign(next);
                         toast({ title: "🎨 Theme Applied!", description: `"${preset.name}" is now active site-wide.` });
                       } catch (err: any) {
                         toast({ title: "Error", description: err.message, variant: "destructive" });
