@@ -191,7 +191,7 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
           <h1 className="font-display text-2xl font-bold">Website Control</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage your homepage content, design, and footer.</p>
         </div>
-        {subTab !== "templates" && subTab !== "themes" && (
+        {subTab !== "templates" && subTab !== "themes" && subTab !== "background" && (
           <Button variant="hero" onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
             Save Changes
