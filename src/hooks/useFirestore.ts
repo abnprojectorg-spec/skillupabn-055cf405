@@ -19,9 +19,15 @@ import { db } from "@/lib/firebase";
 
 // ─── Stable sort helper: latest createdAt first, fallback to id for stability ──
 function sortByCreatedDesc<T extends { id: string; createdAt?: any }>(items: T[]): T[] {
+  const ts = (v: any): number => {
+    if (!v) return 0;
+    if (typeof v.seconds === "number") return v.seconds;
+    if (typeof v.toMillis === "function") return v.toMillis() / 1000;
+    return 0;
+  };
   return [...items].sort((a, b) => {
-    const ta = a.createdAt?.seconds ?? a.createdAt?.toMillis?.() / 1000 ?? 0;
-    const tb = b.createdAt?.seconds ?? b.createdAt?.toMillis?.() / 1000 ?? 0;
+    const tb = ts(b.createdAt);
+    const ta = ts(a.createdAt);
     if (tb !== ta) return tb - ta;
     return b.id.localeCompare(a.id);
   });
