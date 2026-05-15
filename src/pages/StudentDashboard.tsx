@@ -256,12 +256,13 @@ const StudentDashboard = () => {
               {filePurchLoading || filesLoading ? (
                 <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
               ) : purchasedFiles.length > 0 ? (
+                <>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {purchasedFiles.map((file) => (
                     <Link key={file.id} to={`/file/${file.id}`} className="group">
                       <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-glow transition-all duration-300">
                         <div className="aspect-video overflow-hidden bg-secondary">
-                          <img src={file.coverImage || "/placeholder.svg"} alt={file.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          <img loading="lazy" src={file.coverImage || "/placeholder.svg"} alt={file.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         </div>
                         <div className="p-4">
                           <div className="flex items-center gap-2 mb-2">
@@ -278,6 +279,8 @@ const StudentDashboard = () => {
                     </Link>
                   ))}
                 </div>
+                <GetMoreCard to="/files" label="Get more files →" />
+                </>
               ) : (
                 <div className="py-16 text-center">
                   <FolderOpen className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
