@@ -40,14 +40,43 @@ import {
   RotateCcw, Palette, Type, MousePointer, Sun, Moon, Video, Code,
 } from "lucide-react";
 
-type SubTab = "homepage" | "design" | "templates" | "themes" | "footer";
+type SubTab = "homepage" | "design" | "background" | "templates" | "themes" | "footer";
 
 const SUB_TABS: { id: SubTab; label: string; icon: React.ReactNode }[] = [
   { id: "homepage", label: "Homepage", icon: <Layout className="h-4 w-4" /> },
   { id: "design", label: "Design", icon: <Paintbrush className="h-4 w-4" /> },
+  { id: "background", label: "Background", icon: <Video className="h-4 w-4" /> },
   { id: "templates", label: "Templates", icon: <FileText className="h-4 w-4" /> },
   { id: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
   { id: "footer", label: "Footer", icon: <Globe className="h-4 w-4" /> },
+];
+
+// Predefined CSS visual background templates (modern aesthetics)
+const BG_CSS_PRESETS: { id: string; label: string; description: string; css: string }[] = [
+  {
+    id: "glassy",
+    label: "Glassy / Glossy",
+    description: "Soft frosted gradient with light blur",
+    css: "radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.35), transparent 40%), radial-gradient(circle at 80% 60%, hsl(var(--accent) / 0.3), transparent 45%), linear-gradient(135deg, hsl(var(--background)), hsl(var(--secondary)))",
+  },
+  {
+    id: "animated-gradient",
+    label: "Animated Gradient",
+    description: "Smooth shifting multi-color gradient",
+    css: "linear-gradient(270deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary))) 0% 0% / 600% 600%",
+  },
+  {
+    id: "blur-neon",
+    label: "Blur + Neon",
+    description: "Bold neon glows on dark base",
+    css: "radial-gradient(circle at 30% 30%, #00f5ff55, transparent 30%), radial-gradient(circle at 70% 70%, #ff00d955, transparent 30%), #0a0a14",
+  },
+  {
+    id: "dark-tech",
+    label: "Dark Modern Tech",
+    description: "Subtle grid + dark gradient",
+    css: "linear-gradient(180deg, #07070d, #11111a), repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,0.04) 39px 40px), repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,0.04) 39px 40px)",
+  },
 ];
 
 const TEMPLATE_TYPE_COLORS: Record<string, string> = {
