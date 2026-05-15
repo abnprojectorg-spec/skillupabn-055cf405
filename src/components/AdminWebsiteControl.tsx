@@ -326,7 +326,117 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
         </div>
       )}
 
-      {/* ═══ HERO TEMPLATES TAB ═══ */}
+      {/* ═══ BACKGROUND TAB ═══ */}
+      {subTab === "background" && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="font-display text-lg font-semibold">Hero Background</h2>
+            <p className="text-sm text-muted-foreground">Choose what powers the homepage hero background. Applies instantly site-wide on save.</p>
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+            <div>
+              <Label>Background Type</Label>
+              <select
+                value={hero.backgroundType}
+                onChange={(e) => setHero({ ...hero, backgroundType: e.target.value as any })}
+                className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="particles">Animated Particles (default)</option>
+                <option value="video">Video Background (URL)</option>
+                <option value="image">Image Background (URL)</option>
+                <option value="css">CSS Visual Template</option>
+                <option value="gradient">Gradient CSS</option>
+                <option value="embed">Embed HTML</option>
+              </select>
+            </div>
+
+            {hero.backgroundType === "video" && (
+              <div>
+                <Label>Video URL (mp4 / webm / YouTube embed)</Label>
+                <Input value={hero.backgroundUrl} onChange={(e) => setHero({ ...hero, backgroundUrl: e.target.value })} className="mt-1" placeholder="https://cdn.../bg.mp4" />
+              </div>
+            )}
+
+            {hero.backgroundType === "image" && (
+              <div>
+                <Label>Image URL</Label>
+                <Input value={hero.backgroundUrl} onChange={(e) => setHero({ ...hero, backgroundUrl: e.target.value })} className="mt-1" placeholder="https://.../hero.jpg" />
+                {hero.backgroundUrl && (
+                  <img src={hero.backgroundUrl} loading="lazy" alt="Background preview" className="mt-3 w-full max-h-48 object-cover rounded-md border border-border" />
+                )}
+              </div>
+            )}
+
+            {hero.backgroundType === "css" && (
+              <div className="space-y-3">
+                <Label>CSS Visual Templates</Label>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {BG_CSS_PRESETS.map((p) => {
+                    const isActive = hero.backgroundUrl === p.css;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setHero({ ...hero, backgroundUrl: p.css })}
+                        className={`text-left rounded-lg border-2 overflow-hidden transition-all ${isActive ? "border-accent shadow-lg shadow-accent/10" : "border-border hover:border-primary/40"}`}
+                      >
+                        <div className="h-20" style={{ background: p.css, backgroundSize: p.id === "animated-gradient" ? "600% 600%" : undefined }} />
+                        <div className="p-3 bg-card">
+                          <p className="text-sm font-semibold">{p.label}</p>
+                          <p className="text-xs text-muted-foreground">{p.description}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div>
+                  <Label className="text-xs">Custom CSS (overrides preset)</Label>
+                  <Textarea value={hero.backgroundUrl} onChange={(e) => setHero({ ...hero, backgroundUrl: e.target.value })} className="mt-1 font-mono text-xs" rows={3} placeholder="linear-gradient(...)" />
+                </div>
+              </div>
+            )}
+
+            {hero.backgroundType === "gradient" && (
+              <div>
+                <Label>Gradient CSS</Label>
+                <Textarea value={hero.backgroundUrl} onChange={(e) => setHero({ ...hero, backgroundUrl: e.target.value })} className="mt-1 font-mono text-xs" rows={3} placeholder="linear-gradient(135deg, #4f46e5, #06b6d4)" />
+              </div>
+            )}
+
+            {hero.backgroundType === "embed" && (
+              <div>
+                <Label>Embed HTML</Label>
+                <Textarea value={hero.backgroundUrl} onChange={(e) => setHero({ ...hero, backgroundUrl: e.target.value })} className="mt-1 font-mono text-xs" rows={4} />
+              </div>
+            )}
+          </div>
+
+          {/* Live Preview */}
+          {hero.backgroundType !== "particles" && hero.backgroundUrl && (
+            <div className="rounded-xl border border-border overflow-hidden">
+              <div className="px-4 py-2 bg-secondary text-xs font-medium text-muted-foreground flex items-center gap-2">
+                <Eye className="h-3.5 w-3.5" /> Preview
+              </div>
+              {hero.backgroundType === "video" ? (
+                <video src={hero.backgroundUrl} autoPlay muted loop playsInline className="w-full max-h-64 object-cover" />
+              ) : hero.backgroundType === "image" ? (
+                <img src={hero.backgroundUrl} alt="Preview" className="w-full max-h-64 object-cover" />
+              ) : (
+                <div className="w-full h-64" style={{ background: hero.backgroundUrl }} />
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end">
+            <Button variant="hero" onClick={async () => { setSaving(true); try { await saveSiteHomepage({ hero, sections }); toast({ title: "Background published!", description: "Live across the homepage." }); } catch (e: any) { toast({ title: "Error", description: e.message, variant: "destructive" }); } setSaving(false); }} disabled={saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Rocket className="h-4 w-4 mr-2" />}
+              Publish Background
+            </Button>
+          </div>
+        </div>
+      )}
+
       {subTab === "templates" && (
         <div className="space-y-6">
           <div className="flex items-center justify-between flex-wrap gap-3">
