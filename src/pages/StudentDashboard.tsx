@@ -416,6 +416,7 @@ const StudentDashboard = () => {
       </div>
       <Footer />
     </div>
+    </TooltipProvider>
   );
 };
 
