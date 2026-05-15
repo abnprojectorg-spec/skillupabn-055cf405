@@ -92,49 +92,58 @@ const StudentDashboard = () => {
   const initials = displayName.split(" ").map((n) => n[0]).join("").slice(0, 2);
 
   return (
+    <TooltipProvider delayDuration={150}>
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="flex pt-16">
-        {/* Sidebar */}
-        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card min-h-screen p-4 sticky top-0">
-          <div className="flex items-center justify-between p-3 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary text-sm font-bold text-primary-foreground">
+        {/* Icon-only sidebar */}
+        <aside className="hidden md:flex w-20 flex-col items-center border-r border-border bg-card min-h-screen p-3 sticky top-0 gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary text-sm font-bold text-primary-foreground mb-2">
                 {initials}
               </div>
-              <div>
-                <p className="text-sm font-semibold">{displayName}</p>
-                <p className="text-xs text-muted-foreground">{user.email}</p>
-              </div>
-            </div>
-            <NotificationBell userId={user.uid} />
-          </div>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p className="text-xs font-semibold">{displayName}</p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+            </TooltipContent>
+          </Tooltip>
+          <NotificationBell userId={user.uid} />
+          <div className="h-px w-8 bg-border my-2" />
           {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 mb-1 ${
-                activeTab === tab.id ? "bg-primary text-primary-foreground shadow-glow" : "text-muted-foreground hover:bg-secondary"
-              }`}
-            >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </button>
+            <Tooltip key={tab.id}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setActiveTab(tab.id)}
+                  aria-label={tab.label}
+                  className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? "bg-primary text-primary-foreground shadow-glow scale-105"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  }`}
+                >
+                  <tab.icon className="h-5 w-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right"><p className="text-xs">{tab.label}</p></TooltipContent>
+            </Tooltip>
           ))}
         </aside>
 
-        {/* Mobile tabs */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-border bg-card md:hidden">
+        {/* Mobile bottom nav (icon-only, scrollable) */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-border bg-card md:hidden overflow-x-auto">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-1 flex-col items-center gap-1 py-3 text-xs transition-colors ${
+              aria-label={tab.label}
+              title={tab.label}
+              className={`flex flex-1 min-w-[56px] flex-col items-center justify-center py-3 transition-colors ${
                 activeTab === tab.id ? "text-accent" : "text-muted-foreground"
               }`}
             >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
+              <tab.icon className={`h-5 w-5 ${activeTab === tab.id ? "drop-shadow-[0_0_6px_hsl(var(--accent))]" : ""}`} />
             </button>
           ))}
         </div>
