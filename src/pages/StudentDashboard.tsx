@@ -11,20 +11,40 @@ import { useCourses, useEnrollments, useCommunityLinks, useEbooks, useDigitalFil
 import { useNewsPosts, toggleLike, addComment, type NewsComment } from "@/hooks/useNews";
 import { COMMUNITY_LINKS } from "@/data/mockData";
 import {
-  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send, BookMarked, Download, Mail,
+  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send, BookMarked, Download, Mail, ArrowRight,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import UserVerificationForm from "@/components/UserVerificationForm";
 import VerificationBadge from "@/components/VerificationBadge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
   { id: "courses", label: "My Courses", icon: BookOpen },
   { id: "ebooks", label: "My Ebooks", icon: BookMarked },
   { id: "files", label: "My Files", icon: FolderOpen },
+  { id: "certificates", label: "Certificates", icon: Award },
   { id: "news", label: "News", icon: Newspaper },
   { id: "community", label: "Community", icon: Users },
   { id: "profile", label: "Profile", icon: User },
 ];
+
+// Soft CTA card pointing user to the public catalog page
+function GetMoreCard({ to, label }: { to: string; label: string }) {
+  return (
+    <Link
+      to={to}
+      className="group mt-8 flex items-center justify-between gap-3 rounded-2xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/5 to-accent/5 p-5 transition-all hover:border-primary/70 hover:shadow-glow w-full sm:w-auto"
+    >
+      <div>
+        <p className="font-display text-base font-semibold">{label}</p>
+        <p className="text-xs text-muted-foreground">Discover more on the marketplace</p>
+      </div>
+      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform group-hover:translate-x-1">
+        <ArrowRight className="h-4 w-4" />
+      </span>
+    </Link>
+  );
+}
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
