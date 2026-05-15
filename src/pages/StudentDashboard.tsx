@@ -216,12 +216,13 @@ const StudentDashboard = () => {
               {ebookPurchLoading || ebooksLoading ? (
                 <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
               ) : purchasedEbooks.length > 0 ? (
+                <>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {purchasedEbooks.map((ebook) => (
                     <Link key={ebook.id} to={`/ebook/${ebook.id}`} className="group">
                       <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-glow transition-all duration-300">
                         <div className="aspect-[3/4] overflow-hidden bg-secondary">
-                          <img src={ebook.coverImage || "/placeholder.svg"} alt={ebook.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          <img loading="lazy" src={ebook.coverImage || "/placeholder.svg"} alt={ebook.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         </div>
                         <div className="p-4">
                           <h3 className="font-display font-semibold text-sm mb-1 line-clamp-2 group-hover:text-accent transition-colors">{ebook.title}</h3>
@@ -237,6 +238,8 @@ const StudentDashboard = () => {
                     </Link>
                   ))}
                 </div>
+                <GetMoreCard to="/ebooks" label="Get more ebooks →" />
+                </>
               ) : (
                 <div className="py-16 text-center">
                   <BookMarked className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
