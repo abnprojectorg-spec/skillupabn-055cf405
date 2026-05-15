@@ -11,20 +11,40 @@ import { useCourses, useEnrollments, useCommunityLinks, useEbooks, useDigitalFil
 import { useNewsPosts, toggleLike, addComment, type NewsComment } from "@/hooks/useNews";
 import { COMMUNITY_LINKS } from "@/data/mockData";
 import {
-  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send, BookMarked, Download, Mail,
+  Home, BookOpen, FolderOpen, Users, User, Award, ExternalLink, GraduationCap, Loader2, Newspaper, Heart, MessageSquare, Send, BookMarked, Download, Mail, ArrowRight,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import UserVerificationForm from "@/components/UserVerificationForm";
 import VerificationBadge from "@/components/VerificationBadge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 const TABS = [
   { id: "home", label: "Home", icon: Home },
   { id: "courses", label: "My Courses", icon: BookOpen },
   { id: "ebooks", label: "My Ebooks", icon: BookMarked },
   { id: "files", label: "My Files", icon: FolderOpen },
+  { id: "certificates", label: "Certificates", icon: Award },
   { id: "news", label: "News", icon: Newspaper },
   { id: "community", label: "Community", icon: Users },
   { id: "profile", label: "Profile", icon: User },
 ];
+
+// Soft CTA card pointing user to the public catalog page
+function GetMoreCard({ to, label }: { to: string; label: string }) {
+  return (
+    <Link
+      to={to}
+      className="group mt-8 flex items-center justify-between gap-3 rounded-2xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/5 to-accent/5 p-5 transition-all hover:border-primary/70 hover:shadow-glow w-full sm:w-auto"
+    >
+      <div>
+        <p className="font-display text-base font-semibold">{label}</p>
+        <p className="text-xs text-muted-foreground">Discover more on the marketplace</p>
+      </div>
+      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform group-hover:translate-x-1">
+        <ArrowRight className="h-4 w-4" />
+      </span>
+    </Link>
+  );
+}
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -72,49 +92,58 @@ const StudentDashboard = () => {
   const initials = displayName.split(" ").map((n) => n[0]).join("").slice(0, 2);
 
   return (
+    <TooltipProvider delayDuration={150}>
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="flex pt-16">
-        {/* Sidebar */}
-        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card min-h-screen p-4 sticky top-0">
-          <div className="flex items-center justify-between p-3 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary text-sm font-bold text-primary-foreground">
+        {/* Icon-only sidebar */}
+        <aside className="hidden md:flex w-20 flex-col items-center border-r border-border bg-card min-h-screen p-3 sticky top-0 gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary text-sm font-bold text-primary-foreground mb-2">
                 {initials}
               </div>
-              <div>
-                <p className="text-sm font-semibold">{displayName}</p>
-                <p className="text-xs text-muted-foreground">{user.email}</p>
-              </div>
-            </div>
-            <NotificationBell userId={user.uid} />
-          </div>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p className="text-xs font-semibold">{displayName}</p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+            </TooltipContent>
+          </Tooltip>
+          <NotificationBell userId={user.uid} />
+          <div className="h-px w-8 bg-border my-2" />
           {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 mb-1 ${
-                activeTab === tab.id ? "bg-primary text-primary-foreground shadow-glow" : "text-muted-foreground hover:bg-secondary"
-              }`}
-            >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </button>
+            <Tooltip key={tab.id}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setActiveTab(tab.id)}
+                  aria-label={tab.label}
+                  className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? "bg-primary text-primary-foreground shadow-glow scale-105"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  }`}
+                >
+                  <tab.icon className="h-5 w-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right"><p className="text-xs">{tab.label}</p></TooltipContent>
+            </Tooltip>
           ))}
         </aside>
 
-        {/* Mobile tabs */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-border bg-card md:hidden">
+        {/* Mobile bottom nav (icon-only, scrollable) */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-border bg-card md:hidden overflow-x-auto">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-1 flex-col items-center gap-1 py-3 text-xs transition-colors ${
+              aria-label={tab.label}
+              title={tab.label}
+              className={`flex flex-1 min-w-[56px] flex-col items-center justify-center py-3 transition-colors ${
                 activeTab === tab.id ? "text-accent" : "text-muted-foreground"
               }`}
             >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
+              <tab.icon className={`h-5 w-5 ${activeTab === tab.id ? "drop-shadow-[0_0_6px_hsl(var(--accent))]" : ""}`} />
             </button>
           ))}
         </div>
@@ -165,9 +194,12 @@ const StudentDashboard = () => {
               {enrollLoading ? (
                 <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
               ) : enrolledCourses.length > 0 ? (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {enrolledCourses.map((c) => <CourseCard key={c.id} course={c} isUnlocked />)}
-                </div>
+                <>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {enrolledCourses.map((c) => <CourseCard key={c.id} course={c} isUnlocked />)}
+                  </div>
+                  <GetMoreCard to="/marketplace" label="Get more courses →" />
+                </>
               ) : (
                 <div className="py-16 text-center">
                   <BookOpen className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
@@ -184,12 +216,13 @@ const StudentDashboard = () => {
               {ebookPurchLoading || ebooksLoading ? (
                 <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
               ) : purchasedEbooks.length > 0 ? (
+                <>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {purchasedEbooks.map((ebook) => (
                     <Link key={ebook.id} to={`/ebook/${ebook.id}`} className="group">
                       <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-glow transition-all duration-300">
                         <div className="aspect-[3/4] overflow-hidden bg-secondary">
-                          <img src={ebook.coverImage || "/placeholder.svg"} alt={ebook.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          <img loading="lazy" src={ebook.coverImage || "/placeholder.svg"} alt={ebook.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         </div>
                         <div className="p-4">
                           <h3 className="font-display font-semibold text-sm mb-1 line-clamp-2 group-hover:text-accent transition-colors">{ebook.title}</h3>
@@ -205,6 +238,8 @@ const StudentDashboard = () => {
                     </Link>
                   ))}
                 </div>
+                <GetMoreCard to="/ebooks" label="Get more ebooks →" />
+                </>
               ) : (
                 <div className="py-16 text-center">
                   <BookMarked className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
@@ -221,12 +256,13 @@ const StudentDashboard = () => {
               {filePurchLoading || filesLoading ? (
                 <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
               ) : purchasedFiles.length > 0 ? (
+                <>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {purchasedFiles.map((file) => (
                     <Link key={file.id} to={`/file/${file.id}`} className="group">
                       <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 hover:shadow-glow transition-all duration-300">
                         <div className="aspect-video overflow-hidden bg-secondary">
-                          <img src={file.coverImage || "/placeholder.svg"} alt={file.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          <img loading="lazy" src={file.coverImage || "/placeholder.svg"} alt={file.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         </div>
                         <div className="p-4">
                           <div className="flex items-center gap-2 mb-2">
@@ -243,6 +279,8 @@ const StudentDashboard = () => {
                     </Link>
                   ))}
                 </div>
+                <GetMoreCard to="/files" label="Get more files →" />
+                </>
               ) : (
                 <div className="py-16 text-center">
                   <FolderOpen className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
@@ -250,6 +288,23 @@ const StudentDashboard = () => {
                   <Link to="/files"><Button variant="hero">Browse Files</Button></Link>
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === "certificates" && (
+            <div>
+              <h1 className="font-display text-2xl font-bold mb-2">Certificates</h1>
+              <p className="text-muted-foreground mb-6">Earn certificates by completing courses and submitting projects.</p>
+              <div className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center max-w-2xl">
+                <Award className="mx-auto h-14 w-14 text-accent/40 mb-4" />
+                <h2 className="font-display text-xl font-bold mb-2">Coming Soon</h2>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Your earned certificates will appear here. PDF downloads will be enabled once certification is fully launched.
+                </p>
+                <Button variant="outline" disabled className="opacity-60">
+                  <Download className="h-4 w-4 mr-2" /> Download PDF (disabled)
+                </Button>
+              </div>
             </div>
           )}
 
@@ -361,6 +416,7 @@ const StudentDashboard = () => {
       </div>
       <Footer />
     </div>
+    </TooltipProvider>
   );
 };
 

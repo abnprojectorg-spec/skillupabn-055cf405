@@ -60,6 +60,7 @@ const ADMIN_TABS = [
   { id: "files", label: "Files", icon: FolderOpen },
   { id: "file-payments", label: "File Payments", icon: CreditCard },
   { id: "projects", label: "Projects", icon: Award },
+  { id: "certificates", label: "Certificates", icon: Award },
   { id: "community", label: "Community Links", icon: Link2 },
   { id: "collaborations", label: "Collaborations", icon: Handshake },
   { id: "referral-codes", label: "Referral Codes", icon: Tag },
@@ -434,6 +435,39 @@ const AdminPanel = () => {
         <main className="flex-1 p-6">
           {/* Messages */}
           {activeTab === "messages" && <AdminChat />}
+
+          {/* Certificates (admin) */}
+          {activeTab === "certificates" && (
+            <div>
+              <h1 className="font-display text-2xl font-bold mb-2">Certificate Management</h1>
+              <p className="text-muted-foreground mb-6">Configure templates, assign to courses, and track issued certificates.</p>
+              <div className="grid gap-4 sm:grid-cols-2 max-w-3xl">
+                <div className="rounded-xl border border-border bg-card p-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold">Certificate System</h3>
+                    <Badge variant="secondary">Disabled</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-4">Toggle the global certificate engine on/off.</p>
+                  <Button variant="outline" size="sm" disabled>Enable (coming soon)</Button>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-5">
+                  <h3 className="font-semibold mb-2">Templates</h3>
+                  <p className="text-xs text-muted-foreground mb-4">Design certificate templates per course.</p>
+                  <Button variant="outline" size="sm" disabled>Configure (coming soon)</Button>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-5">
+                  <h3 className="font-semibold mb-2">Assign to Courses</h3>
+                  <p className="text-xs text-muted-foreground mb-4">Choose which courses award certificates.</p>
+                  <Button variant="outline" size="sm" disabled>Manage (coming soon)</Button>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-5">
+                  <h3 className="font-semibold mb-2">Issued Certificates</h3>
+                  <p className="text-xs text-muted-foreground mb-4">Track and revoke issued certificates. PDF generation pending.</p>
+                  <Button variant="outline" size="sm" disabled>View (coming soon)</Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* News */}
           {activeTab === "news" && <AdminNews toast={toast} />}
