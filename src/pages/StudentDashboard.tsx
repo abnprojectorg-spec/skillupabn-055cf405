@@ -291,6 +291,23 @@ const StudentDashboard = () => {
             </div>
           )}
 
+          {activeTab === "certificates" && (
+            <div>
+              <h1 className="font-display text-2xl font-bold mb-2">Certificates</h1>
+              <p className="text-muted-foreground mb-6">Earn certificates by completing courses and submitting projects.</p>
+              <div className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center max-w-2xl">
+                <Award className="mx-auto h-14 w-14 text-accent/40 mb-4" />
+                <h2 className="font-display text-xl font-bold mb-2">Coming Soon</h2>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Your earned certificates will appear here. PDF downloads will be enabled once certification is fully launched.
+                </p>
+                <Button variant="outline" disabled className="opacity-60">
+                  <Download className="h-4 w-4 mr-2" /> Download PDF (disabled)
+                </Button>
+              </div>
+            </div>
+          )}
+
           {activeTab === "news" && (
             <div>
               <h1 className="font-display text-2xl font-bold mb-6">News & Updates</h1>
