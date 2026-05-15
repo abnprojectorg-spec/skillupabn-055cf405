@@ -194,9 +194,12 @@ const StudentDashboard = () => {
               {enrollLoading ? (
                 <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
               ) : enrolledCourses.length > 0 ? (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {enrolledCourses.map((c) => <CourseCard key={c.id} course={c} isUnlocked />)}
-                </div>
+                <>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {enrolledCourses.map((c) => <CourseCard key={c.id} course={c} isUnlocked />)}
+                  </div>
+                  <GetMoreCard to="/marketplace" label="Get more courses →" />
+                </>
               ) : (
                 <div className="py-16 text-center">
                   <BookOpen className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
