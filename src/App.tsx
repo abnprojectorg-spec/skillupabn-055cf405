@@ -21,6 +21,7 @@ import FilesPage from "./pages/FilesPage";
 import FileDetailPage from "./pages/FileDetailPage";
 import FileDownloadPage from "./pages/FileDownloadPage";
 import NewsPage from "./pages/NewsPage";
+import PricingPage from "./pages/PricingPage";
 import PlaylistDetailPage from "./pages/PlaylistDetailPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
