@@ -22,6 +22,7 @@ import {
   type DesignSettings,
   type FooterContent,
 } from "@/hooks/useSiteSettings";
+import { usePricingPage, savePricingPage, DEFAULT_PRICING, type PricingPageSettings, type PricingEmbedType } from "@/hooks/usePricingPage";
 import {
   useHeroTemplates,
   publishHeroTemplate,
