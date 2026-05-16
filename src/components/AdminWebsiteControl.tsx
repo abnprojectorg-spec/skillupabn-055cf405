@@ -144,6 +144,11 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
   const [previewTemplate, setPreviewTemplate] = useState<HeroTemplate | null>(null);
   const [templateSaving, setTemplateSaving] = useState(false);
 
+  // Pricing page manager
+  const [pricing, setPricing] = useState<PricingPageSettings>(DEFAULT_PRICING);
+  const [pricingPreview, setPricingPreview] = useState(false);
+  const [pricingSaving, setPricingSaving] = useState(false);
+
   useEffect(() => {
     if (!loading) {
       setHero(settings.homepage.hero);
@@ -152,6 +157,10 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
       setFooter(settings.footer);
     }
   }, [loading, settings]);
+
+  useEffect(() => {
+    if (!pricingLoading) setPricing(pricingRemote);
+  }, [pricingLoading, pricingRemote]);
 
   const handleSave = async () => {
     setSaving(true);
