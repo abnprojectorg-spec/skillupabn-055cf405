@@ -27,6 +27,7 @@ const Navbar = () => {
     { href: "/ebooks", label: "Ebooks" },
     { href: "/files", label: "Files" },
     { href: "/news", label: "News" },
+    { href: "/pricing", label: "Pricing" },
     { href: "/dashboard", label: "Dashboard" },
   ];
 
