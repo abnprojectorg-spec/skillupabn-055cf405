@@ -40,7 +40,7 @@ import {
   RotateCcw, Palette, Type, MousePointer, Sun, Moon, Video, Code,
 } from "lucide-react";
 
-type SubTab = "homepage" | "design" | "background" | "templates" | "themes" | "footer";
+type SubTab = "homepage" | "design" | "background" | "templates" | "themes" | "pricing" | "footer";
 
 const SUB_TABS: { id: SubTab; label: string; icon: React.ReactNode }[] = [
   { id: "homepage", label: "Homepage", icon: <Layout className="h-4 w-4" /> },
@@ -48,6 +48,7 @@ const SUB_TABS: { id: SubTab; label: string; icon: React.ReactNode }[] = [
   { id: "background", label: "Background", icon: <Video className="h-4 w-4" /> },
   { id: "templates", label: "Templates", icon: <FileText className="h-4 w-4" /> },
   { id: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
+  { id: "pricing", label: "Pricing Page", icon: <Rocket className="h-4 w-4" /> },
   { id: "footer", label: "Footer", icon: <Globe className="h-4 w-4" /> },
 ];
 
