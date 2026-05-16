@@ -21,6 +21,7 @@ import FilesPage from "./pages/FilesPage";
 import FileDetailPage from "./pages/FileDetailPage";
 import FileDownloadPage from "./pages/FileDownloadPage";
 import NewsPage from "./pages/NewsPage";
+import PricingPage from "./pages/PricingPage";
 import PlaylistDetailPage from "./pages/PlaylistDetailPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/file/:id" element={<FileDetailPage />} />
               <Route path="/download-file/:id" element={<FileDownloadPage />} />
               <Route path="/news" element={<NewsPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/terms" element={<TermsPage />} />

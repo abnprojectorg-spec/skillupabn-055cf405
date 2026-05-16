@@ -22,6 +22,7 @@ import {
   type DesignSettings,
   type FooterContent,
 } from "@/hooks/useSiteSettings";
+import { usePricingPage, savePricingPage, DEFAULT_PRICING, type PricingPageSettings, type PricingEmbedType } from "@/hooks/usePricingPage";
 import {
   useHeroTemplates,
   publishHeroTemplate,
@@ -40,7 +41,7 @@ import {
   RotateCcw, Palette, Type, MousePointer, Sun, Moon, Video, Code,
 } from "lucide-react";
 
-type SubTab = "homepage" | "design" | "background" | "templates" | "themes" | "footer";
+type SubTab = "homepage" | "design" | "background" | "templates" | "themes" | "pricing" | "footer";
 
 const SUB_TABS: { id: SubTab; label: string; icon: React.ReactNode }[] = [
   { id: "homepage", label: "Homepage", icon: <Layout className="h-4 w-4" /> },
@@ -48,6 +49,7 @@ const SUB_TABS: { id: SubTab; label: string; icon: React.ReactNode }[] = [
   { id: "background", label: "Background", icon: <Video className="h-4 w-4" /> },
   { id: "templates", label: "Templates", icon: <FileText className="h-4 w-4" /> },
   { id: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
+  { id: "pricing", label: "Pricing Page", icon: <Rocket className="h-4 w-4" /> },
   { id: "footer", label: "Footer", icon: <Globe className="h-4 w-4" /> },
 ];
 
@@ -125,6 +127,7 @@ const FIELD_LABELS: Record<string, string> = {
 export default function AdminWebsiteControl({ toast }: { toast: any }) {
   const { settings, loading } = useSiteSettings();
   const { state: heroState, loading: heroLoading } = useHeroTemplates();
+  const { pricing: pricingRemote, loading: pricingLoading } = usePricingPage();
   const [subTab, setSubTab] = useState<SubTab>("homepage");
   const [saving, setSaving] = useState(false);
 
@@ -141,6 +144,11 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
   const [previewTemplate, setPreviewTemplate] = useState<HeroTemplate | null>(null);
   const [templateSaving, setTemplateSaving] = useState(false);
 
+  // Pricing page manager
+  const [pricing, setPricing] = useState<PricingPageSettings>(DEFAULT_PRICING);
+  const [pricingPreview, setPricingPreview] = useState(false);
+  const [pricingSaving, setPricingSaving] = useState(false);
+
   useEffect(() => {
     if (!loading) {
       setHero(settings.homepage.hero);
@@ -149,6 +157,10 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
       setFooter(settings.footer);
     }
   }, [loading, settings]);
+
+  useEffect(() => {
+    if (!pricingLoading) setPricing(pricingRemote);
+  }, [pricingLoading, pricingRemote]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -191,7 +203,7 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
           <h1 className="font-display text-2xl font-bold">Website Control</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage your homepage content, design, and footer.</p>
         </div>
-        {subTab !== "templates" && subTab !== "themes" && subTab !== "background" && (
+        {subTab !== "templates" && subTab !== "themes" && subTab !== "background" && subTab !== "pricing" && (
           <Button variant="hero" onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
             Save Changes
@@ -776,6 +788,103 @@ export default function AdminWebsiteControl({ toast }: { toast: any }) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Pricing Page Manager */}
+      {subTab === "pricing" && (
+        <div className="space-y-6">
+          <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <h2 className="font-display text-lg font-semibold flex items-center gap-2"><Rocket className="h-5 w-5 text-primary" /> Pricing Page Manager</h2>
+                <p className="text-sm text-muted-foreground mt-1">Control the embedded creator pricing landing page shown at <code className="text-xs bg-muted px-1.5 py-0.5 rounded">/pricing</code>. Updates apply globally in real-time.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label className="text-sm">Published</Label>
+                <Switch checked={pricing.published} onCheckedChange={(v) => setPricing({ ...pricing, published: v })} />
+              </div>
+            </div>
+
+            <div>
+              <Label>Embed Type</Label>
+              <select
+                value={pricing.embedType}
+                onChange={(e) => setPricing({ ...pricing, embedType: e.target.value as PricingEmbedType })}
+                className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="html">Full HTML / Landing Page Code</option>
+                <option value="iframe">iframe Embed Code</option>
+                <option value="url">Hosted External Page URL</option>
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                {pricing.embedType === "url" && "Paste a full URL (https://...). It will be loaded inside an iframe."}
+                {pricing.embedType === "iframe" && "Paste raw <iframe ...></iframe> code from your hosted pricing page."}
+                {pricing.embedType === "html" && "Paste a complete HTML block (cards, styles, scripts). It will be injected as-is."}
+              </p>
+            </div>
+
+            <div>
+              <Label>{pricing.embedType === "url" ? "Page URL" : "Embed Code"}</Label>
+              {pricing.embedType === "url" ? (
+                <Input
+                  value={pricing.embedCode}
+                  onChange={(e) => setPricing({ ...pricing, embedCode: e.target.value })}
+                  placeholder="https://your-pricing-page.com"
+                  className="mt-1"
+                />
+              ) : (
+                <Textarea
+                  value={pricing.embedCode}
+                  onChange={(e) => setPricing({ ...pricing, embedCode: e.target.value })}
+                  placeholder={pricing.embedType === "iframe" ? '<iframe src="..." width="100%" height="800"></iframe>' : "<section>...your full pricing HTML...</section>"}
+                  className="mt-1 font-mono text-xs min-h-[260px]"
+                />
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="hero"
+                onClick={async () => {
+                  setPricingSaving(true);
+                  try {
+                    await savePricingPage(pricing);
+                    toast({ title: "Pricing page saved!", description: "Live globally on /pricing." });
+                  } catch (e: any) {
+                    toast({ title: "Error", description: e.message, variant: "destructive" });
+                  }
+                  setPricingSaving(false);
+                }}
+                disabled={pricingSaving}
+              >
+                {pricingSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                Save & Publish
+              </Button>
+              <Button variant="outline" onClick={() => setPricingPreview(true)} disabled={!pricing.embedCode.trim()}>
+                <Eye className="h-4 w-4 mr-2" /> Preview
+              </Button>
+              <Button variant="ghost" onClick={() => setPricing(DEFAULT_PRICING)}>
+                <RotateCcw className="h-4 w-4 mr-2" /> Reset
+              </Button>
+            </div>
+          </div>
+
+          <Dialog open={pricingPreview} onOpenChange={setPricingPreview}>
+            <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Pricing Page Preview</DialogTitle>
+                <DialogDescription>This is exactly how the /pricing page will appear to users.</DialogDescription>
+              </DialogHeader>
+              <div className="rounded-lg border border-border overflow-hidden bg-background">
+                {pricing.embedType === "url" ? (
+                  <iframe src={pricing.embedCode} className="w-full min-h-[70vh]" title="Pricing preview" />
+                ) : (
+                  <div dangerouslySetInnerHTML={{ __html: pricing.embedCode }} />
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
 
