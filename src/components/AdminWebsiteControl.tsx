@@ -127,6 +127,7 @@ const FIELD_LABELS: Record<string, string> = {
 export default function AdminWebsiteControl({ toast }: { toast: any }) {
   const { settings, loading } = useSiteSettings();
   const { state: heroState, loading: heroLoading } = useHeroTemplates();
+  const { pricing: pricingRemote, loading: pricingLoading } = usePricingPage();
   const [subTab, setSubTab] = useState<SubTab>("homepage");
   const [saving, setSaving] = useState(false);
 
